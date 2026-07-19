@@ -31,6 +31,12 @@
   text-align: left;
   text-transform: uppercase;
   cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.accordion__trigger:hover,
+.accordion__trigger:focus-visible {
+  color: var(--color-accent);
 }
 
 .accordion__trigger:focus-visible {
@@ -49,10 +55,17 @@
   color: var(--color-accent);
 }
 
+/* Timing del original: max-height 0.5s ease al expandir/contraer */
 .accordion__panel {
-  padding: 0 0 1rem;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease;
 }
 
-.accordion__panel[hidden] {
-  display: none;
+.accordion__panel--open {
+  max-height: 2000px;
+}
+
+.accordion__panel-inner {
+  padding: 0 0 1rem;
 }

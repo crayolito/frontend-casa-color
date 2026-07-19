@@ -1,0 +1,16 @@
+:host {
+  display: block;
+}
+
+.decor-divider {
+  display: flex;
+  justify-content: center;
+  /* Original Salient: data-top-percent / data-bottom-percent = 5% */
+  padding-block: calc(100vw * 0.05);
+  padding-inline: 1rem;
+}
+
+.decor-divider__img {
+  width: min(552px, 100%);
+  height: auto;
+}

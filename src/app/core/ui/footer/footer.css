@@ -14,8 +14,8 @@
 }
 
 .footer__logo {
-  width: auto;
-  height: 48px;
+  width: 100px;
+  height: 102px;
 }
 
 .footer__heading {
@@ -45,12 +45,13 @@
   padding: 0;
 }
 
+/* Original: links de widgets blancos; hover al accent (no el rojo global de styles.css) */
 .footer__phones a,
 .footer__links a {
   display: inline-flex;
   min-height: 32px;
   align-items: center;
-  color: #cfcfcf;
+  color: #ffffff;
   font-size: 0.875rem;
   text-decoration: none;
 }
@@ -59,13 +60,13 @@
 .footer__links a:hover,
 .footer__phones a:focus-visible,
 .footer__links a:focus-visible {
-  color: var(--color-white);
+  color: var(--color-accent);
   text-decoration: underline;
 }
 
 .footer__copyright {
   background: var(--bg-footer-copyright);
-  color: #9a9a9a;
+  color: #a0a0a0;
   padding: 1rem 0;
   font-size: 0.75rem;
 }
@@ -79,40 +80,23 @@
 
 .footer__copyright p {
   margin: 0;
+  color: #a0a0a0;
 }
 
-.footer__social {
-  display: flex;
-  gap: 0.75rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.footer__social a {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  color: #cfcfcf;
+.footer__copyright a {
+  color: #a0a0a0;
   text-decoration: none;
 }
 
-.footer__social a:hover,
-.footer__social a:focus-visible {
+.footer__copyright a:hover,
+.footer__copyright a:focus-visible {
   color: var(--color-white);
+  text-decoration: underline;
 }
 
 @media (min-width: 691px) {
   .footer__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .footer__copyright-inner {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
   }
 }
 

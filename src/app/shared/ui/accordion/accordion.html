@@ -1,5 +1,5 @@
 <div class="accordion">
-  <h4 class="accordion__heading">
+  <h3 class="accordion__heading">
     <button
       type="button"
       class="accordion__trigger"
@@ -10,15 +10,18 @@
       <span class="accordion__title">{{ title() }}</span>
       <span class="accordion__icon" aria-hidden="true">{{ open() ? '−' : '+' }}</span>
     </button>
-  </h4>
+  </h3>
 
   <div
     class="accordion__panel"
     role="region"
     [id]="panelId()"
+    [class.accordion__panel--open]="open()"
     [attr.aria-hidden]="!open()"
-    [hidden]="!open()"
+    [attr.inert]="open() ? null : ''"
   >
-    <ng-content />
+    <div class="accordion__panel-inner">
+      <ng-content />
+    </div>
   </div>
 </div>

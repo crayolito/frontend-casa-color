@@ -1,6 +1,6 @@
 import { A11yModule } from '@angular/cdk/a11y';
 import { Component, input, output } from '@angular/core';
-import { NavItem } from '../../../shared/util/data/home-data';
+import { MobileNavItem } from '../../../shared/util/data/home-data';
 
 @Component({
   selector: 'app-mobile-menu',
@@ -9,7 +9,7 @@ import { NavItem } from '../../../shared/util/data/home-data';
   styleUrl: './mobile-menu.css',
 })
 export class MobileMenu {
-  readonly items = input.required<NavItem[]>();
+  readonly items = input.required<MobileNavItem[]>();
   readonly closed = output<void>();
 
   protected close(): void {

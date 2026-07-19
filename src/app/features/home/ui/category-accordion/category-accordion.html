@@ -2,25 +2,56 @@
   <app-container>
     <div class="categories__grid">
       @for (line of lines(); track line.title) {
-        <div class="categories__column">
-          <h3 class="categories__title">{{ line.title }}</h3>
-          <p class="categories__desc">{{ line.description }}</p>
+        <div class="categories__column" appReveal>
+          <h4 class="categories__title">{{ line.title }}</h4>
 
-          @for (group of line.groups; track group.title; let i = $index) {
-            <app-accordion
-              [title]="group.title"
-              [initiallyOpen]="i === 0"
-              [panelId]="'cat-' + line.title + '-' + i"
-            >
-              <ul class="categories__products">
-                @for (product of group.products; track product) {
-                  <li>
-                    <a href="#">{{ product }}</a>
-                  </li>
-                }
-              </ul>
-            </app-accordion>
-          }
+          <a
+            class="categories__arrow"
+            [href]="line.href"
+            [attr.aria-label]="'Ir a ' + line.title"
+          >
+            <img src="/img/decor/flecha-roja.png" alt="" width="70" height="70" />
+          </a>
+
+          <div class="categories__spacer" aria-hidden="true"></div>
+
+          <a class="categories__logo-link" [href]="line.href">
+            <img
+              class="categories__logo"
+              [src]="line.logo"
+              [alt]="'Logo ' + line.title"
+              width="354"
+              height="354"
+            />
+          </a>
+
+          <h6 class="categories__desc">{{ line.description }}</h6>
+
+          <a
+            class="categories__arrow"
+            [href]="line.href"
+            [attr.aria-label]="'Ver más de ' + line.title"
+          >
+            <img src="/img/decor/flecha-roja-circulo.png" alt="" width="70" height="70" />
+          </a>
+
+          <div class="categories__groups">
+            @for (group of line.groups; track group.title; let i = $index) {
+              <app-accordion
+                [title]="group.title"
+                [initiallyOpen]="i === 0"
+                [panelId]="'cat-' + line.title + '-' + i"
+              >
+                <ul class="categories__products">
+                  @for (product of group.products; track product) {
+                    <li>
+                      <a href="#">{{ product }}</a>
+                    </li>
+                  }
+                </ul>
+              </app-accordion>
+            }
+          </div>
         </div>
       }
     </div>

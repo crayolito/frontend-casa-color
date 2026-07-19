@@ -1,6 +1,7 @@
 import {
   Component,
   DestroyRef,
+  ElementRef,
   inject,
   input,
   OnInit,
@@ -8,35 +9,33 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval } from 'rxjs';
-import { Button } from '../../../../shared/ui/button/button';
 import { HeroSlide } from '../../../../shared/util/data/home-data';
 
 @Component({
   selector: 'app-hero-slider',
-  imports: [Button],
   templateUrl: './hero-slider.html',
   styleUrl: './hero-slider.css',
 })
 export class HeroSlider implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   readonly slides = input.required<HeroSlide[]>();
 
   protected readonly current = signal(0);
   protected readonly paused = signal(false);
-  private prefersReducedMotion = false;
 
   ngOnInit(): void {
-    this.prefersReducedMotion =
+    const prefersReducedMotion =
       typeof window !== 'undefined' &&
       typeof window.matchMedia === 'function' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    if (this.prefersReducedMotion) {
+    if (prefersReducedMotion) {
       return;
     }
 
-    interval(5000)
+    interval(4000)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         if (!this.paused() && this.slides().length > 1) {
@@ -70,6 +69,12 @@ export class HeroSlider implements OnInit {
   }
 
   protected background(slide: HeroSlide): string {
-    return `url('${slide.backgroundImages[0]}')`;
+    return `url('${slide.backgroundImage}')`;
+  }
+
+  protected scrollToContent(): void {
+    this.host.nativeElement.nextElementSibling?.scrollIntoView({
+      behavior: 'smooth',
+    });
   }
 }

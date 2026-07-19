@@ -36,7 +36,9 @@ export type ButtonVariant = 'primary' | 'accent' | 'ghost';
       text-transform: uppercase;
       text-decoration: none;
       cursor: pointer;
-      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+      transition: background-color 0.45s cubic-bezier(0.25, 1, 0.33, 1),
+        color 0.45s cubic-bezier(0.25, 1, 0.33, 1),
+        border-color 0.45s cubic-bezier(0.25, 1, 0.33, 1);
     }
 
     .btn:focus-visible {

@@ -23,23 +23,29 @@ describe('Accordion', () => {
     const button = fixture.nativeElement.querySelector(
       'button.accordion__trigger',
     ) as HTMLButtonElement;
+    const panel = fixture.nativeElement.querySelector('.accordion__panel') as HTMLElement;
+
     expect(button.getAttribute('aria-expanded')).toBe('false');
-    expect(fixture.nativeElement.querySelector('.accordion__panel[hidden]')).not.toBeNull();
+    expect(panel.classList.contains('accordion__panel--open')).toBe(false);
+    expect(panel.getAttribute('aria-hidden')).toBe('true');
   });
 
   it('should expand and collapse on click', async () => {
     const button = fixture.nativeElement.querySelector(
       'button.accordion__trigger',
     ) as HTMLButtonElement;
+    const panel = fixture.nativeElement.querySelector('.accordion__panel') as HTMLElement;
 
     button.click();
     await fixture.whenStable();
     expect(button.getAttribute('aria-expanded')).toBe('true');
-    expect(fixture.nativeElement.querySelector('.accordion__panel[hidden]')).toBeNull();
+    expect(panel.classList.contains('accordion__panel--open')).toBe(true);
+    expect(panel.getAttribute('aria-hidden')).toBe('false');
 
     button.click();
     await fixture.whenStable();
     expect(button.getAttribute('aria-expanded')).toBe('false');
+    expect(panel.classList.contains('accordion__panel--open')).toBe(false);
   });
 
   it('should expose aria-controls pointing to the panel id', () => {

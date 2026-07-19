@@ -12,19 +12,32 @@
     <div class="mobile-menu__header">
       <h2 id="mobile-menu-title" class="mobile-menu__title">Menú</h2>
       <button type="button" class="mobile-menu__close" (click)="close()" aria-label="Cerrar menú">
-        <span aria-hidden="true">×</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M6 6l12 12M18 6L6 18"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
+        </svg>
       </button>
     </div>
 
     <ul class="mobile-menu__list">
       @for (item of items(); track item.label) {
         <li>
-          <a class="mobile-menu__link" [href]="item.href" (click)="close()">{{ item.label }}</a>
-          @if (item.megaMenu; as mega) {
+          @if (item.href && !item.children) {
+            <a class="mobile-menu__link" [href]="item.href" (click)="close()">{{ item.label }}</a>
+          } @else {
+            <span class="mobile-menu__link mobile-menu__link--parent">{{ item.label }}</span>
+          }
+          @if (item.children; as children) {
             <ul class="mobile-menu__groups">
-              @for (group of mega.groups; track group.title) {
+              @for (child of children; track child.label) {
                 <li>
-                  <span class="mobile-menu__group-title">{{ group.title }}</span>
+                  <a class="mobile-menu__child" [href]="child.href" (click)="close()">
+                    {{ child.label }}
+                  </a>
                 </li>
               }
             </ul>

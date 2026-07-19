@@ -4,11 +4,19 @@ export interface NavItem {
   megaMenu?: CategoryLine;
 }
 
+export type ProductLine = 'art' | 'deco' | 'tecno';
+export type HeroTextPosition = 'top' | 'middle' | 'bottom';
+export type HeroScheme = 'dark' | 'light';
+
 export interface HeroSlide {
+  line: ProductLine;
   title: string;
   ctaLabel?: string;
   ctaHref?: string;
-  backgroundImages: string[];
+  textPosition: HeroTextPosition;
+  /** 'dark' = fondo oscuro con texto blanco; 'light' = fondo claro con texto oscuro */
+  scheme: HeroScheme;
+  backgroundImage: string;
 }
 
 export interface CategoryGroup {
@@ -19,6 +27,8 @@ export interface CategoryGroup {
 export interface CategoryLine {
   title: string;
   description: string;
+  logo: string;
+  href: string;
   groups: CategoryGroup[];
 }
 
@@ -27,7 +37,18 @@ export interface FooterData {
   address: string[];
   phones: string[];
   legalLinks: { label: string; href: string }[];
-  copyrightText: string;
+  copyright: {
+    line1: string;
+    designByText: string;
+    designByHref: string;
+    designByLabel: string;
+  };
+}
+
+export interface MobileNavItem {
+  label: string;
+  href?: string;
+  children?: { label: string; href: string }[];
 }
 
 export const CATEGORY_LINES: CategoryLine[] = [
@@ -35,6 +56,8 @@ export const CATEGORY_LINES: CategoryLine[] = [
     title: 'Decoración',
     description:
       'Línea Deco es un mundo de color. Una riqueza de colores que nos inspiran y deleitan.',
+    logo: '/img/logos/logo-linea-deco.jpg',
+    href: '#',
     groups: [
       {
         title: 'MATE Y DECORATIVA',
@@ -147,6 +170,8 @@ export const CATEGORY_LINES: CategoryLine[] = [
     title: 'Industria',
     description:
       'La línea Tecno aporta soluciones al profesional, con productos de calidad y garantizados.',
+    logo: '/img/logos/logo-linea-tecno.jpg',
+    href: '#',
     groups: [
       {
         title: 'IMPRIMACIONES',
@@ -231,6 +256,8 @@ export const CATEGORY_LINES: CategoryLine[] = [
     title: 'Arte',
     description:
       'Línea Art es la gama más completa de productos para la ornamentación y el arte del mercado.',
+    logo: '/img/logos/logo-linea-art.jpg',
+    href: '#',
     groups: [
       { title: 'PINTURAS', products: ['En desarrollo'] },
       { title: 'AUXILIARES AL AGUA', products: ['En desarrollo'] },
@@ -262,33 +289,83 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'CONTACTO', href: '#' },
 ];
 
+/* 9 slides reales del sitio original: cada línea tiene 3 variantes con
+   imagen, posición de texto y esquema de color propios. Art nunca lleva CTA. */
 export const HERO_SLIDES: HeroSlide[] = [
   {
+    line: 'art',
     title: 'Línea Art',
-    backgroundImages: [
-      '/img/slides/slide-linea-art-7.jpg',
-      '/img/slides/slide-linea-art-8.jpg',
-      '/img/slides/slide-linea-art-9.jpg',
-    ],
+    textPosition: 'top',
+    scheme: 'dark',
+    backgroundImage: '/img/slides/slide-linea-art-9.jpg',
   },
   {
+    line: 'deco',
     title: 'Línea Deco',
     ctaLabel: 'Ver gama',
     ctaHref: '#',
-    backgroundImages: [
-      '/img/slides/slide-linea-deco-4.jpg',
-      '/img/slides/slide-linea-deco-5.jpg',
-    ],
+    textPosition: 'top',
+    scheme: 'dark',
+    backgroundImage: '/img/slides/slide-linea-deco-4.jpg',
   },
   {
+    line: 'tecno',
     title: 'Línea Tecno',
     ctaLabel: 'Ver gama',
     ctaHref: '#',
-    backgroundImages: [
-      '/img/slides/slide-linea-tecno-1.jpg',
-      '/img/slides/slide-linea-tecno-2.jpg',
-      '/img/slides/slide-linea-tecno-4.jpg',
-    ],
+    textPosition: 'top',
+    scheme: 'dark',
+    backgroundImage: '/img/slides/slide-linea-tecno-1.jpg',
+  },
+  {
+    line: 'art',
+    title: 'Línea Art',
+    textPosition: 'bottom',
+    scheme: 'dark',
+    backgroundImage: '/img/slides/slide-linea-art-8.jpg',
+  },
+  {
+    line: 'deco',
+    title: 'Línea Deco',
+    ctaLabel: 'Ver gama',
+    ctaHref: '#',
+    textPosition: 'top',
+    scheme: 'dark',
+    backgroundImage: '/img/slides/linea-deco-imagen-destacada.jpg',
+  },
+  {
+    line: 'tecno',
+    title: 'Línea Tecno',
+    ctaLabel: 'Ver gama',
+    ctaHref: '#',
+    textPosition: 'middle',
+    scheme: 'light',
+    backgroundImage: '/img/slides/slide-linea-tecno-2.jpg',
+  },
+  {
+    line: 'art',
+    title: 'Línea Art',
+    textPosition: 'bottom',
+    scheme: 'light',
+    backgroundImage: '/img/slides/slide-linea-art-7.jpg',
+  },
+  {
+    line: 'deco',
+    title: 'Línea Deco',
+    ctaLabel: 'Ver gama',
+    ctaHref: '#',
+    textPosition: 'bottom',
+    scheme: 'dark',
+    backgroundImage: '/img/slides/slide-linea-deco-5.jpg',
+  },
+  {
+    line: 'tecno',
+    title: 'Línea Tecno',
+    ctaLabel: 'Ver gama',
+    ctaHref: '#',
+    textPosition: 'middle',
+    scheme: 'dark',
+    backgroundImage: '/img/slides/slide-linea-tecno-4.jpg',
   },
 ];
 
@@ -307,6 +384,27 @@ export const FOOTER_DATA: FooterData = {
     { label: 'Política Protección de Datos', href: '#' },
     { label: 'Contacto', href: '#' },
   ],
-  copyrightText:
-    'Copyright © 2016 HIJO DE GUILLERMO COLOM, S.A. — All Rights Reserved — Design by Cuaderna Vía',
+  copyright: {
+    line1: 'Copyright © 2016 HIJO DE GUILLERMO COLOM, S.A. |  All Rights Reserved',
+    designByText: 'Design by',
+    designByHref: 'https://cuadernavia.com/',
+    designByLabel: 'Cuaderna Vía',
+  },
 };
+
+/** Jerarquía del off-canvas mobile del original (no reusa megaMenu del desktop). */
+export const MOBILE_NAV_ITEMS: MobileNavItem[] = [
+  { label: 'DECORACIÓN', children: [{ label: 'LÍNEA DECO', href: '#' }] },
+  { label: 'INDUSTRIA', children: [{ label: 'LÍNEA TECNO', href: '#' }] },
+  { label: 'ARTE', children: [{ label: 'EN DESARROLLO', href: '#' }] },
+  {
+    label: 'DOCUMENTACIÓN',
+    children: [
+      { label: 'CATÁLOGOS', href: '#' },
+      { label: 'CARTAS DE COLOR', href: '#' },
+      { label: 'FICHAS TÉCNICAS', href: '#' },
+    ],
+  },
+  { label: 'EMPRESA', href: '#' },
+  { label: 'CONTACTO', href: '#' },
+];
