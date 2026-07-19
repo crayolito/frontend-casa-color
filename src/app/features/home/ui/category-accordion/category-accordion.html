@@ -1,0 +1,28 @@
+<section class="categories" aria-label="Directorio de categorías">
+  <app-container>
+    <div class="categories__grid">
+      @for (line of lines(); track line.title) {
+        <div class="categories__column">
+          <h3 class="categories__title">{{ line.title }}</h3>
+          <p class="categories__desc">{{ line.description }}</p>
+
+          @for (group of line.groups; track group.title; let i = $index) {
+            <app-accordion
+              [title]="group.title"
+              [initiallyOpen]="i === 0"
+              [panelId]="'cat-' + line.title + '-' + i"
+            >
+              <ul class="categories__products">
+                @for (product of group.products; track product) {
+                  <li>
+                    <a href="#">{{ product }}</a>
+                  </li>
+                }
+              </ul>
+            </app-accordion>
+          }
+        </div>
+      }
+    </div>
+  </app-container>
+</section>

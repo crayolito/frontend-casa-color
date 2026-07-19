@@ -1,0 +1,36 @@
+<div
+  class="mobile-menu"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="mobile-menu-title"
+  cdkTrapFocus
+  [cdkTrapFocusAutoCapture]="true"
+>
+  <div class="mobile-menu__backdrop" (click)="close()" aria-hidden="true"></div>
+
+  <nav class="mobile-menu__panel" aria-label="Menú móvil">
+    <div class="mobile-menu__header">
+      <h2 id="mobile-menu-title" class="mobile-menu__title">Menú</h2>
+      <button type="button" class="mobile-menu__close" (click)="close()" aria-label="Cerrar menú">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+
+    <ul class="mobile-menu__list">
+      @for (item of items(); track item.label) {
+        <li>
+          <a class="mobile-menu__link" [href]="item.href" (click)="close()">{{ item.label }}</a>
+          @if (item.megaMenu; as mega) {
+            <ul class="mobile-menu__groups">
+              @for (group of mega.groups; track group.title) {
+                <li>
+                  <span class="mobile-menu__group-title">{{ group.title }}</span>
+                </li>
+              }
+            </ul>
+          }
+        </li>
+      }
+    </ul>
+  </nav>
+</div>

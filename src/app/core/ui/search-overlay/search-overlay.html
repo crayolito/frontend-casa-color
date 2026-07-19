@@ -1,0 +1,30 @@
+<div
+  class="search-overlay"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="search-overlay-title"
+  cdkTrapFocus
+  [cdkTrapFocusAutoCapture]="true"
+>
+  <button type="button" class="search-overlay__close" (click)="close()" aria-label="Cerrar búsqueda">
+    <span aria-hidden="true">×</span>
+  </button>
+
+  <div class="search-overlay__content">
+    <h2 id="search-overlay-title" class="search-overlay__title">Buscar</h2>
+    <form class="search-overlay__form" (submit)="onSubmit($event)">
+      <label class="sr-only" for="search-overlay-input">Buscar productos</label>
+      <input
+        id="search-overlay-input"
+        class="search-overlay__input"
+        type="search"
+        name="q"
+        placeholder="Escribe y pulsa Enter…"
+        autocomplete="off"
+        [value]="query()"
+        (input)="onQueryInput($event)"
+      />
+      <button type="submit" class="search-overlay__submit">Buscar</button>
+    </form>
+  </div>
+</div>

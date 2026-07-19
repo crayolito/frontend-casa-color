@@ -1,0 +1,104 @@
+<header class="header" [class.header--scrolled]="scrolled()">
+  <div class="container header__inner">
+    <a class="header__brand" href="/" aria-label="Pinturas Colom — Inicio">
+      <img
+        class="header__logo"
+        src="/img/logos/logo-colom-large.png"
+        alt="Pinturas Colom"
+        width="180"
+        height="75"
+      />
+    </a>
+
+    <nav class="header__nav" aria-label="Principal">
+      <ul class="header__menu">
+        @for (item of navItems; track item.label) {
+          <li class="header__item" [class.header__item--open]="isMegaOpen(item)">
+            @if (item.megaMenu; as mega) {
+              <button
+                type="button"
+                class="header__link header__link--button"
+                [attr.aria-expanded]="isMegaOpen(item)"
+                [attr.aria-controls]="'mega-' + item.label"
+                (click)="toggleMega(item)"
+              >
+                {{ item.label }}
+              </button>
+              @if (isMegaOpen(item)) {
+                <div
+                  class="header__mega"
+                  [id]="'mega-' + item.label"
+                  role="region"
+                  [attr.aria-label]="mega.title"
+                >
+                  <p class="header__mega-desc">{{ mega.description }}</p>
+                  <ul class="header__mega-groups">
+                    @for (group of mega.groups; track group.title) {
+                      <li>
+                        <strong class="header__mega-group">{{ group.title }}</strong>
+                        <ul class="header__mega-products">
+                          @for (product of group.products; track product) {
+                            <li><a href="#">{{ product }}</a></li>
+                          }
+                        </ul>
+                      </li>
+                    }
+                  </ul>
+                </div>
+              }
+            } @else {
+              <a class="header__link" [href]="item.href">{{ item.label }}</a>
+            }
+          </li>
+        }
+      </ul>
+    </nav>
+
+    <div class="header__actions">
+      <button
+        type="button"
+        class="header__icon-btn"
+        aria-label="Abrir búsqueda"
+        (click)="openSearch($event.currentTarget)"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+          <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+
+      <a class="header__icon-btn" href="#" aria-label="Carrito (próximamente)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M6 6h15l-1.5 9h-12L6 6zm0 0L5 3H2"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <circle cx="9" cy="20" r="1.5" fill="currentColor" />
+          <circle cx="18" cy="20" r="1.5" fill="currentColor" />
+        </svg>
+      </a>
+
+      <button
+        type="button"
+        class="header__icon-btn header__burger"
+        aria-label="Abrir menú"
+        (click)="openMobile($event.currentTarget)"
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+@if (searchOpen()) {
+  <app-search-overlay (closed)="closeSearch()" />
+}
+
+@if (mobileOpen()) {
+  <app-mobile-menu [items]="navItems" (closed)="closeMobile()" />
+}

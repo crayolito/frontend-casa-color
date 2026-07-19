@@ -1,0 +1,132 @@
+:host {
+  display: block;
+}
+
+.hero {
+  position: relative;
+  min-height: 70vh;
+  color: var(--color-white);
+  overflow: hidden;
+}
+
+.hero__viewport {
+  position: relative;
+  min-height: 70vh;
+}
+
+.hero__slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+.hero__slide--active {
+  opacity: 1;
+  visibility: visible;
+  z-index: 1;
+}
+
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgb(0 0 0 / 0.45), rgb(0 0 0 / 0.15));
+}
+
+.hero__content {
+  position: relative;
+  z-index: 2;
+  padding-block: 6rem 4rem;
+}
+
+.hero__title {
+  margin: 0 0 1.5rem;
+  color: var(--color-white);
+  font-weight: 300;
+  text-shadow: 0 2px 16px rgb(0 0 0 / 0.35);
+}
+
+.hero__controls {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: 0.75rem;
+  pointer-events: none;
+}
+
+.hero__nav {
+  pointer-events: auto;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 0.35);
+  color: var(--color-white);
+  font-size: 1.75rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.hero__nav:hover,
+.hero__nav:focus-visible {
+  background: var(--color-accent);
+}
+
+.hero__nav:focus-visible {
+  outline: 2px solid var(--color-extra-1);
+  outline-offset: 2px;
+}
+
+.hero__dots {
+  position: absolute;
+  left: 50%;
+  bottom: 1.25rem;
+  z-index: 3;
+  display: flex;
+  gap: 0.5rem;
+  transform: translateX(-50%);
+}
+
+.hero__dot {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.45);
+  cursor: pointer;
+}
+
+.hero__dot--active,
+.hero__dot:hover,
+.hero__dot:focus-visible {
+  background: var(--color-accent);
+}
+
+.hero__dot:focus-visible {
+  outline: 2px solid var(--color-extra-1);
+  outline-offset: 2px;
+}
+
+@media (min-width: 1000px) {
+  .hero,
+  .hero__viewport {
+    min-height: 85vh;
+  }
+
+  .hero__content {
+    padding-block: 8rem 5rem;
+  }
+
+  .hero__controls {
+    padding-inline: 1.5rem;
+  }
+}

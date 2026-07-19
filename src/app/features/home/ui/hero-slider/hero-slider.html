@@ -1,0 +1,57 @@
+<section
+  class="hero"
+  aria-roledescription="carrusel"
+  aria-label="Líneas de producto"
+  (mouseenter)="pause()"
+  (mouseleave)="resume()"
+  (focusin)="pause()"
+  (focusout)="resume()"
+>
+  <div class="hero__viewport">
+    @for (slide of slides(); track slide.title; let i = $index) {
+      <article
+        class="hero__slide"
+        [class.hero__slide--active]="current() === i"
+        [attr.aria-hidden]="current() !== i"
+        [style.background-image]="background(slide)"
+      >
+        <div class="hero__overlay"></div>
+        <div class="container hero__content">
+          <h2 class="hero__title">{{ slide.title }}</h2>
+          @if (slide.ctaLabel && slide.ctaHref) {
+            <app-button [href]="slide.ctaHref" variant="accent">
+              {{ slide.ctaLabel }}
+            </app-button>
+          }
+        </div>
+      </article>
+    }
+  </div>
+
+  <div class="sr-only" aria-live="polite">
+    Slide {{ current() + 1 }} de {{ slides().length }}: {{ slides()[current()].title }}
+  </div>
+
+  <div class="hero__controls">
+    <button type="button" class="hero__nav" (click)="prev()" aria-label="Slide anterior">
+      ‹
+    </button>
+    <button type="button" class="hero__nav" (click)="next()" aria-label="Slide siguiente">
+      ›
+    </button>
+  </div>
+
+  <div class="hero__dots" role="tablist" aria-label="Paginación del carrusel">
+    @for (slide of slides(); track slide.title; let i = $index) {
+      <button
+        type="button"
+        class="hero__dot"
+        [class.hero__dot--active]="current() === i"
+        role="tab"
+        [attr.aria-selected]="current() === i"
+        [attr.aria-label]="'Ir al slide ' + (i + 1) + ': ' + slide.title"
+        (click)="goTo(i)"
+      ></button>
+    }
+  </div>
+</section>

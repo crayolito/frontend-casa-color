@@ -1,0 +1,23 @@
+<section class="find-product" aria-labelledby="find-product-title">
+  <app-container>
+    <div class="find-product__inner">
+      <h2 id="find-product-title" class="find-product__title">Encuentra un producto</h2>
+      <form class="find-product__form" (submit)="onSubmit($event)">
+        <label class="sr-only" for="find-product-input">Buscar un producto</label>
+        <input
+          id="find-product-input"
+          class="find-product__input"
+          type="search"
+          name="product"
+          placeholder="Buscar…"
+          autocomplete="off"
+          aria-describedby="find-product-hint"
+        />
+        <p id="find-product-hint" class="sr-only">
+          Búsqueda visual. La conexión con el catálogo llega en una etapa posterior.
+        </p>
+        <button type="submit" class="find-product__submit">Buscar</button>
+      </form>
+    </div>
+  </app-container>
+</section>

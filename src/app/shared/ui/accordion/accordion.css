@@ -1,0 +1,58 @@
+:host {
+  display: block;
+}
+
+.accordion {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.accordion__heading {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.accordion__trigger {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 44px;
+  padding: 0.875rem 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.accordion__trigger:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.accordion__title {
+  flex: 1;
+}
+
+.accordion__icon {
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--color-accent);
+}
+
+.accordion__panel {
+  padding: 0 0 1rem;
+}
+
+.accordion__panel[hidden] {
+  display: none;
+}

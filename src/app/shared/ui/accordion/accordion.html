@@ -1,0 +1,24 @@
+<div class="accordion">
+  <h4 class="accordion__heading">
+    <button
+      type="button"
+      class="accordion__trigger"
+      [attr.aria-expanded]="open()"
+      [attr.aria-controls]="panelId()"
+      (click)="toggle()"
+    >
+      <span class="accordion__title">{{ title() }}</span>
+      <span class="accordion__icon" aria-hidden="true">{{ open() ? '−' : '+' }}</span>
+    </button>
+  </h4>
+
+  <div
+    class="accordion__panel"
+    role="region"
+    [id]="panelId()"
+    [attr.aria-hidden]="!open()"
+    [hidden]="!open()"
+  >
+    <ng-content />
+  </div>
+</div>
