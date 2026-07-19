@@ -1,0 +1,104 @@
+:host {
+  display: block;
+}
+
+.linea-deco {
+  background: #ffffff;
+}
+
+/* Original: #page-header-wrap 700px, bg #000 detrás de la imagen destacada
+   (index.html:259-260). En ≤999px pasa a height:auto con padding 13% (responsive.css). */
+.linea-deco__hero {
+  margin-top: var(--header-h-mobile);
+  height: auto;
+  padding: 13% 0;
+  background-color: #000;
+  background-image: url('/img/slides/linea-deco-imagen-destacada.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+@media (min-width: 1000px) {
+  .linea-deco__hero {
+    margin-top: var(--header-h-desktop);
+    height: 700px;
+    padding: 0;
+  }
+}
+
+/* Original: h5 en nectar-split-heading (index.html:279), primera row del contenido */
+.linea-deco__heading {
+  margin: 40px 0 20px;
+}
+
+/* Original: dos vc_col-sm-6 con <p> + divider 30px (index.html:284-309) */
+.linea-deco__intro {
+  display: grid;
+  gap: 0 2%;
+  margin-bottom: 30px;
+}
+
+.linea-deco__intro p {
+  margin: 0 0 30px;
+}
+
+@media (min-width: 691px) {
+  .linea-deco__intro {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Original: vc_col-sm-3 25% ≥1000px, 50% ≤999px (grid-system.css / responsive.css).
+   El clon NO baja a 1 columna en mobile. */
+.linea-deco__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2%;
+  padding-bottom: 100px;
+}
+
+.linea-deco__card {
+  display: block;
+  margin-bottom: 2%;
+  text-decoration: none;
+}
+
+.linea-deco__card:hover,
+.linea-deco__card:focus-visible {
+  text-decoration: none;
+}
+
+.linea-deco__card:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Original: img-with-animation max-width 100%, data-shadow=none, ratio 3:2 */
+.linea-deco__card-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Original: h6 14px/24px weight 600 color #444 centrado + divider 10px arriba */
+.linea-deco__card-title {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 24px;
+  font-weight: 600;
+  color: #444;
+  text-align: center;
+}
+
+@media (min-width: 1000px) {
+  .linea-deco__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .linea-deco__card {
+    margin-bottom: 0;
+  }
+}

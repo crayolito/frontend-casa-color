@@ -1,0 +1,32 @@
+<main class="linea-deco">
+  <app-header />
+
+  <div class="linea-deco__hero" aria-hidden="true"></div>
+
+  <app-container>
+    <h5 class="linea-deco__heading">LÍNEA DECO</h5>
+
+    <div class="linea-deco__intro">
+      <p><strong>Línea Deco</strong> {{ intro.left }}</p>
+      <p>{{ intro.right }}</p>
+    </div>
+
+    <div class="linea-deco__grid">
+      @for (card of cards; track card.title) {
+        <a class="linea-deco__card" [href]="card.href">
+          <img
+            class="linea-deco__card-img"
+            [src]="card.image"
+            [width]="card.imageWidth"
+            [height]="card.imageHeight"
+            alt=""
+            loading="lazy"
+          />
+          <h6 class="linea-deco__card-title">{{ card.title }}</h6>
+        </a>
+      }
+    </div>
+  </app-container>
+
+  <app-footer />
+</main>

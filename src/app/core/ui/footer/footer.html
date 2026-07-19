@@ -12,7 +12,6 @@
       </div>
 
       <div class="footer__col">
-        <h3 class="footer__heading">Dirección</h3>
         <address class="footer__address">
           @for (line of data.address; track line) {
             <span>{{ line }}</span>
@@ -21,7 +20,7 @@
       </div>
 
       <div class="footer__col">
-        <h3 class="footer__heading">Consultas y pedidos</h3>
+        <p class="footer__phones-intro">Consultas y pedidos</p>
         <ul class="footer__phones">
           @for (phone of data.phones; track phone) {
             <li>
@@ -32,7 +31,6 @@
       </div>
 
       <div class="footer__col">
-        <h3 class="footer__heading">Enlaces</h3>
         <ul class="footer__links">
           @for (link of data.legalLinks; track link.label) {
             <li>

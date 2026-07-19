@@ -11,8 +11,8 @@
   justify-content: center;
   min-height: 100%;
   padding: 2rem;
-  background: rgb(0 0 0 / 0.94);
-  color: var(--color-white);
+  background: rgba(255, 255, 255, 0.97);
+  color: var(--color-text);
   transform: scale(1, 0);
   transform-origin: top;
   animation: search-open 0.45s cubic-bezier(0.3, 1, 0.3, 0.95) forwards;
@@ -26,13 +26,13 @@
 
 .search-overlay__close {
   position: absolute;
-  top: 30px;
-  right: 30px;
+  top: 24px;
+  right: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 24px;
+  height: 20px;
   border: 0;
   background: transparent;
   color: #a0a0a0;
@@ -43,7 +43,7 @@
 .search-overlay__close:hover,
 .search-overlay__close:focus-visible {
   transform: rotate(90deg);
-  color: var(--color-white);
+  color: #000;
 }
 
 .search-overlay__close:focus-visible {
@@ -65,9 +65,12 @@
   background: transparent;
   color: #888;
   font-family: inherit;
-  font-size: clamp(28px, 6vw, 43px);
-  line-height: 1.2;
-  text-align: center;
+  font-size: 43px;
+  font-weight: 700;
+  line-height: 43px;
+  letter-spacing: 1px;
+  text-align: left;
+  text-transform: uppercase;
   outline: none;
 }
 
@@ -88,6 +91,7 @@
 
   .search-overlay__input {
     font-size: 24px;
+    line-height: 1.2;
     text-align: left;
     border-bottom: 2px solid currentColor;
     padding: 0.5rem 0;

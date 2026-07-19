@@ -1,7 +1,12 @@
+export interface SubMenuItem {
+  label: string;
+  href: string;
+}
+
 export interface NavItem {
   label: string;
   href: string;
-  megaMenu?: CategoryLine;
+  children?: SubMenuItem[];
 }
 
 export type ProductLine = 'art' | 'deco' | 'tecno';
@@ -272,21 +277,29 @@ export const NAV_ITEMS: NavItem[] = [
   {
     label: 'DECORACIÓN',
     href: '#',
-    megaMenu: CATEGORY_LINES[0],
+    children: [{ label: 'LÍNEA DECO', href: '#' }],
   },
   {
     label: 'INDUSTRIA',
     href: '#',
-    megaMenu: CATEGORY_LINES[1],
+    children: [{ label: 'LÍNEA TECNO', href: '#' }],
   },
   {
     label: 'ARTE',
     href: '#',
-    megaMenu: CATEGORY_LINES[2],
+    children: [{ label: 'EN DESARROLLO', href: '#' }],
   },
-  { label: 'DOCUMENTACIÓN', href: '#' },
-  { label: 'EMPRESA', href: '#' },
-  { label: 'CONTACTO', href: '#' },
+  {
+    label: 'DOCUMENTACIÓN',
+    href: '#',
+    children: [
+      { label: 'CATÁLOGOS', href: '#' },
+      { label: 'CARTAS DE COLOR', href: '#' },
+      { label: 'FICHAS TÉCNICAS', href: '#' },
+    ],
+  },
+  { label: 'EMPRESA', href: '/empresa/' },
+  { label: 'CONTACTO', href: '/contacto/' },
 ];
 
 /* 9 slides reales del sitio original: cada línea tiene 3 variantes con
@@ -392,7 +405,7 @@ export const FOOTER_DATA: FooterData = {
   },
 };
 
-/** Jerarquía del off-canvas mobile del original (no reusa megaMenu del desktop). */
+/** Jerarquía del off-canvas mobile del original (misma estructura que NAV_ITEMS). */
 export const MOBILE_NAV_ITEMS: MobileNavItem[] = [
   { label: 'DECORACIÓN', children: [{ label: 'LÍNEA DECO', href: '#' }] },
   { label: 'INDUSTRIA', children: [{ label: 'LÍNEA TECNO', href: '#' }] },

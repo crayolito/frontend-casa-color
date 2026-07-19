@@ -1,0 +1,21 @@
+<div class="sidebar-nav">
+  @for (group of groups(); track group.title) {
+    <p class="sidebar-nav__group">
+      {{ group.title }}<br />
+      @for (link of group.links; track link.label) {
+        @if (link.href.startsWith('/') && !link.href.startsWith('/#')) {
+          <a
+            [routerLink]="link.href"
+            [class.sidebar-nav__current]="link.current"
+            >{{ link.label }}</a
+          >
+        } @else {
+          <a [href]="link.href" [class.sidebar-nav__current]="link.current">{{
+            link.label
+          }}</a>
+        }
+        <br />
+      }
+    </p>
+  }
+</div>

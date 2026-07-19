@@ -106,6 +106,41 @@ describe('Home', () => {
     expect(header?.classList.contains('header')).toBe(true);
   });
 
+  it('should render Decoración submenu with exactly one simple link', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const decoItem = Array.from(compiled.querySelectorAll('.header__item')).find((item) =>
+      item.querySelector('.header__link')?.textContent?.includes('DECORACIÓN'),
+    );
+    expect(decoItem).toBeTruthy();
+    const links = Array.from(decoItem!.querySelectorAll('.header__submenu-link')).map((el) =>
+      el.textContent?.trim(),
+    );
+    expect(links).toEqual(['LÍNEA DECO']);
+  });
+
+  it('should render Documentación submenu with three documentation links', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const docsItem = Array.from(compiled.querySelectorAll('.header__item')).find((item) =>
+      item.querySelector('.header__link')?.textContent?.includes('DOCUMENTACIÓN'),
+    );
+    expect(docsItem).toBeTruthy();
+    const links = Array.from(docsItem!.querySelectorAll('.header__submenu-link')).map((el) =>
+      el.textContent?.trim(),
+    );
+    expect(links).toEqual(['CATÁLOGOS', 'CARTAS DE COLOR', 'FICHAS TÉCNICAS']);
+  });
+
+  it('should not render catalog products inside header submenus', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.header__mega')).toBeNull();
+    expect(compiled.querySelector('.header__mega-products')).toBeNull();
+    const submenuText = Array.from(compiled.querySelectorAll('.header__submenu-link'))
+      .map((el) => el.textContent?.trim() ?? '')
+      .join(' ');
+    expect(submenuText).not.toContain('Acrílico');
+    expect(submenuText).not.toContain('Imprimación Alcídica');
+  });
+
   it('should not render invented social icons in the footer', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.footer__social')).toBeNull();

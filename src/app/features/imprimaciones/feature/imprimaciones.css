@@ -1,0 +1,90 @@
+/* Clon Imprimaciones — index.html:259-466 + cascada CSS del head */
+
+:host {
+  display: block;
+}
+
+.imprimaciones {
+  /* body bg del theme / pages: blanco en contenido; styles.css --bg-base #f8f8f8
+     linea-deco usa #ffffff; esta página de productos también contenido blanco. */
+  background: #ffffff;
+}
+
+/* Original: #page-header-wrap height:700px (index.html:259 inline)
+   #page-header-bg background-color:#000; height:700px
+   .page-header-bg-image background-image: imprimaciones-destacada-2.jpg; center
+   responsive.css ≤999px: height:auto + data-padding-amt=high → padding 13% 0 */
+.imprimaciones__hero {
+  margin-top: var(--header-h-mobile);
+  height: auto;
+  padding: 13% 0;
+  background-color: #000;
+  background-image: url('/img/slides/imprimaciones-destacada-2.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+@media (min-width: 1000px) {
+  .imprimaciones__hero {
+    margin-top: var(--header-h-desktop);
+    height: 700px;
+    padding: 0;
+  }
+}
+
+/* Original: h5 en nectar-split-heading (index.html:279), primera row.
+   Tipografía h5 global: 24px/30px weight 300 (styles.css).
+   Margin: mismo criterio que linea-deco (40px 0 20px) — no encontré margin
+   específico del split-heading en dynamic-css; el spacing viene del row/padding. */
+.imprimaciones__heading {
+  margin: 40px 0 20px;
+  font-weight: 300;
+}
+
+.imprimaciones__heading strong {
+  font-weight: 700;
+}
+
+/* Original: row con vc_col-sm-3 (25%) + vc_col-sm-9 (75%)
+   grid-system.css @media (min-width:690px): .vc_col-sm-3{width:25%} .vc_col-sm-9{width:75%}
+   html body .vc_row-fluid>.span_12>.wpb_column{margin-right:0} → SIN gap entre columnas
+   @media (max-width:690px): [class*=vc_col-]:not([class*=vc_col-xs]){width:100%}
+   + .wpb_column{margin-bottom:25px} al apilarse */
+.imprimaciones__row {
+  display: grid;
+  gap: 0;
+  padding-bottom: 60px;
+}
+
+@media (min-width: 691px) {
+  .imprimaciones__row {
+    grid-template-columns: 25% 75%;
+  }
+}
+
+.imprimaciones__sidebar {
+  /* vc_col-sm-3 — sin padding extra (no-extra-padding) */
+  min-width: 0;
+}
+
+@media (max-width: 690px) {
+  .imprimaciones__sidebar {
+    margin-bottom: 25px; /* grid-system.css ≤690: .wpb_column{margin-bottom:25px} */
+  }
+}
+
+.imprimaciones__catalog {
+  min-width: 0;
+}
+
+/* Original: ul.products flex-wrap (woocommerce.css cuando data-n-* ≠ default).
+   Los anchos/márgenes de cada li los define product-card.css (width 32% + margin-right 2%
+   desktop; 48% ≤768px), igual que el clon. */
+.imprimaciones__products {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}

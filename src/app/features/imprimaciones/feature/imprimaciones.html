@@ -1,0 +1,31 @@
+<main class="imprimaciones">
+  <app-header />
+
+  <div
+    class="imprimaciones__hero"
+    role="img"
+    aria-label="Imprimaciones"
+  ></div>
+
+  <app-container>
+    <h5 class="imprimaciones__heading">
+      {{ heading.prefix }}<strong>{{ heading.strong }}</strong>
+    </h5>
+
+    <div class="imprimaciones__row">
+      <aside class="imprimaciones__sidebar">
+        <app-sidebar-nav [groups]="sidebarGroups" />
+      </aside>
+
+      <div class="imprimaciones__catalog">
+        <div class="imprimaciones__products">
+          @for (product of products; track product.title) {
+            <app-product-card [product]="product" />
+          }
+        </div>
+      </div>
+    </div>
+  </app-container>
+
+  <app-footer />
+</main>

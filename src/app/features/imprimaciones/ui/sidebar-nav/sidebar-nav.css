@@ -1,0 +1,23 @@
+/* Clon: index.html:288-298 — .wpb_text_column dentro de vc_col-sm-3
+   Tipografía: body (styles.css) 16px/25px; links color accent #dd3333 */
+
+:host {
+  display: block;
+}
+
+.sidebar-nav__group {
+  margin: 0 0 1em;
+  /* style.css body / .wpb_text_column — hereda color-text y line-height */
+  color: var(--color-text);
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.sidebar-nav__group a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.sidebar-nav__group a:hover {
+  text-decoration: underline;
+}

@@ -2,10 +2,12 @@
   display: block;
 }
 
+/* Original: #footer-outer bg #dd3333 !important, texto y links blancos,
+   4 columnas de texto plano sin headings (#footer-outer .row padding 55px 0) */
 .footer__widgets {
   background: var(--bg-footer-widgets);
   color: var(--color-white);
-  padding: 3rem 0;
+  padding: 55px 0;
 }
 
 .footer__grid {
@@ -18,24 +20,16 @@
   height: 102px;
 }
 
-.footer__heading {
-  margin: 0 0 0.75rem;
-  color: var(--color-white);
-  font-size: 1rem;
-  line-height: 1.3;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
 .footer__address {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
   font-style: normal;
-  color: #cfcfcf;
-  font-size: 0.875rem;
-  line-height: 1.5;
+  color: var(--color-white);
+}
+
+.footer__phones-intro {
+  margin: 0;
+  color: var(--color-white);
 }
 
 .footer__phones,
@@ -45,14 +39,10 @@
   padding: 0;
 }
 
-/* Original: links de widgets blancos; hover al accent (no el rojo global de styles.css) */
+/* Original: links siempre blancos (color #ffffff !important); hover subrayado blanco */
 .footer__phones a,
 .footer__links a {
-  display: inline-flex;
-  min-height: 32px;
-  align-items: center;
-  color: #ffffff;
-  font-size: 0.875rem;
+  color: var(--color-white);
   text-decoration: none;
 }
 
@@ -60,27 +50,27 @@
 .footer__links a:hover,
 .footer__phones a:focus-visible,
 .footer__links a:focus-visible {
-  color: var(--color-accent);
+  color: var(--color-white);
   text-decoration: underline;
 }
 
+/* Original: #copyright bg #1F1F1F, texto #777, links #a0a0a0 hover blanco, 12px */
 .footer__copyright {
   background: var(--bg-footer-copyright);
-  color: #a0a0a0;
-  padding: 1rem 0;
-  font-size: 0.75rem;
+  color: #777;
+  padding: 20px 0;
+  font-size: 12px;
 }
 
 .footer__copyright-inner {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
   align-items: flex-start;
 }
 
 .footer__copyright p {
   margin: 0;
-  color: #a0a0a0;
+  color: #777;
 }
 
 .footer__copyright a {
@@ -102,7 +92,7 @@
 
 @media (min-width: 1000px) {
   .footer__grid {
-    grid-template-columns: 1.2fr 1fr 1fr 1fr;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 2.5rem;
   }
 }

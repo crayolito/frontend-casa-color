@@ -1,0 +1,37 @@
+<div class="product-card__wrap">
+  <img
+    class="product-card__img"
+    [src]="product().image"
+    [alt]="product().title"
+    [width]="product().imageWidth"
+    [height]="product().imageHeight"
+    loading="lazy"
+  />
+  <div class="product-card__overlay" aria-hidden="true"></div>
+  <a
+    class="product-card__link-overlay"
+    [href]="product().href"
+    [attr.aria-label]="product().title"
+  ></a>
+  <div class="product-card__hover">
+    <div class="product-card__categories">
+      @for (cat of product().categories; track cat.label; let last = $last) {
+        <a [href]="cat.href" rel="tag">{{ cat.label }}</a
+        >@if (!last) {
+          <span>, </span>
+        }
+      }
+    </div>
+  </div>
+</div>
+
+<a [href]="product().href">
+  <h2 class="product-card__title">{{ product().title }}</h2>
+</a>
+<a
+  class="product-card__button"
+  [href]="product().href"
+  [attr.aria-label]="'Lee más sobre “' + product().title + '”'"
+  rel="nofollow"
+  >Leer más</a
+>

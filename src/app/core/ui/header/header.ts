@@ -33,7 +33,7 @@ export class Header implements OnInit, OnDestroy {
   protected readonly scrolled = signal(false);
   protected readonly searchOpen = signal(false);
   protected readonly mobileOpen = signal(false);
-  protected readonly openMega = signal<string | null>(null);
+  protected readonly openSub = signal<string | null>(null);
 
   private lastFocused: HTMLElement | null = null;
   private hoverTimer: ReturnType<typeof setTimeout> | null = null;
@@ -59,28 +59,28 @@ export class Header implements OnInit, OnDestroy {
       this.closeMobile();
       return;
     }
-    this.openMega.set(null);
+    this.openSub.set(null);
   }
 
-  protected toggleMega(item: NavItem): void {
-    if (!item.megaMenu) {
+  protected toggleItem(item: NavItem): void {
+    if (!item.children?.length) {
       return;
     }
-    this.openMega.update((current) => (current === item.label ? null : item.label));
+    this.openSub.update((current) => (current === item.label ? null : item.label));
   }
 
-  protected isMegaOpen(item: NavItem): boolean {
-    return this.openMega() === item.label;
+  protected isItemOpen(item: NavItem): boolean {
+    return this.openSub() === item.label;
   }
 
   /** Hoverintent-like delay; solo tiene efecto visual en desktop (≥1000px). */
   protected onItemEnter(item: NavItem): void {
-    if (!item.megaMenu || !this.isDesktop()) {
+    if (!item.children?.length || !this.isDesktop()) {
       return;
     }
     this.clearHoverTimer();
     this.hoverTimer = setTimeout(() => {
-      this.openMega.set(item.label);
+      this.openSub.set(item.label);
     }, 100);
   }
 
@@ -90,13 +90,13 @@ export class Header implements OnInit, OnDestroy {
     }
     this.clearHoverTimer();
     this.hoverTimer = setTimeout(() => {
-      this.openMega.set(null);
+      this.openSub.set(null);
     }, 100);
   }
 
   protected openSearch(trigger: EventTarget | null): void {
     this.lastFocused = trigger instanceof HTMLElement ? trigger : null;
-    this.openMega.set(null);
+    this.openSub.set(null);
     this.searchOpen.set(true);
     this.lockScroll(true);
   }
@@ -110,7 +110,7 @@ export class Header implements OnInit, OnDestroy {
 
   protected openMobile(trigger: EventTarget | null): void {
     this.lastFocused = trigger instanceof HTMLElement ? trigger : null;
-    this.openMega.set(null);
+    this.openSub.set(null);
     this.mobileOpen.set(true);
     this.lockScroll(true);
   }

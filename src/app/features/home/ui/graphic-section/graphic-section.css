@@ -4,18 +4,11 @@
 
 .spacer {
   height: 50px;
-  background: var(--bg-footer-widgets);
 }
 
 .graphic {
-  min-height: 220px;
+  padding-top: 15vw;
   background-position: center bottom;
   background-size: cover;
   background-repeat: no-repeat;
-}
-
-@media (min-width: 1000px) {
-  .graphic {
-    min-height: 320px;
-  }
 }
