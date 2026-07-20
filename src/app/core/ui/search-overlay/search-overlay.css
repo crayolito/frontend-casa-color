@@ -27,17 +27,22 @@
 .search-overlay__close {
   position: absolute;
   top: 24px;
-  right: 0;
+  right: 28px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 20px;
+  width: 32px;
+  height: 32px;
   border: 0;
   background: transparent;
   color: #a0a0a0;
   cursor: pointer;
   transition: transform 0.47s cubic-bezier(0.3, 1, 0.3, 0.95), color 0.2s ease;
+}
+
+.search-overlay__close svg {
+  width: 24px;
+  height: 24px;
 }
 
 .search-overlay__close:hover,

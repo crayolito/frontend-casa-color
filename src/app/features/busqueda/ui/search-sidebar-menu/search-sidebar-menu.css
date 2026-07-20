@@ -1,0 +1,51 @@
+/* Clon style.css — #sidebar .widget.widget_nav_menu */
+
+:host {
+  display: block;
+}
+
+.menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menu-item {
+  list-style: none;
+  border-bottom: 0;
+  padding: 0;
+}
+
+.menu > .menu-item > a {
+  display: block;
+  padding: 8px 0;
+  border-bottom: 1px solid #e6e6e6;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.menu > .menu-item:first-child > a {
+  padding-top: 0;
+}
+
+.menu > .menu-item > a:hover {
+  text-decoration: underline;
+}
+
+.sub-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 20px;
+}
+
+.sub-menu .menu-item a {
+  display: block;
+  padding: 8px 0;
+  border-bottom: 1px solid #e6e6e6;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.sub-menu .menu-item a:hover {
+  text-decoration: underline;
+}

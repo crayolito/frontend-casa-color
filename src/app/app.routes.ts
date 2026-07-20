@@ -49,6 +49,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'search',
+    loadChildren: () =>
+      import('./features/busqueda/busqueda.routes').then(
+        (m) => m.BUSQUEDA_ROUTES,
+      ),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

@@ -1,19 +1,12 @@
 /** Datos del clon Imprimaciones (index.html:279-460). */
 
 import { ProductItem } from '../../../shared/ui/product-card/product-item';
+import {
+  SidebarGroup,
+  SidebarLink,
+} from '../../../shared/ui/sidebar-nav/sidebar-nav';
 
-export type { ProductItem };
-
-export interface SidebarGroup {
-  title: string;
-  links: SidebarLink[];
-}
-
-export interface SidebarLink {
-  label: string;
-  href: string;
-  current?: boolean;
-}
+export type { ProductItem, SidebarGroup, SidebarLink };
 
 /** index.html:279 — nectar-split-heading h5 */
 export const IMPRIMACIONES_HEADING = {

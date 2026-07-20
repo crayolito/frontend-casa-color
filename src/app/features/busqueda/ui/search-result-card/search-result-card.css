@@ -1,0 +1,66 @@
+/* Clon ascend + search.css — #search-results .result (data-layout=default) */
+
+:host {
+  display: inline-block;
+  vertical-align: top;
+  width: 33.3%;
+  padding: 15px;
+  margin-bottom: 0;
+  position: relative;
+  color: #676767;
+  font-size: 11px;
+}
+
+@media (max-width: 470px) {
+  :host {
+    width: 100%;
+    opacity: 1;
+    transform: none !important;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+  }
+}
+
+/* style.css — tema ascend (body.ascend, no .material) */
+.inner-wrap {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  background-color: #fff;
+  padding: 18px;
+}
+
+/* search.css */
+.inner-wrap img {
+  margin-bottom: 10px;
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.title {
+  margin: 0 0 1px;
+  font-size: 17px;
+  line-height: 22px;
+  letter-spacing: 0;
+  font-weight: 300;
+}
+
+.title a {
+  color: #000;
+  text-decoration: none;
+}
+
+.title a:hover,
+.title a:focus {
+  text-decoration: underline;
+}
+
+.title span {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0;
+  font-family: var(--font-body);
+  font-weight: 400;
+  color: #999;
+  margin-top: 3px;
+}

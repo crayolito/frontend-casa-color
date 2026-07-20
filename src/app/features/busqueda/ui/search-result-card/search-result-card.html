@@ -1,0 +1,17 @@
+<div class="inner-wrap">
+  @if (result().image; as image) {
+    <a [href]="result().href">
+      <img
+        [src]="image"
+        [alt]="result().title"
+        width="375"
+        height="400"
+        loading="lazy"
+      />
+    </a>
+  }
+  <h2 class="title">
+    <a [href]="result().href">{{ result().title }}</a>
+    <span>{{ result().type }}</span>
+  </h2>
+</div>

@@ -1,6 +1,16 @@
 import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { SidebarGroup } from '../../util/imprimaciones-data';
+
+export interface SidebarLink {
+  label: string;
+  href: string;
+  current?: boolean;
+}
+
+export interface SidebarGroup {
+  title: string;
+  links: SidebarLink[];
+}
 
 @Component({
   selector: 'app-sidebar-nav',

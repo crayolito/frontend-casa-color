@@ -1,0 +1,54 @@
+<main class="busqueda">
+  <app-header />
+
+  <!-- Clon: #page-header-bg index.html:266-276 -->
+  <div class="busqueda__page-header" id="page-header-bg">
+    <app-container>
+      <div class="busqueda__page-header-inner">
+        <h1>
+          Results For <span>"{{ searchTerm }}"</span>
+        </h1>
+        <span class="result-num">{{ resultCount }} results found</span>
+      </div>
+    </app-container>
+  </div>
+
+  <div class="busqueda__container-wrap">
+    <app-container>
+      <div class="busqueda__row">
+        <div class="busqueda__main">
+          <div class="busqueda__results" id="search-results" data-layout="default">
+            @for (result of results; track result.title) {
+              <app-search-result-card [result]="result" />
+            }
+          </div>
+
+          <!-- Clon: .search-result-pagination index.html:333-339 -->
+          <div class="busqueda__pagination search-result-pagination" data-layout="default">
+            <nav id="pagination" aria-label="Pagination Navigation" role="navigation">
+              <ul class="page-numbers">
+                <li>
+                  <span aria-current="page" aria-label="Página 1" class="page-numbers current"
+                    >1</span
+                  >
+                </li>
+                <li>
+                  <a aria-label="Página 2" class="page-numbers" href="#">2</a>
+                </li>
+                <li>
+                  <a class="next page-numbers" href="#">Next</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+
+        <aside class="busqueda__sidebar" id="sidebar" aria-label="Navegación">
+          <app-search-sidebar-menu />
+        </aside>
+      </div>
+    </app-container>
+  </div>
+
+  <app-footer />
+</main>
