@@ -5,8 +5,10 @@
   display: block;
 }
 
+/* Clon: .container-wrap / --nectar-bg-color = #f8f8f8 (NO blanco).
+   El blanco se ve en el JPG del envase + wrap de la card, contrastando el gris. */
 .producto {
-  background: #ffffff;
+  background: #f8f8f8;
 }
 
 /* Header space — páginas sin hero a full bleed */

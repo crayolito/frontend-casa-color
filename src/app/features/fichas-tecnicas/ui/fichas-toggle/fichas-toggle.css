@@ -1,0 +1,124 @@
+/* Clon Salient toggles data-style=default — element-toggles.css +
+   salient-dynamic-styles.css + dynamic-css-inline (font-size 20/25) */
+
+:host {
+  display: block;
+}
+
+/* body .toggle { margin-bottom: 15px } */
+.fichas-toggle {
+  margin-bottom: 15px;
+}
+
+.fichas-toggle__title {
+  position: relative;
+  z-index: 10;
+  margin: 0;
+  font-size: 12px; /* .toggle > .toggle-title */
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+/* .toggle > .toggle-title a — closed state */
+.fichas-toggle__trigger {
+  position: relative;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  border: 0;
+  /* dynamic-css-inline: body .toggle h3 a { font-size:20px !important; line-height:25px !important } */
+  padding: 14px 14px 16px 43px;
+  background-color: rgba(0, 0, 0, 0.045);
+  color: rgba(0, 0, 0, 0.65);
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 25px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s linear;
+}
+
+.fichas-toggle__trigger:hover {
+  background-color: rgba(0, 0, 0, 0.035);
+}
+
+.fichas-toggle__trigger:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* .toggle > .toggle-title a i — fa-plus-circle left */
+.fichas-toggle__icon {
+  position: absolute;
+  left: 13px;
+  top: 13px;
+  display: flex;
+  width: 18px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  line-height: 18px;
+  transition: all 0.2s linear;
+}
+
+.fichas-toggle__icon svg {
+  display: block;
+  width: 15px;
+  height: 15px;
+}
+
+.fichas-toggle__label {
+  display: block;
+}
+
+/* Open: .toggle.open > .toggle-title a { color:#fff; background } */
+.fichas-toggle--open .fichas-toggle__trigger {
+  color: #fff;
+  /* default / accent → #dd3333 (salient-dynamic .toggle.open > .toggle-title a) */
+  background-color: #dd3333;
+}
+
+.fichas-toggle--open .fichas-toggle__icon {
+  color: #fff;
+}
+
+.fichas-toggle[data-variant='extra-1'].fichas-toggle--open .fichas-toggle__trigger {
+  background-color: #ffa100;
+}
+
+.fichas-toggle[data-variant='extra-2'].fichas-toggle--open .fichas-toggle__trigger {
+  background-color: #2ac4ea;
+}
+
+.fichas-toggle[data-variant='extra-3'].fichas-toggle--open .fichas-toggle__trigger {
+  background-color: #81d742;
+}
+
+.fichas-toggle[data-variant='default'].fichas-toggle--open .fichas-toggle__trigger,
+.fichas-toggle[data-variant='accent'].fichas-toggle--open .fichas-toggle__trigger {
+  background-color: #dd3333;
+}
+
+/* Panel: data-inner-wrap=true → max-height transition; open → box-shadow + padding */
+.fichas-toggle__panel {
+  max-height: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background-color: #fff;
+  transition: max-height 0.5s ease;
+}
+
+.fichas-toggle__panel--open {
+  max-height: 2000px;
+  pointer-events: all;
+  /* body .toggle > div { box-shadow: 0 1px 2px rgba(0,0,0,.2) } — solo abierto */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.fichas-toggle__panel-inner {
+  padding: 10px 14px;
+}

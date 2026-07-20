@@ -1,0 +1,52 @@
+/* Clon: columna vc_col-sm-4 (index.html:277-568) */
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+/* Original: divider-wrap > .divider style="height: 50px" */
+.fichas-column__spacer {
+  height: 50px;
+}
+
+/* Original: .img-with-aniamtion-wrap.center — imagen centrada 200×200 */
+.fichas-column__logo-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.fichas-column__logo {
+  width: 200px;
+  max-width: 100%;
+  height: auto;
+}
+
+.fichas-column__toggles {
+  width: 100%;
+}
+
+/* Original: links en <p> con <br/> entre cada <a> (index.html:294-304)
+   color: body a → accent (#dd3333) via styles.css global */
+.fichas-column__links {
+  margin: 0;
+  padding: 0;
+  color: var(--color-text);
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.fichas-column__links a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.fichas-column__links a:hover,
+.fichas-column__links a:focus-visible {
+  text-decoration: underline;
+}
+
+.fichas-column__links a:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}

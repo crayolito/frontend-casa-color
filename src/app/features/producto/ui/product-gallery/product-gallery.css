@@ -7,31 +7,76 @@
 
 .product-gallery__stage {
   position: relative;
+  background-color: #fff;
 }
 
-/* woocommerce.css .woocommerce-product-gallery__trigger
-   WC JS: <span aria-hidden="true">🔍</span>
-   top/right típico WC; círculo blanco + sombra Salient */
+/*
+  WC woocommerce.css — lupa dibujada con ::before (aro) + ::after (mango).
+  Salient: box-shadow + border-radius 50px + background #fff.
+  El emoji del span se oculta (text-indent + clip-path WC).
+*/
 .product-gallery__trigger {
   position: absolute;
-  top: 0.75em;
-  right: 0.75em;
-  z-index: 30;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  top: 0.5em;
+  right: 0.5em;
+  z-index: 99;
+  display: block;
   width: 36px;
   height: 36px;
   padding: 0;
   margin: 0;
   border: none;
   border-radius: 50px;
-  background-color: #fff;
+  background: #fff;
+  background-image: none;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-sizing: content-box;
   cursor: pointer;
   appearance: none;
+  font-size: 2em;
+  text-indent: -9999px;
   transition: all 0.25s ease;
   line-height: 1;
+  vertical-align: middle;
+}
+
+.product-gallery__trigger::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid #000;
+  border-radius: 100%;
+  box-sizing: content-box;
+}
+
+.product-gallery__trigger::after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 19px;
+  left: 22px;
+  width: 2px;
+  height: 8px;
+  background: #000;
+  border-radius: 6px;
+  transform: rotate(-45deg);
+  box-sizing: content-box;
+}
+
+.product-gallery__trigger span[aria-hidden='true'] {
+  border: 0;
+  clip-path: inset(50%);
+  height: 1px;
+  width: 1px;
+  margin: -1px;
+  overflow: hidden;
+  position: absolute;
+  top: 50%;
+  left: 50%;
 }
 
 .product-gallery__trigger:hover {
@@ -43,14 +88,10 @@
   outline-offset: 2px;
 }
 
-.product-gallery__trigger-icon {
-  font-size: 16px;
-  line-height: 1;
-}
-
 .product-gallery__slider {
   overflow: hidden;
   position: relative;
+  background-color: #fff;
 }
 
 /* .easyzoom { display:block; position:relative } */
@@ -58,6 +99,7 @@
   display: block;
   position: relative;
   cursor: crosshair;
+  background-color: #fff;
 }
 
 .product-gallery__link {

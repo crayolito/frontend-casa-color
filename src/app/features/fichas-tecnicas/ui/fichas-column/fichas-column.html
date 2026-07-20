@@ -1,0 +1,44 @@
+<div class="fichas-column">
+  <!-- Clon: divider-wrap height:50px (index.html:280) -->
+  <div class="fichas-column__spacer" aria-hidden="true"></div>
+
+  <!-- Clon: img-with-aniamtion-wrap center, img 200×200 (index.html:280-287) -->
+  <div class="fichas-column__logo-wrap">
+    <img
+      class="fichas-column__logo"
+      [src]="column().logo"
+      [alt]="column().logoAlt"
+      width="200"
+      height="200"
+    />
+  </div>
+
+  <!-- Clon: divider-wrap height:50px (index.html:288) -->
+  <div class="fichas-column__spacer" aria-hidden="true"></div>
+
+  <div class="fichas-column__toggles">
+    @for (toggle of column().toggles; track toggle.title; let i = $index) {
+      <app-fichas-toggle
+        [title]="toggle.title"
+        [variant]="toggle.variant"
+        [panelId]="'ficha-' + column().id + '-' + i"
+      >
+        @if (toggle.links.length > 0) {
+          <p class="fichas-column__links">
+            @for (link of toggle.links; track link.href; let last = $last) {
+              <a
+                [href]="link.href"
+                target="_blank"
+                rel="noopener noreferrer"
+                >{{ link.label }}</a
+              >
+              @if (!last) {
+                <br />
+              }
+            }
+          </p>
+        }
+      </app-fichas-toggle>
+    }
+  </div>
+</div>

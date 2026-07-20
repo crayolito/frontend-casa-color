@@ -1,0 +1,90 @@
+/* Clon Fichas Técnicas 2 — index.html:260-572 + cascada CSS del head */
+
+:host {
+  display: block;
+}
+
+.fichas {
+  background: #ffffff;
+}
+
+/* Original: #page-header-wrap height:700px (index.html:260 inline)
+   #page-header-bg background-color:#000; height:700px
+   .page-header-bg-image: fichas-tecnicas-destacada-3.jpg (sustituida por
+   linea-deco-imagen-destacada.jpg — decisión del plan: no está en el repo)
+   responsive.css ≤999px: height:auto + data-padding-amt=high → padding 13% 0
+   data-alignment-v=top + data-padding-amt=high (desktop): padding-top 6% / bottom 20%
+   (style.css / responsive.css) */
+.fichas__hero {
+  margin-top: var(--header-h-mobile);
+  height: auto;
+  padding: 13% 0;
+  background-color: #000;
+  background-image: url('/img/slides/linea-deco-imagen-destacada.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+@media (min-width: 1000px) {
+  .fichas__hero {
+    margin-top: var(--header-h-desktop);
+    height: 700px;
+    padding: 6% 0 20%;
+  }
+}
+
+/* Original: #page-header-bg h1 (style.css)
+   font-weight:600; font-size:44px; line-height:54px; margin-bottom:8px; color:#fff
+   Override dynamic-css-inline: color:#0a0000!important */
+.fichas__title {
+  font-weight: 600;
+  font-size: 44px;
+  line-height: 54px;
+  margin: 0 0 8px;
+  color: #0a0000;
+}
+
+/* container-wrap padding-bottom (style.css ~40px) */
+.fichas__content {
+  padding-bottom: 40px;
+}
+
+/* Original: Salient flex cols (body data-flex-cols=true + data-col-gap=default)
+   grid-system.css:
+     .vc_row-fluid > .span_12 { margin-left:-1%; margin-right:-1% }
+     .span_12 .wpb_column { padding-left:1%; padding-right:1% }  ← % del ROW
+     .vc_col-sm-4 { width:33.33333333% }  (border-box → padding dentro del 33%)
+     margin-right:0 en columnas del span_12
+   NO usar CSS Grid aquí: padding % en grid item se resuelve contra el
+   grid-area (~1/3 del row) y el gap queda ~3× más chico que el clon.
+   @media (max-width:690px): width 100% + margin-bottom 25px */
+.fichas__row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -1%;
+  margin-right: -1%;
+}
+
+@media (min-width: 691px) {
+  app-fichas-column {
+    box-sizing: border-box;
+    width: 33.33333333%;
+    padding-left: 1%;
+    padding-right: 1%;
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 690px) {
+  .fichas__row {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  app-fichas-column {
+    width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+    margin-bottom: 25px;
+  }
+}

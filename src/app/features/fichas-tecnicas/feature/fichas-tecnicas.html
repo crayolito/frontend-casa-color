@@ -1,0 +1,24 @@
+<main class="fichas">
+  <app-header />
+
+  <!-- Clon: #page-header-wrap / #page-header-bg height:700px (index.html:260-272)
+       h1 "Fichas Técnicas" dentro del hero, alignment left/top, padding-amt high -->
+  <div class="fichas__hero">
+    <app-container>
+      <h1 class="fichas__title">{{ title }}</h1>
+    </app-container>
+  </div>
+
+  <div class="fichas__content">
+    <app-container>
+      <!-- Clon: vc_row-fluid con 3× vc_col-sm-4 (index.html:276-568) -->
+      <div class="fichas__row">
+        @for (column of columns; track column.id) {
+          <app-fichas-column [column]="column" />
+        }
+      </div>
+    </app-container>
+  </div>
+
+  <app-footer />
+</main>

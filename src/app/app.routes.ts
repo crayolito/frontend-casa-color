@@ -28,6 +28,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'fichas-tecnicas-2',
+    loadChildren: () =>
+      import('./features/fichas-tecnicas/fichas-tecnicas.routes').then(
+        (m) => m.FICHAS_TECNICAS_ROUTES,
+      ),
+  },
+  {
     path: 'producto/acrilico-color',
     loadChildren: () =>
       import('./features/producto/producto.routes').then(

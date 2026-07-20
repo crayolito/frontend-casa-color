@@ -1,6 +1,6 @@
 <div class="product-gallery">
   <div class="product-gallery__stage">
-    <!-- WC injecta .woocommerce-product-gallery__trigger — círculo blanco + 🔍 -->
+    <!-- WC: lupa = ::before/::after; el span emoji queda oculto (clip-path) -->
     <button
       type="button"
       class="product-gallery__trigger"
@@ -9,7 +9,7 @@
       aria-label="Ver galería de imágenes a pantalla completa"
       (click)="openLightbox()"
     >
-      <span class="product-gallery__trigger-icon" aria-hidden="true">🔍</span>
+      <span aria-hidden="true">🔍</span>
     </button>
 
     <div class="product-gallery__slider">

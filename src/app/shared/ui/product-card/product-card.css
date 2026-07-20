@@ -87,6 +87,8 @@
 .product-card__wrap {
   overflow: hidden;
   position: relative;
+  /* Mismo blanco de contenido (#fff); body es #f8f8f8 y el JPG no alcanza */
+  background-color: #fff;
 }
 
 .product-card__img {
@@ -94,6 +96,7 @@
   height: auto;
   display: block;
   box-shadow: none;
+  background-color: #fff;
 }
 
 /* Clon: img.hover-gallery-image — segunda imagen en Esmalte Sintético */
