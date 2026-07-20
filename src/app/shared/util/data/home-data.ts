@@ -299,7 +299,7 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   { label: 'EMPRESA', href: '/empresa/' },
-  { label: 'CONTACTO', href: '/contacto/' },
+  { label: 'CONTACTO', href: '/contacto' },
 ];
 
 /* 9 slides reales del sitio original: cada línea tiene 3 variantes con
@@ -419,5 +419,5 @@ export const MOBILE_NAV_ITEMS: MobileNavItem[] = [
     ],
   },
   { label: 'EMPRESA', href: '#' },
-  { label: 'CONTACTO', href: '#' },
+  { label: 'CONTACTO', href: '/contacto' },
 ];

@@ -1,0 +1,39 @@
+<ul class="branch-list" role="list">
+  @for (branch of branches(); track branch.id) {
+    <li>
+      <button
+        type="button"
+        class="branch-list__item"
+        [class.branch-list__item--active]="selectedId() === branch.id"
+        (click)="onSelect(branch.id)"
+      >
+        <span class="branch-list__name">{{ branch.name }}</span>
+        @if (formatDistance(branch.distanceKm); as dist) {
+          <span class="branch-list__distance">{{ dist }}</span>
+        }
+        <span class="branch-list__address">
+          @for (line of branch.addressLines; track $index) {
+            {{ line }}@if (!$last) {<br />}
+          }
+        </span>
+        <span class="branch-list__hours">
+          @for (line of branch.hours; track $index) {
+            {{ line }}@if (!$last) {<br />}
+          }
+        </span>
+        <span class="branch-list__meta">
+          <a
+            class="branch-list__phone"
+            [href]="'tel:' + branch.phone.replace(/\s/g, '')"
+            (click)="$event.stopPropagation()"
+          >{{ branch.phone }}</a>
+          <a
+            class="branch-list__email"
+            [href]="'mailto:' + branch.email"
+            (click)="$event.stopPropagation()"
+          >{{ branch.email }}</a>
+        </span>
+      </button>
+    </li>
+  }
+</ul>

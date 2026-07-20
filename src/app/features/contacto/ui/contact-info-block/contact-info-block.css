@@ -1,0 +1,39 @@
+/* Clon — element-icon-with-text.css .iwithtext + style.css .icon-default-style
+   icon: 34×34, color accent #dd3333
+   text: padding-left 55px */
+
+:host {
+  display: block;
+}
+
+.info-block {
+  position: relative;
+  min-height: 34px;
+}
+
+.info-block__icon {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 34px;
+  height: 34px;
+  color: var(--color-accent);
+  line-height: 34px;
+}
+
+.info-block__icon svg {
+  display: block;
+  width: 34px;
+  height: 34px;
+}
+
+.info-block__text {
+  padding-left: 55px;
+  color: var(--color-text);
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.info-block__text strong {
+  font-weight: 700;
+}

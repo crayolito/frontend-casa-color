@@ -1,0 +1,34 @@
+/* Clon: .nectar-google-map height 500px (index.html:318 inline)
+   Mobile: más bajo para dejar aire a la lista. */
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.branch-map {
+  display: block;
+  width: 100%;
+  height: 320px;
+  background: #e8e8e8;
+}
+
+@media (min-width: 1000px) {
+  .branch-map {
+    height: 500px;
+  }
+}
+
+.branch-map--loading,
+.branch-map--error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.branch-map--error {
+  color: var(--color-accent);
+}

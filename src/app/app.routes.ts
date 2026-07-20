@@ -42,6 +42,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'contacto',
+    loadChildren: () =>
+      import('./features/contacto/contacto.routes').then(
+        (m) => m.CONTACTO_ROUTES,
+      ),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

@@ -1,0 +1,113 @@
+/* Lista lateral de sucursales — mejora sobre el clon (no existe ahí).
+   Filosofía visual: Open Sans, accent #dd3333, radius 0.
+   Scroll propio: ~2 ítems visibles, el resto con scroll interno. */
+
+:host {
+  display: block;
+}
+
+.branch-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 22rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-accent) transparent;
+}
+
+.branch-list__item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'name distance'
+    'address address'
+    'hours hours'
+    'meta meta';
+  gap: 4px 12px;
+  width: 100%;
+  padding: 14px 12px;
+  border: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  border-left: 3px solid transparent;
+  background: transparent;
+  text-align: left;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.branch-list li:last-child .branch-list__item {
+  border-bottom: 0;
+}
+
+.branch-list__item:hover,
+.branch-list__item:focus-visible {
+  background: #f3f3f3;
+  outline: none;
+}
+
+.branch-list__item--active {
+  border-left-color: var(--color-accent);
+  background: #faf0f0;
+}
+
+.branch-list__name {
+  grid-area: name;
+  font-weight: 600;
+  color: #333;
+}
+
+.branch-list__distance {
+  grid-area: distance;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-accent);
+  white-space: nowrap;
+}
+
+.branch-list__address {
+  grid-area: address;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.branch-list__hours {
+  grid-area: hours;
+  font-size: 12px;
+  color: #555;
+}
+
+.branch-list__meta {
+  grid-area: meta;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 2px;
+  font-size: 13px;
+}
+
+.branch-list__phone,
+.branch-list__email {
+  color: var(--color-accent);
+  text-decoration: none;
+  word-break: break-word;
+}
+
+.branch-list__phone:hover,
+.branch-list__email:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 999px) {
+  .branch-list {
+    max-height: 20rem;
+  }
+}

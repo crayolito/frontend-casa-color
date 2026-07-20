@@ -64,7 +64,7 @@ export const GALLERY_IMAGES: GalleryImage[] = [
     alt: '',
   },
 ];
-// 345565225524-10c01v4s4rtre2p0e4rprgph6jdvm8c8.apps.googleusercontent.com
+// 
 export const PRODUCT_TITLE = 'Acrílico color';
 
 /** index.html:302-311 Descripción (short) */

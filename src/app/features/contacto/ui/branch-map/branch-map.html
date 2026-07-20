@@ -1,0 +1,32 @@
+@if (loadError()) {
+  <div class="branch-map branch-map--error" role="alert">
+    No se pudo cargar el mapa. Revisá la conexión o la API key.
+  </div>
+} @else if (ready()) {
+  <google-map
+    class="branch-map"
+    height="100%"
+    width="100%"
+    [center]="center()"
+    [zoom]="zoom()"
+  >
+    @for (branch of branches(); track branch.id) {
+      <map-marker
+        [position]="positionOf(branch)"
+        [title]="branch.name"
+        [options]="markerOptions()"
+        (mapClick)="onMarkerClick(branch.id)"
+      />
+    }
+    @if (userLocation(); as user) {
+      <map-marker
+        [position]="user"
+        [options]="userMarkerOptions()"
+      />
+    }
+  </google-map>
+} @else {
+  <div class="branch-map branch-map--loading" aria-busy="true">
+    Cargando mapa…
+  </div>
+}

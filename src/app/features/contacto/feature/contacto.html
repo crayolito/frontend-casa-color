@@ -1,0 +1,49 @@
+<main class="contacto">
+  <app-header />
+
+  <app-contact-hero />
+
+  <app-container>
+    <div class="contacto__info" appReveal>
+      @for (block of infoBlocks; track block.icon) {
+        <app-contact-info-block [block]="block" />
+      }
+    </div>
+
+    <div class="contacto__divider" aria-hidden="true"></div>
+
+    <div class="contacto__branches" appReveal>
+      <div class="contacto__map">
+        <app-branch-map
+          [branches]="branches"
+          [selectedId]="selectedId()"
+          [userLocation]="userLocation()"
+          (markerClick)="onSelectBranch($event)"
+        />
+      </div>
+      <aside class="contacto__list" aria-label="Sucursales">
+        <h2 class="contacto__list-heading">Nuestras sucursales</h2>
+        @if (geoStatus() === 'pending') {
+          <p class="contacto__geo-hint">Obteniendo tu ubicación…</p>
+        } @else if (geoStatus() === 'granted') {
+          <p class="contacto__geo-hint">
+            Ordenadas por distancia a tu ubicación.
+          </p>
+        } @else {
+          <p class="contacto__geo-hint">
+            Ubicación no disponible — mostrando todas las sucursales.
+          </p>
+        }
+        <div class="contacto__list-scroll">
+          <app-branch-list
+            [branches]="branchesWithDistance()"
+            [selectedId]="selectedId()"
+            (select)="onSelectBranch($event)"
+          />
+        </div>
+      </aside>
+    </div>
+  </app-container>
+
+  <app-footer />
+</main>

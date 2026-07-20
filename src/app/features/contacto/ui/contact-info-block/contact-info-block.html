@@ -1,0 +1,39 @@
+<div class="info-block">
+  <div class="info-block__icon" aria-hidden="true">
+    @switch (block().icon) {
+      @case ('map-marker') {
+        <svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor">
+          <path
+            d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"
+          />
+        </svg>
+      }
+      @case ('comment') {
+        <svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor">
+          <path
+            d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1z"
+          />
+        </svg>
+      }
+      @case ('at') {
+        <svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor">
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm1.5-4.5h-1.75c-.41 0-.75-.34-.75-.75V9.75c0-.41.34-.75.75-.75H13.5c1.24 0 2.25 1.01 2.25 2.25S14.74 13.5 13.5 13.5zm0-3.75h-1v2.25h1c.41 0 .75-.34.75-.75s-.34-.75-.75-.75z"
+          />
+        </svg>
+      }
+    }
+  </div>
+  <div class="info-block__text">
+    @for (line of block().lines; track $index) {
+      @if (block().strongLineIndex === $index) {
+        <strong>{{ line }}</strong>
+      } @else {
+        <span>{{ line }}</span>
+      }
+      @if (!$last) {
+        <br />
+      }
+    }
+  </div>
+</div>

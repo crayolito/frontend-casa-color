@@ -1,0 +1,27 @@
+/* Clon contacto — index.html:261-273 + responsive.css ≤999px */
+
+:host {
+  display: block;
+}
+
+/* Original: #page-header-wrap height:700px (inline)
+   #page-header-bg background-color:#000; height:700px
+   .page-header-bg-image background-image: empresa-destacada-2.jpg; bottom
+   responsive.css ≤999px: height:auto + data-padding-amt=high → padding 13% 0 */
+.contact-hero {
+  margin-top: var(--header-h-mobile);
+  height: auto;
+  padding: 13% 0;
+  background-color: #000;
+  background-size: cover;
+  background-position: bottom center;
+  background-repeat: no-repeat;
+}
+
+@media (min-width: 1000px) {
+  .contact-hero {
+    margin-top: var(--header-h-desktop);
+    height: 700px;
+    padding: 0;
+  }
+}
