@@ -1,0 +1,65 @@
+/* Clon Cartas de Color — index.html:259-355 + cascada CSS del head */
+
+:host {
+  display: block;
+}
+
+/* Original: .container-wrap background #f8f8f8 (style.css).
+   Features hermanas (linea-deco / imprimaciones) usan #ffffff — misma
+   decisión de proyecto para páginas con hero + contenido. */
+.cartas {
+  background: #ffffff;
+}
+
+/* Original: #page-header-wrap height:700px (index.html:259 inline)
+   #page-header-bg background-color:#000; height:700px
+   .page-header-bg-image background-image: linea-art-destacada.jpg; center
+   responsive.css ≤999px: height:auto + data-padding-amt=high → padding 13% 0 */
+.cartas__hero {
+  margin-top: var(--header-h-mobile);
+  height: auto;
+  padding: 13% 0;
+  background-color: #000;
+  background-image: url('/img/slides/linea-art-destacada.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+@media (min-width: 1000px) {
+  .cartas__hero {
+    margin-top: var(--header-h-desktop);
+    height: 700px;
+    padding: 0;
+  }
+}
+
+/* Original: h5 en nectar-split-heading (index.html:279).
+   Tipografía h5 global: 24px/30px weight 300 (styles.css).
+   Margin: mismo criterio que linea-deco / imprimaciones (40px 0 20px). */
+.cartas__heading {
+  margin: 40px 0 20px;
+  font-weight: 300;
+}
+
+.cartas__heading strong {
+  font-weight: 700;
+}
+
+/* Original: divider-border (index.html:322)
+   style.css base: .divider-border{margin:35px auto; background:rgba(0,0,0,.12); height:1px}
+   inline override: margin-top:12.5px; height:1px; margin-bottom:12.5px
+   data-animate=yes arranca hidden+scaleX — primera pasada: visible estático
+   (animación waypoint = polish; dimensiones sí son fidelidad). */
+.cartas__divider {
+  margin: 12.5px auto;
+  width: 100%;
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.12);
+}
+
+/* Respiro inferior del contenido (container-wrap padding-bottom:40px style.css).
+   NO tocar display: el :host del color-card es grid — display:block acá
+   rompía el layout 33/67 de la última carta. */
+app-color-card:last-of-type {
+  padding-bottom: 40px;
+}

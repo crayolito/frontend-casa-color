@@ -1,0 +1,45 @@
+<div class="color-card__media">
+  <a class="color-card__img-link" [href]="card().pdfHref" target="_self">
+    <img
+      class="color-card__img"
+      [src]="card().image"
+      [width]="card().imageWidth"
+      [height]="card().imageHeight"
+      alt=""
+      loading="lazy"
+      decoding="async"
+    />
+  </a>
+</div>
+
+<div class="color-card__body">
+  <div class="color-card__title">
+    <span class="color-card__title-text"
+      >{{ card().titlePrefix }}<strong>{{ card().titleStrong }}</strong></span
+    >
+  </div>
+
+  @if (card().description.length) {
+    <div class="color-card__text">
+      @for (paragraph of card().description; track paragraph) {
+        <p>{{ paragraph }}</p>
+      }
+    </div>
+  }
+
+  <div
+    class="color-card__spacer"
+    [style.height.px]="card().dividerHeight"
+    aria-hidden="true"
+  ></div>
+
+  <a
+    class="color-card__button"
+    [href]="card().pdfHref"
+    target="_blank"
+    rel="noopener"
+    role="button"
+  >
+    <span>{{ card().buttonLabel }}</span>
+  </a>
+</div>

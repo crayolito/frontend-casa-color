@@ -21,6 +21,20 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'cartas-de-color',
+    loadChildren: () =>
+      import('./features/cartas-de-color/cartas-de-color.routes').then(
+        (m) => m.CARTAS_DE_COLOR_ROUTES,
+      ),
+  },
+  {
+    path: 'producto/acrilico-color',
+    loadChildren: () =>
+      import('./features/producto/producto.routes').then(
+        (m) => m.PRODUCTO_ROUTES,
+      ),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

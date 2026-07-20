@@ -1,0 +1,66 @@
+<div class="product-desc-tab">
+  <div class="product-desc-tab__nav-wrap">
+    <div class="product-desc-tab__nav container">
+      <ul class="product-desc-tab__tabs" role="tablist">
+        <li class="product-desc-tab__tab" role="tab" aria-selected="true">
+          <a href="#tab-description" class="product-desc-tab__tab-link">Descripción</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div
+    class="product-desc-tab__panel"
+    id="tab-description"
+    role="tabpanel"
+    aria-label="Descripción"
+  >
+    <h2 class="product-desc-tab__hidden-heading">Descripción</h2>
+
+    <div class="product-desc-tab__grid">
+      <div class="product-desc-tab__col">
+        @for (block of leftBlocks(); track block.title) {
+          <div class="product-desc-tab__iwt">
+            <div class="product-desc-tab__iwt-icon">
+              <img [src]="block.icon" alt="" width="100" height="100" />
+            </div>
+            <div class="product-desc-tab__iwt-text">
+              <h4>
+                <span [style.color]="block.titleColor">{{ block.title }}</span>
+              </h4>
+              <div [innerHTML]="block.bodyHtml"></div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="product-desc-tab__col">
+        @for (block of rightBlocks(); track block.title) {
+          <div class="product-desc-tab__iwt">
+            <div class="product-desc-tab__iwt-icon">
+              <img [src]="block.icon" alt="" width="100" height="100" />
+            </div>
+            <div class="product-desc-tab__iwt-text">
+              <h4>
+                <span [style.color]="block.titleColor">{{ block.title }}</span>
+              </h4>
+              <div [innerHTML]="block.bodyHtml"></div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="product-desc-tab__cta">
+      <a
+        class="product-desc-tab__button"
+        [href]="fichaHref()"
+        target="_blank"
+        rel="noopener noreferrer"
+        role="button"
+      >
+        <span>DESCARGAR FICHA TÉCNICA</span>
+      </a>
+    </div>
+  </div>
+</div>

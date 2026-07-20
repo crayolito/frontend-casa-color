@@ -1,0 +1,126 @@
+/* Clon Cartas de Color — index.html:284-352 + cascada CSS del head.
+   Botón: NO usamos app-button — su uppercase/14px/radius-0 no matchea
+   .nectar-button.small del clon (fidelidad). */
+
+/* Original: row_col_wrap_12 + vc_col-sm-4 (33.33%) + vc_col-sm-8 (66.67%)
+   grid-system.css @media (min-width:691px): .vc_col-sm-4 / .vc_col-sm-8
+   html body .vc_row-fluid>.span_12>.wpb_column{margin-right:0} → SIN gap
+   @media (max-width:690px): columnas 100% + .wpb_column{margin-bottom:25px} */
+:host {
+  display: grid;
+  gap: 0;
+}
+
+@media (min-width: 691px) {
+  :host {
+    grid-template-columns: 33.33333333% 66.66666667%;
+  }
+}
+
+/* Original: vc_col-sm-4.centered-text — text-align:center (style.css) */
+.color-card__media {
+  text-align: center;
+  min-width: 0;
+}
+
+@media (max-width: 690px) {
+  .color-card__media {
+    margin-bottom: 25px;
+  }
+}
+
+.color-card__img-link {
+  display: inline-block;
+  text-decoration: none;
+}
+
+.color-card__img-link:hover,
+.color-card__img-link:focus-visible {
+  text-decoration: none;
+}
+
+/* Original: img-with-animation max-width 100%, data-shadow=none (index.html:288-293) */
+.color-card__img {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  margin-inline: auto;
+  box-shadow: none;
+}
+
+.color-card__body {
+  min-width: 0;
+}
+
+/* Original: span inline color:#ff0000 (index.html:305 / :348).
+   Sin heading tag → tipografía body. strong{font-weight:600} (style.css). */
+.color-card__title {
+  margin: 0;
+  padding: 0;
+}
+
+.color-card__title-text {
+  color: #ff0000;
+}
+
+.color-card__title-text strong {
+  font-weight: 600;
+}
+
+/* Original: .wpb_text_column p → padding-bottom:27px (style.css).
+   .wpb_text_column>.wpb_wrapper>:last-child{margin-bottom:0} */
+.color-card__text p {
+  margin: 0;
+  padding: 0 0 27px;
+}
+
+.color-card__text p:last-child {
+  padding-bottom: 0;
+}
+
+/* Original: <div class="divider" style="height: 30px|70px;"> (index.html:313 / :348) */
+.color-card__spacer {
+  width: 100%;
+}
+
+/* Original: .nectar-button.small.regular.accent-color.regular-button
+   base (style.css): color:#fff; font-weight:600; font-size:12px; line-height:20px;
+     display:inline-block; position:relative; margin-bottom:10px; opacity:1;
+     transition:opacity .45s cubic-bezier(.25,1,.33,1)
+   small (dynamic-css-inline index.html): border-radius:2px; font-size:12px;
+     padding:8px 14px; color:#FFF; box-shadow:0 -1px rgba(0,0,0,.1) inset
+   accent (salient-dynamic-styles): .nectar-button[data-color-override=false].regular-button
+     → background-color:#dd3333!important
+   target=_blank (index.html:313) */
+.color-card__button {
+  display: inline-block;
+  position: relative;
+  margin-bottom: 10px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 2px;
+  background-color: #dd3333;
+  box-shadow: 0 -1px rgba(0, 0, 0, 0.1) inset;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 20px;
+  text-decoration: none;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.45s cubic-bezier(0.25, 1, 0.33, 1);
+}
+
+.color-card__button:hover,
+.color-card__button:focus-visible {
+  color: #fff;
+  text-decoration: none;
+  opacity: 0.85;
+}
+
+.color-card__button:focus-visible {
+  outline: 2px solid var(--color-extra-1);
+  outline-offset: 2px;
+}

@@ -1,0 +1,132 @@
+/* Clon single-product Acrílico color — index.html:273-538
+   Cascada: product-single (ios_slider 50/50) + woocommerce breadcrumb/meta/related */
+
+:host {
+  display: block;
+}
+
+.producto {
+  background: #ffffff;
+}
+
+/* Header space — páginas sin hero a full bleed */
+.producto__wrap {
+  margin-top: var(--header-h-mobile);
+  padding-bottom: 40px;
+}
+
+@media (min-width: 1000px) {
+  .producto__wrap {
+    margin-top: var(--header-h-desktop);
+  }
+}
+
+/* woocommerce.css breadcrumb:
+   color inherit; a/i #000; last span opacity .55
+   padding aproximado del shop header */
+.producto__breadcrumb {
+  padding: 13px 0;
+  line-height: 40px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: #000;
+}
+
+.producto__crumb a {
+  color: #000;
+  text-decoration: none;
+  padding: 1px 0;
+}
+
+.producto__crumb a:hover {
+  text-decoration: underline;
+}
+
+.producto__crumb:last-of-type {
+  opacity: 0.55;
+}
+
+/* fa-angle-right: width 20px; font-size 14px; content via CSS */
+.producto__crumb-sep {
+  display: inline-block;
+  width: 20px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 32px;
+  font-style: normal;
+  font-family: inherit;
+  vertical-align: middle;
+}
+
+.producto__crumb-sep::before {
+  content: '›';
+  font-size: 16px;
+}
+
+/* product-single ios_slider ≥1000:
+   .single-product-main-image + .summary { width:50%; margin-right:0 }
+   .summary { padding-left:50px }
+   nectar-prod-wrap { float:none; width:100% } */
+.producto__main {
+  display: grid;
+  gap: 30px;
+  margin-bottom: 0;
+}
+
+@media (min-width: 1000px) {
+  .producto__main {
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    align-items: start;
+  }
+
+  .producto__summary {
+    padding-left: 50px;
+  }
+}
+
+/* product_meta: font-size 14px; margin-bottom 20px; span display block */
+.producto__meta {
+  font-size: 14px;
+  margin: 20px 0;
+  clear: both;
+}
+
+.producto__meta-cats {
+  display: block;
+  line-height: 1.4;
+  margin-bottom: 0;
+}
+
+.producto__meta-cats a {
+  color: var(--color-accent);
+  padding: 1px 0;
+}
+
+/* related: h2 font-size 24/34 (≤999) / 30/40 (≥) — woocommerce.css media */
+.producto__related {
+  margin-top: 25px;
+  clear: both;
+  padding-bottom: 40px;
+}
+
+.producto__related-title {
+  margin-bottom: 20px;
+  font-size: 24px;
+  line-height: 34px;
+  font-weight: 300;
+  color: #000;
+}
+
+@media (min-width: 1000px) {
+  .producto__related-title {
+    font-size: 30px;
+    line-height: 40px;
+  }
+}
+
+.producto__related-list {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}

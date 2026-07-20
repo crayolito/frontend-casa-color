@@ -1,0 +1,17 @@
+<div class="product-summary">
+  <h1 class="product-summary__title">{{ title() }}</h1>
+  <p class="product-summary__price"></p>
+
+  <!-- Clon visual: icono + Descripción juntos (iwithtext), no fila vacía -->
+  <div class="product-summary__iwt">
+    <div class="product-summary__iwt-icon">
+      <img [src]="description().icon" alt="" width="100" height="100" />
+    </div>
+    <div class="product-summary__iwt-text">
+      <h4 class="product-summary__heading">
+        <span [style.color]="description().titleColor">{{ description().title }}</span>
+      </h4>
+      <div class="product-summary__body" [innerHTML]="description().bodyHtml"></div>
+    </div>
+  </div>
+</div>

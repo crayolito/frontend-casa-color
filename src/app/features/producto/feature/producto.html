@@ -1,0 +1,69 @@
+<main class="producto">
+  <app-header />
+
+  <div class="producto__wrap">
+    <app-container>
+      <nav class="producto__breadcrumb" aria-label="Breadcrumb">
+        @for (item of breadcrumb; track item.label; let last = $last) {
+          <span class="producto__crumb">
+            @if (item.href && !last) {
+              <a [href]="item.href">{{ item.label }}</a>
+            } @else {
+              {{ item.label }}
+            }
+          </span>
+          @if (!last) {
+            <i class="producto__crumb-sep" aria-hidden="true"></i>
+          }
+        }
+      </nav>
+
+      <div class="producto__main">
+        <div class="producto__gallery">
+          <app-product-gallery [images]="gallery" />
+        </div>
+
+        <div class="producto__summary">
+          <app-product-summary [title]="title" [description]="description" />
+
+          <!-- Clon: dentro de .summary, vc_row 50/50 (index.html:317-358) -->
+          <app-product-info-row
+            [presentacion]="presentacion"
+            [acabados]="acabados"
+            [color]="color"
+          />
+
+          <div class="producto__meta">
+            <span class="producto__meta-cats">
+              Categorías:
+              @for (cat of categories; track cat.label; let last = $last) {
+                <a [href]="cat.href" rel="tag">{{ cat.label }}</a
+                >@if (!last) {
+                  <span>, </span>
+                }
+              }
+            </span>
+          </div>
+        </div>
+      </div>
+    </app-container>
+
+    <app-product-description-tab
+      [blocks]="tabBlocks"
+      [fichaHref]="fichaHref"
+    />
+
+    <app-container>
+      <section class="producto__related">
+        <h2 class="producto__related-title">Productos relacionados</h2>
+        <div class="producto__related-list">
+          @for (product of related; track product.title) {
+            <app-product-card [product]="product" [columns]="4" />
+          }
+        </div>
+      </section>
+    </app-container>
+  </div>
+
+  <app-footer />
+</main>

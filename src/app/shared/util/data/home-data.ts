@@ -294,7 +294,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: '#',
     children: [
       { label: 'CATÁLOGOS', href: '#' },
-      { label: 'CARTAS DE COLOR', href: '#' },
+      { label: 'CARTAS DE COLOR', href: '/cartas-de-color' },
       { label: 'FICHAS TÉCNICAS', href: '#' },
     ],
   },
@@ -414,7 +414,7 @@ export const MOBILE_NAV_ITEMS: MobileNavItem[] = [
     label: 'DOCUMENTACIÓN',
     children: [
       { label: 'CATÁLOGOS', href: '#' },
-      { label: 'CARTAS DE COLOR', href: '#' },
+      { label: 'CARTAS DE COLOR', href: '/cartas-de-color' },
       { label: 'FICHAS TÉCNICAS', href: '#' },
     ],
   },

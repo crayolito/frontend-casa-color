@@ -1,0 +1,65 @@
+/* Clon: vc_row vc_col-sm-6 + vc_col-sm-6 bajo el nectar-prod-wrap (index.html:317) */
+
+:host {
+  display: block;
+}
+
+.product-info-row {
+  display: grid;
+  gap: 0;
+  margin-top: 1em;
+}
+
+@media (min-width: 691px) {
+  .product-info-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.product-info-row__col {
+  min-width: 0;
+}
+
+@media (max-width: 690px) {
+  .product-info-row__col {
+    margin-bottom: 25px;
+  }
+}
+
+.product-info-row__iwt {
+  position: relative;
+  margin-bottom: 1em;
+}
+
+.product-info-row__iwt-icon {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.product-info-row__iwt-icon img {
+  width: 35px;
+  height: auto;
+  padding: 0;
+}
+
+.product-info-row__iwt-text {
+  padding-left: 55px;
+}
+
+.product-info-row__iwt-text h4 {
+  margin: 0 0 0.4em;
+}
+
+.product-info-row__iwt-text p {
+  margin: 0 0 1em;
+}
+
+.product-info-row__iwt-text ul {
+  margin: 0 0 1em;
+  padding-left: 1.2em;
+}
+
+.product-info-row__iwt-text li {
+  margin-bottom: 0.15em;
+}

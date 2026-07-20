@@ -1,0 +1,285 @@
+/* Clon: ios_slider + easyzoom (woocommerce.css) + gallery__trigger + photoswipe */
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.product-gallery__stage {
+  position: relative;
+}
+
+/* woocommerce.css .woocommerce-product-gallery__trigger
+   WC JS: <span aria-hidden="true">🔍</span>
+   top/right típico WC; círculo blanco + sombra Salient */
+.product-gallery__trigger {
+  position: absolute;
+  top: 0.75em;
+  right: 0.75em;
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 50px;
+  background-color: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  appearance: none;
+  transition: all 0.25s ease;
+  line-height: 1;
+}
+
+.product-gallery__trigger:hover {
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.14);
+}
+
+.product-gallery__trigger:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.product-gallery__trigger-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.product-gallery__slider {
+  overflow: hidden;
+  position: relative;
+}
+
+/* .easyzoom { display:block; position:relative } */
+.product-gallery__easyzoom {
+  display: block;
+  position: relative;
+  cursor: crosshair;
+}
+
+.product-gallery__link {
+  display: block;
+  line-height: 0;
+  text-decoration: none;
+}
+
+.product-gallery__img {
+  width: 100%;
+  height: auto;
+  margin-bottom: 0;
+  box-shadow: none;
+  vertical-align: bottom;
+}
+
+/* .easyzoom-flyout {
+     background-color:#fff; width:100%; height:100%;
+     opacity:0; overflow:hidden; position:absolute; top:0; left:0; z-index:1000;
+     transition:opacity .25s ease }
+   .easyzoom-flyout:hover { opacity:1 } — en hover del target ya está open */
+.product-gallery__flyout {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  overflow: hidden;
+  background-color: #fff;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease 0s;
+}
+
+.product-gallery__flyout--ready {
+  opacity: 1;
+}
+
+/* .easyzoom-flyout img { max-width:none!important; width:auto!important; transition:none } */
+.product-gallery__zoom-img {
+  position: absolute;
+  max-width: none !important;
+  max-height: none !important;
+  width: auto !important;
+  height: auto !important;
+  transition: none !important;
+  pointer-events: none;
+}
+
+/* Thumbs — product-single */
+.product-gallery__thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  width: calc(100% + 10px);
+  margin-left: -5px;
+  margin-top: 10px;
+}
+
+.product-gallery__thumb {
+  width: 25%;
+  padding: 0 5px;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
+}
+
+.product-gallery__thumb-inner {
+  display: block;
+  line-height: 0;
+}
+
+.product-gallery__thumb img {
+  width: 100%;
+  max-width: none;
+  height: auto;
+  margin-bottom: 0;
+  border: 1px solid transparent;
+  padding: 1px;
+  opacity: 0.4;
+  transition:
+    opacity 0.2s linear,
+    border-color 0.1s ease;
+}
+
+.product-gallery__thumb--active img {
+  opacity: 1;
+  border-color: #999;
+}
+
+.product-gallery__thumb:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Mobile: sin hover zoom (nectar !mobile) — cursor normal */
+@media (max-width: 999px) {
+  .product-gallery__easyzoom {
+    cursor: zoom-in;
+  }
+}
+
+/* --- Lightbox (PhotoSwipe equivalente) --- */
+.product-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  outline: 0;
+}
+
+.product-lightbox__bg {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0.9;
+  cursor: pointer;
+}
+
+.product-lightbox__ui {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.product-lightbox__top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  background-color: rgba(0, 0, 0, 0.3);
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.product-lightbox__counter {
+  margin-right: auto;
+  padding: 0 10px;
+  font-size: 13px;
+  line-height: 44px;
+  color: #fff;
+  opacity: 0.75;
+}
+
+.product-lightbox__close {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+  opacity: 0.75;
+  cursor: pointer;
+}
+
+.product-lightbox__close:hover,
+.product-lightbox__close:focus-visible {
+  opacity: 1;
+}
+
+.product-lightbox__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 70px;
+  height: 100px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 48px;
+  line-height: 1;
+  opacity: 0.75;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.product-lightbox__arrow:hover,
+.product-lightbox__arrow:focus-visible {
+  opacity: 1;
+}
+
+.product-lightbox__arrow--prev {
+  left: 0;
+}
+
+.product-lightbox__arrow--next {
+  right: 0;
+}
+
+.product-lightbox__figure {
+  position: relative;
+  max-width: min(100vw - 48px, 1200px);
+  max-height: calc(100vh - 88px);
+  pointer-events: auto;
+  z-index: 1;
+}
+
+.product-lightbox__img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(100vh - 88px);
+  width: auto;
+  height: auto;
+  margin: 0 auto;
+  object-fit: contain;
+  background: #fff;
+}

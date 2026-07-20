@@ -1,0 +1,43 @@
+<div class="product-info-row">
+  <div class="product-info-row__col">
+    <div class="product-info-row__iwt">
+      <div class="product-info-row__iwt-icon">
+        <img [src]="presentacion().icon" alt="" width="100" height="100" />
+      </div>
+      <div class="product-info-row__iwt-text">
+        <h4>
+          <span [style.color]="presentacion().titleColor">{{
+            presentacion().title
+          }}</span>
+        </h4>
+        <div [innerHTML]="presentacion().bodyHtml"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="product-info-row__col">
+    <div class="product-info-row__iwt">
+      <div class="product-info-row__iwt-icon">
+        <img [src]="acabados().icon" alt="" width="100" height="100" />
+      </div>
+      <div class="product-info-row__iwt-text">
+        <h4>
+          <span [style.color]="acabados().titleColor">{{ acabados().title }}</span>
+        </h4>
+        <div [innerHTML]="acabados().bodyHtml"></div>
+      </div>
+    </div>
+
+    <div class="product-info-row__iwt">
+      <div class="product-info-row__iwt-icon">
+        <img [src]="color().icon" alt="" width="100" height="100" />
+      </div>
+      <div class="product-info-row__iwt-text">
+        <h4>
+          <span [style.color]="color().titleColor">{{ color().title }}</span>
+        </h4>
+        <div [innerHTML]="color().bodyHtml"></div>
+      </div>
+    </div>
+  </div>
+</div>

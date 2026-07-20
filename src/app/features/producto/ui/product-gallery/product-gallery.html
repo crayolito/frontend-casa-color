@@ -1,0 +1,143 @@
+<div class="product-gallery">
+  <div class="product-gallery__stage">
+    <!-- WC injecta .woocommerce-product-gallery__trigger — círculo blanco + 🔍 -->
+    <button
+      type="button"
+      class="product-gallery__trigger"
+      aria-haspopup="dialog"
+      aria-controls="product-lightbox"
+      aria-label="Ver galería de imágenes a pantalla completa"
+      (click)="openLightbox()"
+    >
+      <span class="product-gallery__trigger-icon" aria-hidden="true">🔍</span>
+    </button>
+
+    <div class="product-gallery__slider">
+      @for (img of images(); track img.src; let i = $index) {
+        @if (activeIndex() === i) {
+          <!-- Clon: .woocommerce-product-gallery__image.easyzoom > a > img -->
+          <div
+            #zoomTarget
+            class="product-gallery__easyzoom"
+            (mouseenter)="onZoomEnter($event)"
+            (mousemove)="onZoomMove($event)"
+            (mouseleave)="onZoomLeave()"
+          >
+            <a
+              class="product-gallery__link"
+              [href]="img.largeSrc"
+              (click)="$event.preventDefault(); openLightbox(i)"
+            >
+              <img
+                class="product-gallery__img"
+                [src]="img.src"
+                [alt]="img.alt"
+                [width]="img.width"
+                [height]="img.height"
+                [attr.fetchpriority]="i === 0 ? 'high' : null"
+              />
+            </a>
+
+            <!-- woocommerce.css: .easyzoom-flyout { background:#fff; inset 0; opacity 0→1 } -->
+            @if (zoomOpen()) {
+              <div
+                class="product-gallery__flyout"
+                [class.product-gallery__flyout--ready]="zoomReady()"
+                aria-hidden="true"
+              >
+                <img
+                  class="product-gallery__zoom-img"
+                  [src]="img.largeSrc"
+                  alt=""
+                  [style.top]="zoomStyle()['top']"
+                  [style.left]="zoomStyle()['left']"
+                  [style.width]="zoomStyle()['width']"
+                  [style.height]="zoomStyle()['height']"
+                />
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  <div class="product-gallery__thumbs" role="tablist" aria-label="Imágenes del producto">
+    @for (img of images(); track img.thumb; let i = $index) {
+      <button
+        type="button"
+        class="product-gallery__thumb"
+        [class.product-gallery__thumb--active]="activeIndex() === i"
+        role="tab"
+        [attr.aria-selected]="activeIndex() === i"
+        (click)="select(i)"
+      >
+        <span class="product-gallery__thumb-inner">
+          <img [src]="img.thumb" alt="" width="140" height="140" loading="lazy" />
+        </span>
+      </button>
+    }
+  </div>
+</div>
+
+@if (lightboxOpen()) {
+  <div
+    class="product-lightbox"
+    id="product-lightbox"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Imagen en pantalla completa"
+    tabindex="-1"
+  >
+    <div class="product-lightbox__bg" (click)="closeLightbox()" aria-hidden="true"></div>
+
+    <div class="product-lightbox__ui">
+      <div class="product-lightbox__top">
+        <div class="product-lightbox__counter" aria-live="polite">
+          {{ activeIndex() + 1 }} / {{ images().length }}
+        </div>
+        <button
+          type="button"
+          class="product-lightbox__close"
+          aria-label="Cerrar (Esc)"
+          (click)="closeLightbox()"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+
+      @if (images().length > 1) {
+        <button
+          type="button"
+          class="product-lightbox__arrow product-lightbox__arrow--prev"
+          aria-label="Anterior (flecha izquierda)"
+          (click)="prev()"
+        >
+          ‹
+        </button>
+        <button
+          type="button"
+          class="product-lightbox__arrow product-lightbox__arrow--next"
+          aria-label="Siguiente (flecha derecha)"
+          (click)="next()"
+        >
+          ›
+        </button>
+      }
+
+      <div class="product-lightbox__figure">
+        @for (img of images(); track img.largeSrc; let i = $index) {
+          @if (activeIndex() === i) {
+            <img
+              class="product-lightbox__img"
+              [src]="img.largeSrc"
+              [alt]="img.alt"
+              [width]="img.largeWidth"
+              [height]="img.largeHeight"
+            />
+          }
+        }
+      </div>
+    </div>
+  </div>
+}

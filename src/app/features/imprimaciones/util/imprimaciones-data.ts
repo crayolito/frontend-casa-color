@@ -1,5 +1,9 @@
 /** Datos del clon Imprimaciones (index.html:279-460). */
 
+import { ProductItem } from '../../../shared/ui/product-card/product-item';
+
+export type { ProductItem };
+
 export interface SidebarGroup {
   title: string;
   links: SidebarLink[];
@@ -9,15 +13,6 @@ export interface SidebarLink {
   label: string;
   href: string;
   current?: boolean;
-}
-
-export interface ProductItem {
-  title: string;
-  href: string;
-  image: string;
-  imageWidth: number;
-  imageHeight: number;
-  categories: { label: string; href: string }[];
 }
 
 /** index.html:279 — nectar-split-heading h5 */

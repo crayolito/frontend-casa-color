@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Header } from '../../../core/ui/header/header';
 import { Footer } from '../../../core/ui/footer/footer';
 import { Container } from '../../../shared/ui/container/container';
-import { ProductCard } from '../ui/product-card/product-card';
+import { ProductCard } from '../../../shared/ui/product-card/product-card';
 import { SidebarNav } from '../ui/sidebar-nav/sidebar-nav';
 import {
   IMPRIMACIONES_HEADING,

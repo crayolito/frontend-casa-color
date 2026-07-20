@@ -7,6 +7,17 @@
     [height]="product().imageHeight"
     loading="lazy"
   />
+  @if (product().hoverImage; as hover) {
+    <img
+      class="product-card__img product-card__img--hover"
+      [src]="hover"
+      alt=""
+      [width]="product().imageWidth"
+      [height]="product().imageHeight"
+      loading="lazy"
+      aria-hidden="true"
+    />
+  }
   <div class="product-card__overlay" aria-hidden="true"></div>
   <a
     class="product-card__link-overlay"

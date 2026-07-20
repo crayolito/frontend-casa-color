@@ -1,0 +1,24 @@
+<main class="cartas">
+  <app-header />
+
+  <div
+    class="cartas__hero"
+    role="img"
+    aria-label="Cartas de Color"
+  ></div>
+
+  <app-container>
+    <h5 class="cartas__heading">
+      {{ heading.prefix }}<strong>{{ heading.strong }}</strong>
+    </h5>
+
+    @for (carta of cartas; track carta.pdfHref; let last = $last) {
+      <app-color-card [card]="carta" />
+      @if (!last) {
+        <div class="cartas__divider" aria-hidden="true"></div>
+      }
+    }
+  </app-container>
+
+  <app-footer />
+</main>

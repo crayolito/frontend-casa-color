@@ -1,0 +1,194 @@
+/* Clon: full-width-tabs + product-single.css + nectar-button.large accent */
+
+:host {
+  display: block;
+  clear: both;
+}
+
+/* product-single: .full-width-content[data-tab-style*=fullwidth] ul.tabs
+   { text-align:center; margin:70px 0 50px }
+   li a { margin:4px 20px; font-size:17px; line-height:1.7em } */
+.product-desc-tab__nav-wrap {
+  width: 100%;
+}
+
+.product-desc-tab__tabs {
+  list-style: none;
+  margin: 50px 0 40px;
+  padding: 0;
+  text-align: center;
+}
+
+@media (min-width: 1000px) {
+  .product-desc-tab__tabs {
+    margin: 70px 0 50px;
+  }
+}
+
+.product-desc-tab__tab {
+  display: inline-block;
+  float: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.product-desc-tab__tab-link {
+  display: inline-block;
+  padding: 0;
+  margin: 4px 20px;
+  font-size: 17px;
+  line-height: 1.7em;
+  font-weight: 400;
+  color: #000;
+  text-decoration: none;
+  position: relative;
+}
+
+.product-desc-tab__tab-link:hover {
+  text-decoration: none;
+  color: #000;
+}
+
+/* Subrayado activo (approx del :after scale del clon) */
+.product-desc-tab__tab-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--color-accent);
+}
+
+.product-desc-tab__hidden-heading {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.product-desc-tab__panel {
+  padding: 15px 0;
+}
+
+/* index.html:376 — vc_col-sm-6 + vc_col-sm-6 */
+.product-desc-tab__grid {
+  display: grid;
+  gap: 0;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+@media (min-width: 691px) {
+  .product-desc-tab__grid {
+    grid-template-columns: 1fr 1fr;
+    padding-inline: 40px;
+  }
+}
+
+@media (min-width: 1000px) {
+  .product-desc-tab__grid {
+    padding-inline: var(--container-padding);
+  }
+}
+
+.product-desc-tab__col {
+  min-width: 0;
+}
+
+@media (max-width: 690px) {
+  .product-desc-tab__col {
+    margin-bottom: 25px;
+  }
+}
+
+.product-desc-tab__iwt {
+  position: relative;
+  margin-bottom: 1.5em;
+}
+
+.product-desc-tab__iwt-icon {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.product-desc-tab__iwt-icon img {
+  width: 35px;
+  height: auto;
+  padding: 0;
+}
+
+.product-desc-tab__iwt-text {
+  padding-left: 55px;
+}
+
+.product-desc-tab__iwt-text h4 {
+  margin: 0 0 0.4em;
+}
+
+.product-desc-tab__iwt-text p {
+  margin: 0 0 1em;
+}
+
+/* index.html:479 — center CTA */
+.product-desc-tab__cta {
+  text-align: center;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding: 0 24px 15px;
+}
+
+@media (min-width: 691px) {
+  .product-desc-tab__cta {
+    padding-inline: 40px;
+  }
+}
+
+@media (min-width: 1000px) {
+  .product-desc-tab__cta {
+    padding-inline: var(--container-padding);
+  }
+}
+
+/* style.css .nectar-button.large + salient accent #dd3333
+   ascend: border-radius:0; box-shadow:none → pero style large tiene inset shadow
+   cartas usa small con box-shadow; large: font-size:14px; padding:15px 22px;
+   box-shadow:0 -3px rgba(0,0,0,.1) inset */
+.product-desc-tab__button {
+  display: inline-block;
+  position: relative;
+  margin-bottom: 10px;
+  padding: 15px 22px;
+  border: 0;
+  border-radius: 0;
+  background-color: #dd3333;
+  box-shadow: 0 -3px rgba(0, 0, 0, 0.1) inset;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  text-decoration: none;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.45s cubic-bezier(0.25, 1, 0.33, 1);
+}
+
+.product-desc-tab__button:hover,
+.product-desc-tab__button:focus-visible {
+  color: #fff;
+  text-decoration: none;
+  opacity: 0.85;
+}
+
+.product-desc-tab__button:focus-visible {
+  outline: 2px solid var(--color-extra-1);
+  outline-offset: 2px;
+}

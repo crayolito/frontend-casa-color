@@ -1,16 +1,7 @@
 /* Clon: product-style-text-on-hover.css + woocommerce.css
-   Elemento: li.text_on_hover.product (index.html:307+) */
+   Elemento: li.text_on_hover.product */
 
-/* Cascada del li en el clon (el div columna NO tiene .span_9, así que esas reglas no aplican;
-   data-n-desktop-columns="4" tampoco: requiere body.woocommerce):
-   - ≤768px: woocommerce-smallscreen.css .woocommerce ul.products[class*=columns-] li.product
-     { width:48% } con float alternado → 2 columnas
-   - 769-999px: woocommerce-layout.css .woocommerce ul.products.columns-3 li.product
-     { width:30.75% } + margin-right:2% (woocommerce.css) → 3 columnas
-   - ≥1000px: woocommerce.css @media(min-width:1000px)
-     .woocommerce.columns-3 ul.products.columns-3 li.text_on_hover { width:32%; margin-right:2% }
-   - :nth-child(3n+3) { margin-right:0 } (woocommerce.css columns-3, top-level)
-   - product-style-text-on-hover.css: text-align:center; margin-bottom:4%!important */
+/* Default columns-3 (catálogo Imprimaciones) — ver comentarios previos */
 :host {
   display: block;
   text-align: center;
@@ -44,13 +35,60 @@
   }
 }
 
-/* woocommerce.css: .woocommerce .product-wrap */
+/* columns-4 — relacionados single-product
+   woocommerce.css: ul.products li.product { width:23.45%; margin-right:2%; margin-bottom:2% }
+   ≤999: .products.related .product { width:48%!important } */
+:host([data-columns='4']) {
+  width: 48%;
+  margin-right: 4%;
+  margin-bottom: 4%;
+}
+
+:host([data-columns='4']:nth-child(2n)) {
+  margin-right: 0;
+}
+
+:host([data-columns='4']:nth-child(3n)) {
+  margin-right: 4%;
+}
+
+@media (min-width: 769px) {
+  :host([data-columns='4']) {
+    width: 48%;
+    margin-right: 4%;
+  }
+
+  :host([data-columns='4']:nth-child(2n)) {
+    margin-right: 0;
+  }
+
+  :host([data-columns='4']:nth-child(3n)) {
+    margin-right: 4%;
+  }
+}
+
+@media (min-width: 1000px) {
+  :host([data-columns='4']) {
+    width: 23.45%;
+    margin-right: 2%;
+    margin-bottom: 2%;
+  }
+
+  :host([data-columns='4']:nth-child(2n)),
+  :host([data-columns='4']:nth-child(3n)) {
+    margin-right: 2%;
+  }
+
+  :host([data-columns='4']:nth-child(4n)) {
+    margin-right: 0;
+  }
+}
+
 .product-card__wrap {
   overflow: hidden;
   position: relative;
 }
 
-/* woocommerce.css: .woocommerce ul.products li.product .product-wrap img */
 .product-card__img {
   width: 100%;
   height: auto;
@@ -58,7 +96,21 @@
   box-shadow: none;
 }
 
-/* product-style: .text_on_hover.product .product-wrap .bg-overlay */
+/* Clon: img.hover-gallery-image — segunda imagen en Esmalte Sintético */
+.product-card__img--hover {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+
+:host(:hover) .product-card__img--hover,
+:host(:focus-within) .product-card__img--hover {
+  opacity: 1;
+}
+
 .product-card__overlay {
   transition: opacity 0.3s cubic-bezier(0.21, 0.6, 0.35, 1);
   opacity: 0;
@@ -73,7 +125,6 @@
   pointer-events: none;
 }
 
-/* woocommerce.css: .text_on_hover.product .link-overlay */
 .product-card__link-overlay {
   z-index: 100;
   position: absolute;
@@ -83,8 +134,6 @@
   height: 100%;
 }
 
-/* product-style: .text_on_hover.product .text-on-hover-wrap
-   El original usa clase .hovered vía JS; acá :hover del host. */
 .product-card__hover {
   position: absolute;
   top: 50%;
@@ -99,20 +148,16 @@
   pointer-events: none;
 }
 
-/* product-style: .text_on_hover.product.hovered .product-wrap .bg-overlay { opacity:.88 } */
 :host(:hover) .product-card__overlay,
 :host(:focus-within) .product-card__overlay {
   opacity: 0.88;
 }
 
-/* product-style: .text_on_hover.product.hovered .product-wrap .text-on-hover-wrap { opacity:1 } */
 :host(:hover) .product-card__hover,
 :host(:focus-within) .product-card__hover {
   opacity: 1;
 }
 
-/* style.css: .text-on-hover-wrap .categories a { color:#777; font-weight:600 }
-   product-style (carga después): font-size:12px; letter-spacing:0 */
 .product-card__categories a {
   color: #777;
   font-size: 12px;
@@ -127,15 +172,10 @@
 }
 
 .product-card__categories span {
-  color: #000; /* product-style: .text-on-hover-wrap * { color:#000 } */
+  color: #000;
   font-size: 12px;
 }
 
-/* Cascada del título:
-   woocommerce.css .woocommerce ul.products li.product .woocommerce-loop-product__title
-     { font-size:18px; line-height:23px; margin-top:10px } (0,4,2 — pinnea el tamaño)
-   salient-dynamic-styles.css (carga después) .woocommerce ul.products li.product h2
-     { font-weight:300 } → el weight 300 pisa al 400 de woocommerce.css */
 .product-card__title {
   font-family: var(--font-body);
   font-weight: 300;
@@ -153,13 +193,6 @@
   text-decoration: none;
 }
 
-/* Cascada real del "Leer más":
-   woocommerce.css .woocommerce a.button: font-size:12px; line-height:12px (base)
-   product-style: .woocommerce ul.products .text_on_hover.product>.button:
-     background transparent!important; padding:0; margin:8px 0 0!important
-   salient-dynamic-styles.css (carga última, más específica) .text_on_hover.product>.button:
-     color:#dd3333!important; font-size:16px; font-weight:400;
-     text-transform:none!important; letter-spacing:0; font-family:Open Sans */
 .product-card__button {
   display: inline-block;
   background-color: transparent;
@@ -174,10 +207,10 @@
   vertical-align: top;
   margin: 8px 0 0;
   border: none;
-  border-radius: 0; /* ascend.css */
+  border-radius: 0;
   cursor: pointer;
   text-decoration: none;
-  transition: all 0.25s ease 0s; /* woocommerce.css a.button */
+  transition: all 0.25s ease 0s;
 }
 
 .product-card__button:hover {
