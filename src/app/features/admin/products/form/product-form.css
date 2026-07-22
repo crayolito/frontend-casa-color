@@ -1,0 +1,126 @@
+.admin-status {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.admin-error {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(221, 51, 51, 0.08);
+  color: var(--color-accent);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.admin-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  text-decoration: none;
+  border: 2px solid rgba(0, 0, 0, 0.12);
+}
+
+.admin-back:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  text-decoration: none;
+}
+
+.product-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.product-form__section {
+  background: var(--color-white);
+  padding: 1.5rem;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05), 0 4px 20px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.product-form__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.product-form__heading {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 300;
+  color: #333;
+}
+
+.product-form__check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  color: var(--color-text);
+}
+
+.product-form__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.product-form__section-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.product-form__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.product-form__input,
+.product-form__textarea {
+  flex: 1;
+  min-width: 120px;
+  min-height: 40px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+}
+
+.product-form__input--sm {
+  flex: 0 0 96px;
+  min-width: 80px;
+}
+
+.product-form__textarea {
+  width: 100%;
+  min-height: 100px;
+  resize: vertical;
+  font-family: ui-monospace, monospace;
+  font-size: 0.8125rem;
+}
+
+.product-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}

@@ -1,0 +1,110 @@
+<app-admin-page-header
+  title="Catálogos"
+  breadcrumb="Admin"
+  subtitle="Catálogos asociados a una categoría"
+>
+  <app-admin-button type="button" variant="primary" (clicked)="openCreate()">
+    <app-admin-icon name="plus" />
+    Nuevo catálogo
+  </app-admin-button>
+</app-admin-page-header>
+
+@if (flash(); as msg) {
+  <p class="admin-flash" role="status">{{ msg }}</p>
+}
+@if (error(); as err) {
+  <p class="admin-error" role="alert">{{ err }}</p>
+}
+
+<app-admin-filters
+  [total]="meta()?.total ?? null"
+  [hasActiveFilters]="hasActiveFilters()"
+  (cleared)="clearFilters()"
+>
+  <label class="admin-filters__field">
+    <span class="admin-filters__label">Buscar</span>
+    <input
+      class="admin-filters__input"
+      type="search"
+      [ngModel]="search()"
+      (ngModelChange)="onSearchInput($event)"
+      placeholder="Nombre…"
+    />
+  </label>
+  <label class="admin-filters__field">
+    <span class="admin-filters__label">Categoría</span>
+    <select
+      class="admin-filters__input"
+      [ngModel]="categoryId() ?? ''"
+      (ngModelChange)="onCategoryChange($event)"
+    >
+      <option value="">Todas</option>
+      @for (cat of categories(); track cat.id) {
+        <option [value]="cat.id">{{ cat.name }}</option>
+      }
+    </select>
+  </label>
+</app-admin-filters>
+
+<app-admin-table
+  [columns]="columns"
+  [rows]="rows()"
+  [loading]="loading()"
+  [meta]="meta()"
+  [emptyMessage]="emptyMessage()"
+  (edit)="openEdit($event)"
+  (remove)="askDelete($event)"
+  (pageChange)="onPageChange($event)"
+/>
+
+<app-admin-modal
+  [open]="modalOpen()"
+  [title]="editing() ? 'Editar catálogo' : 'Nuevo catálogo'"
+  (closed)="closeModal()"
+>
+  <form class="admin-form" [formGroup]="form" (ngSubmit)="save()">
+    <app-admin-form-field
+      label="Categoría"
+      controlName="categoryId"
+      type="select"
+      [error]="form.controls.categoryId.touched && form.controls.categoryId.invalid ? 'Seleccioná una categoría' : null"
+    >
+      <option value="" disabled>Seleccioná…</option>
+      @for (cat of categories(); track cat.id) {
+        <option [value]="cat.id">{{ cat.name }}</option>
+      }
+    </app-admin-form-field>
+    <app-admin-form-field
+      label="Nombre"
+      controlName="name"
+      [error]="form.controls.name.touched && form.controls.name.invalid ? 'Requerido' : null"
+    />
+    <app-admin-form-field label="Slug (opcional)" controlName="slug" />
+    <app-admin-form-field label="Descripción" controlName="description" type="textarea" />
+    <app-image-uploader
+      label="Imagen"
+      folder="catalogs"
+      [url]="form.controls.imageUrl.value || null"
+      (urlChange)="onImageChange($event)"
+    />
+    <app-admin-form-field label="Orden" controlName="displayOrder" type="number" />
+    <div class="admin-form__actions">
+      <app-admin-button type="button" variant="secondary" (clicked)="closeModal()">
+        Cancelar
+      </app-admin-button>
+      <app-admin-button type="submit" variant="primary" [loading]="saving()">
+        Guardar
+      </app-admin-button>
+    </div>
+  </form>
+</app-admin-modal>
+
+<app-admin-confirm-dialog
+  [open]="!!deleteTarget()"
+  title="Eliminar catálogo"
+  [message]="'¿Eliminar «' + (deleteTarget()?.name ?? '') + '»?'"
+  warning="Esto puede eliminar en cascada los productos asociados."
+  [loading]="saving()"
+  (confirmed)="confirmDelete()"
+  (cancelled)="deleteTarget.set(null)"
+/>

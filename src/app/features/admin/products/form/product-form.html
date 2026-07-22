@@ -1,0 +1,152 @@
+<app-admin-page-header
+  [title]="isEdit ? 'Editar producto' : 'Nuevo producto'"
+  breadcrumb="Admin / Productos"
+>
+  <a routerLink="/admin/products" class="admin-back">Volver</a>
+</app-admin-page-header>
+
+@if (loading()) {
+  <p class="admin-status">Cargando producto…</p>
+} @else {
+  @if (error(); as err) {
+    <p class="admin-error" role="alert">{{ err }}</p>
+  }
+
+  <form class="product-form" [formGroup]="form" (ngSubmit)="save()">
+    <section class="product-form__section">
+      <h2 class="product-form__heading">Datos básicos</h2>
+
+      <app-admin-form-field label="Catálogo" controlName="catalogId" type="select">
+        <option value="" disabled>Seleccioná…</option>
+        @for (cat of catalogs(); track cat.id) {
+          <option [value]="cat.id">{{ cat.name }}</option>
+        }
+      </app-admin-form-field>
+
+      <app-admin-form-field
+        label="Título"
+        controlName="title"
+        [error]="form.controls.title.touched && form.controls.title.invalid ? 'Requerido' : null"
+      />
+      <app-admin-form-field label="Slug (opcional)" controlName="slug" />
+      <app-admin-form-field label="Descripción" controlName="description" type="textarea" />
+      <app-admin-form-field label="Ficha técnica (URL)" controlName="technicalSheetUrl" type="url" />
+      <app-admin-form-field label="Orden" controlName="displayOrder" type="number" />
+
+      <label class="product-form__check">
+        <input type="checkbox" formControlName="isActive" />
+        Producto activo
+      </label>
+    </section>
+
+    <section class="product-form__section">
+      <app-image-gallery
+        [images]="images()"
+        (imagesChange)="onImagesChange($event)"
+      />
+    </section>
+
+    <section class="product-form__section" formArrayName="presentations">
+      <div class="product-form__section-head">
+        <h2 class="product-form__heading">Presentaciones</h2>
+        <app-admin-button type="button" variant="secondary" (clicked)="addPresentation()">
+          <app-admin-icon name="plus" />
+          Agregar
+        </app-admin-button>
+      </div>
+      @for (ctrl of presentations.controls; track $index; let i = $index) {
+        <div class="product-form__row" [formGroupName]="i">
+          <input class="product-form__input" formControlName="value" placeholder="Ej: 1 Litro" />
+          <input class="product-form__input product-form__input--sm" type="number" formControlName="displayOrder" placeholder="Orden" />
+          <app-admin-button type="button" variant="ghost" (clicked)="removePresentation(i)">
+            Quitar
+          </app-admin-button>
+        </div>
+      }
+    </section>
+
+    <section class="product-form__section" formArrayName="finishes">
+      <div class="product-form__section-head">
+        <h2 class="product-form__heading">Acabados</h2>
+        <app-admin-button type="button" variant="secondary" (clicked)="addFinish()">
+          <app-admin-icon name="plus" />
+          Agregar
+        </app-admin-button>
+      </div>
+      @for (ctrl of finishes.controls; track $index; let i = $index) {
+        <div class="product-form__card" [formGroupName]="i">
+          <input class="product-form__input" formControlName="name" placeholder="Nombre" />
+          <input class="product-form__input product-form__input--sm" type="number" formControlName="displayOrder" />
+          <app-image-uploader
+            label="Imagen del acabado"
+            folder="finishes"
+            [url]="finishes.at(i).controls['imageUrl'].value || null"
+            (urlChange)="onFinishImageChange(i, $event)"
+          />
+          <app-admin-button type="button" variant="ghost" (clicked)="removeFinish(i)">
+            Quitar
+          </app-admin-button>
+        </div>
+      }
+    </section>
+
+    <section class="product-form__section" formArrayName="colors">
+      <div class="product-form__section-head">
+        <h2 class="product-form__heading">Colores</h2>
+        <app-admin-button type="button" variant="secondary" (clicked)="addColor()">
+          <app-admin-icon name="plus" />
+          Agregar
+        </app-admin-button>
+      </div>
+      @for (ctrl of colors.controls; track $index; let i = $index) {
+        <div class="product-form__card" [formGroupName]="i">
+          <input class="product-form__input" formControlName="name" placeholder="Nombre" />
+          <input class="product-form__input product-form__input--sm" formControlName="hexCode" placeholder="#RRGGBB" />
+          <input class="product-form__input product-form__input--sm" type="number" formControlName="displayOrder" />
+          <app-image-uploader
+            label="Imagen del color"
+            folder="colors"
+            [url]="colors.at(i).controls['imageUrl'].value || null"
+            (urlChange)="onColorImageChange(i, $event)"
+          />
+          <app-admin-button type="button" variant="ghost" (clicked)="removeColor(i)">
+            Quitar
+          </app-admin-button>
+        </div>
+      }
+    </section>
+
+    <section class="product-form__section" formArrayName="sections">
+      <div class="product-form__section-head">
+        <h2 class="product-form__heading">Secciones</h2>
+        <app-admin-button type="button" variant="secondary" (clicked)="addSection()">
+          <app-admin-icon name="plus" />
+          Agregar
+        </app-admin-button>
+      </div>
+      @for (ctrl of sections.controls; track $index; let i = $index) {
+        <div class="product-form__section-card" [formGroupName]="i">
+          <input class="product-form__input" formControlName="title" placeholder="Título de sección" />
+          <input class="product-form__input" formControlName="icon" placeholder="Icono (opcional)" />
+          <input class="product-form__input product-form__input--sm" type="number" formControlName="displayOrder" />
+          <textarea
+            class="product-form__textarea"
+            formControlName="contentJson"
+            rows="5"
+            placeholder='[{"type":"paragraph","text":"..."}]'
+          ></textarea>
+          <app-admin-button type="button" variant="ghost" (clicked)="removeSection(i)">
+            Quitar sección
+          </app-admin-button>
+        </div>
+      }
+    </section>
+
+    <div class="product-form__actions">
+      <a routerLink="/admin/products" class="admin-back">Cancelar</a>
+      <app-admin-button type="submit" variant="primary" [loading]="saving()">
+        Guardar producto
+      </app-admin-button>
+    </div>
+  </form>
+}

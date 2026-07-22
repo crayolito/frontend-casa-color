@@ -1,0 +1,44 @@
+<div class="admin-login">
+  <div class="admin-login__card">
+    <div class="admin-login__heading">
+      <span class="admin-login__lock"><app-admin-icon name="lock" [size]="28" /></span>
+      <h1 class="admin-login__title">Admin Casa Color</h1>
+      <p class="admin-login__subtitle">Iniciá sesión para gestionar el catálogo</p>
+    </div>
+
+    <form class="admin-login__form" [formGroup]="form" (ngSubmit)="onSubmit()">
+      <app-admin-form-field
+        label="Email"
+        controlName="email"
+        type="email"
+        autocomplete="username"
+        [error]="form.controls.email.touched && form.controls.email.invalid
+          ? 'Email válido requerido'
+          : null"
+      />
+
+      <app-admin-form-field
+        label="Contraseña"
+        controlName="password"
+        type="password"
+        autocomplete="current-password"
+        [error]="form.controls.password.touched && form.controls.password.invalid
+          ? 'Mínimo 12 caracteres'
+          : null"
+      />
+
+      @if (errorMessage(); as msg) {
+        <p class="admin-login__error" role="alert">{{ msg }}</p>
+      }
+
+      <app-admin-button
+        type="submit"
+        variant="primary"
+        [loading]="submitting()"
+        [disabled]="submitting()"
+      >
+        Entrar
+      </app-admin-button>
+    </form>
+  </div>
+</div>

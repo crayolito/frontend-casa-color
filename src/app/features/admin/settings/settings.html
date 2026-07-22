@@ -1,0 +1,66 @@
+<app-admin-page-header
+  title="Site settings"
+  breadcrumb="Admin"
+  subtitle="Configuración key → JSON del sitio"
+/>
+
+@if (flash(); as msg) {
+  <p class="admin-flash" role="status">{{ msg }}</p>
+}
+@if (error(); as err) {
+  <p class="admin-error" role="alert">{{ err }}</p>
+}
+
+<div class="settings">
+  <aside class="settings__keys" aria-label="Keys conocidas">
+    <p class="settings__keys-label">Keys</p>
+    @for (key of knownKeys; track key) {
+      <button
+        type="button"
+        class="settings__key"
+        [class.settings__key--active]="selectedKey() === key"
+        (click)="selectKey(key)"
+      >
+        {{ key }}
+      </button>
+    }
+  </aside>
+
+  <form class="settings__form" [formGroup]="form" (ngSubmit)="save()">
+    <label class="settings__field">
+      <span class="settings__label">Key</span>
+      <input class="settings__input" formControlName="key" />
+    </label>
+
+    <label class="settings__field">
+      <span class="settings__label">Value (JSON)</span>
+      <textarea class="settings__textarea" formControlName="valueJson" rows="16"></textarea>
+    </label>
+
+    @if (updatedAt(); as at) {
+      <p class="settings__meta">Actualizado: {{ at }}</p>
+    }
+
+    @if (loading()) {
+      <p class="settings__meta">Cargando…</p>
+    }
+
+    <div class="settings__actions">
+      <app-admin-button type="button" variant="danger" (clicked)="askDelete()">
+        Eliminar
+      </app-admin-button>
+      <app-admin-button type="submit" variant="primary" [loading]="saving()">
+        Guardar
+      </app-admin-button>
+    </div>
+  </form>
+</div>
+
+<app-admin-confirm-dialog
+  [open]="deleteOpen()"
+  title="Eliminar setting"
+  [message]="'¿Eliminar la key «' + form.controls.key.value + '»?'"
+  [loading]="saving()"
+  (confirmed)="confirmDelete()"
+  (cancelled)="deleteOpen.set(false)"
+/>

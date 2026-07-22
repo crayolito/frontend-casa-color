@@ -1,0 +1,80 @@
+<app-admin-page-header
+  title="Productos"
+  breadcrumb="Admin"
+  subtitle="Productos activos del catálogo"
+>
+  <a routerLink="/admin/products/new" class="admin-link-btn">
+    <app-admin-icon name="plus" />
+    Nuevo producto
+  </a>
+</app-admin-page-header>
+
+@if (flash(); as msg) {
+  <p class="admin-flash" role="status">{{ msg }}</p>
+}
+@if (error(); as err) {
+  <p class="admin-error" role="alert">{{ err }}</p>
+}
+
+<app-admin-filters
+  [total]="meta()?.total ?? null"
+  [hasActiveFilters]="hasActiveFilters()"
+  (cleared)="clearFilters()"
+>
+  <label class="admin-filters__field">
+    <span class="admin-filters__label">Buscar</span>
+    <input
+      class="admin-filters__input"
+      type="search"
+      [ngModel]="search()"
+      (ngModelChange)="onSearchInput($event)"
+      placeholder="Título…"
+    />
+  </label>
+  <label class="admin-filters__field">
+    <span class="admin-filters__label">Categoría</span>
+    <select
+      class="admin-filters__input"
+      [ngModel]="categoryId() ?? ''"
+      (ngModelChange)="onCategoryChange($event)"
+    >
+      <option value="">Todas</option>
+      @for (cat of categories(); track cat.id) {
+        <option [value]="cat.id">{{ cat.name }}</option>
+      }
+    </select>
+  </label>
+  <label class="admin-filters__field">
+    <span class="admin-filters__label">Catálogo</span>
+    <select
+      class="admin-filters__input"
+      [ngModel]="catalogId() ?? ''"
+      (ngModelChange)="onCatalogChange($event)"
+    >
+      <option value="">Todos</option>
+      @for (c of catalogs(); track c.id) {
+        <option [value]="c.id">{{ c.name }}</option>
+      }
+    </select>
+  </label>
+</app-admin-filters>
+
+<app-admin-table
+  [columns]="columns"
+  [rows]="rows()"
+  [loading]="loading()"
+  [meta]="meta()"
+  [emptyMessage]="emptyMessage()"
+  (edit)="onEdit($event)"
+  (remove)="askDelete($event)"
+  (pageChange)="onPageChange($event)"
+/>
+
+<app-admin-confirm-dialog
+  [open]="!!deleteTarget()"
+  title="Eliminar producto"
+  [message]="'¿Eliminar «' + (deleteTarget()?.title ?? '') + '»?'"
+  [loading]="saving()"
+  (confirmed)="confirmDelete()"
+  (cancelled)="deleteTarget.set(null)"
+/>

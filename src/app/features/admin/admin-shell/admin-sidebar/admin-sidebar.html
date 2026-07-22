@@ -1,0 +1,18 @@
+<aside class="admin-sidebar" aria-label="Admin navigation">
+  <div class="admin-sidebar__brand">
+    <a routerLink="/admin/products" class="admin-sidebar__logo">Casa Color</a>
+    <p class="admin-sidebar__tag">Admin</p>
+  </div>
+  <nav class="admin-sidebar__nav">
+    @for (item of items; track item.path) {
+      <a
+        class="admin-sidebar__link"
+        [routerLink]="item.path"
+        routerLinkActive="admin-sidebar__link--active"
+      >
+        <app-admin-icon [name]="item.icon" />
+        <span>{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+</aside>
