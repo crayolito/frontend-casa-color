@@ -84,6 +84,58 @@
   }
 }
 
+/* archive-4 — clon Línea Tecno (index.html:274)
+   data-n-desktop-columns="4" data-n-desktop-small-columns="3"
+   woocommerce.css: ≤999 2 cols; 1000-1300 31.2%; ≥1301 23.4% */
+:host([data-columns='archive-4']) {
+  width: 48%;
+  margin-right: 4%;
+  margin-bottom: 4%;
+}
+
+:host([data-columns='archive-4']:nth-child(2n)) {
+  margin-right: 0;
+}
+
+:host([data-columns='archive-4']:nth-child(3n)),
+:host([data-columns='archive-4']:nth-child(4n)) {
+  margin-right: 4%;
+}
+
+@media (min-width: 1000px) {
+  :host([data-columns='archive-4']) {
+    width: 31.2%;
+    margin-right: 2%;
+    margin-bottom: 2%;
+  }
+
+  :host([data-columns='archive-4']:nth-child(2n)),
+  :host([data-columns='archive-4']:nth-child(4n)) {
+    margin-right: 2%;
+  }
+
+  :host([data-columns='archive-4']:nth-child(3n)) {
+    margin-right: 0;
+  }
+}
+
+@media (min-width: 1300px) {
+  :host([data-columns='archive-4']) {
+    width: 23.4%;
+    margin-right: 1.5%;
+    margin-bottom: 1.5%;
+  }
+
+  :host([data-columns='archive-4']:nth-child(2n)),
+  :host([data-columns='archive-4']:nth-child(3n)) {
+    margin-right: 1.5%;
+  }
+
+  :host([data-columns='archive-4']:nth-child(4n)) {
+    margin-right: 0;
+  }
+}
+
 .product-card__wrap {
   overflow: hidden;
   position: relative;

@@ -56,6 +56,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'catalogos',
+    loadChildren: () =>
+      import('./features/catalogos/catalogos.routes').then(
+        (m) => m.CATALOGOS_ROUTES,
+      ),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

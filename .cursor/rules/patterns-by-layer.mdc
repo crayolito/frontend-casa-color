@@ -1,0 +1,145 @@
+---
+description: Reglas específicas por capa de Clean Architecture. Se activa automáticamente según el archivo que se esté modificando.
+globs: ["**/controllers/**", "**/adapters/**", "**/usecases/**", "**/application/**", "**/domain/**", "**/repositories/**", "**/infrastructure/**", "**/services/**"]
+alwaysApply: false
+---
+
+# Reglas por capa
+
+> **Ámbito: BACKEND.** Los globs pueden dispararse sobre archivos de frontend (ej. `services/` de Angular, `services/` de un cliente HTTP en React). Si el archivo pertenece al frontend (componente, service de Angular, hook, facade de datos), IGNORÁ esta regla y aplicá `frontend-layers.mdc`. Al revés igual: `frontend-layers.mdc` no aplica a código de servidor.
+> Qué patrón vive en qué capa: ver tabla al final + `.cursor/skills/backend-reference/references/patterns.md`.
+
+## Controllers / Adapters
+
+**Responsabilidad única:** traducir HTTP -> datos planos -> caso de uso -> respuesta HTTP.
+
+```
+# Lo que SÍ hace un controller
+- Recibir el request HTTP
+- Extraer y validar el formato de los datos de entrada
+- Llamar al caso de uso con datos planos
+- Traducir el resultado a respuesta HTTP con el código correcto
+
+# Lo que NUNCA hace un controller
+- Lógica de negocio
+- Acceso directo a la base de datos
+- Llamadas directas a servicios externos
+- Transformaciones de dominio
+```
+
+Si ves lógica de negocio en un controller -> señalalo (constitución -> "Código existente": señalás, no corregís sin permiso).
+
+---
+
+## Use Cases / Application
+
+**Responsabilidad única:** orquestar el dominio para cumplir un caso de uso del sistema.
+
+```
+# Lo que SÍ hace un caso de uso
+- Recibir datos planos (sin req/res)
+- Llamar entidades del dominio
+- Llamar al repository por su interfaz (no implementación)
+- Manejar el flujo de la operación
+- Definir el LÍMITE de transacción (Unit of Work) si toca varios repositories
+
+# Lo que NUNCA hace un caso de uso
+- Importar Express, Fastify, o cualquier framework HTTP
+- Importar directamente un ORM o cliente de BD
+- Manejar lógica de presentación
+```
+
+---
+
+## Domain — Entities e Interfaces
+
+**Responsabilidad única:** definir las reglas de negocio puras y los contratos.
+
+```
+# Regla crítica
+El dominio no importa NADA de fuera de sí mismo.
+Sin imports de frameworks, ORMs, librerías externas.
+
+# Las interfaces (UserRepository, etc.) viven acá -> chicas y enfocadas (ISP)
+# Las implementaciones viven en adapters/repositories
+# Value Objects (Email, Money) viven acá si el dominio es complejo (references/ddd.md)
+```
+
+---
+
+## Repositories — Implementaciones
+
+**Responsabilidad única:** implementar el contrato definido en el dominio usando la tecnología de persistencia real.
+
+```
+# Lo que SÍ hace un repository
+- Implementar los métodos definidos en la interfaz del dominio
+- Traducir entre entidades del dominio y modelos de BD
+- Manejar errores de infraestructura
+
+# Lo que NUNCA hace un repository
+- Lógica de negocio
+- Validaciones de dominio
+- Llamar a otros servicios
+```
+
+---
+
+## Services (si el proyecto los usa)
+
+Si el proyecto tiene una capa de `services/` en lugar de `usecases/`, aplicá el mismo criterio que los casos de uso.
+
+Si conviven `services/` y `usecases/` en el mismo proyecto, señalá la inconsistencia antes de agregar más código en cualquiera de las dos.
+
+---
+
+## Nomenclatura — archivos y código
+
+> En proyecto EXISTENTE: la convención que el proyecto ya usa mayoritariamente MANDA sobre esta tabla
+> (constitución → "código existente"). Esta tabla aplica a proyectos de cero o a partes nuevas sin precedente.
+> El hallazgo auditable es la INCONSISTENCIA, no el estilo.
+
+### Archivos — kebab-case + sufijo de capa (convención NestJS/Angular)
+
+```
+create-order.usecase.ts        # casos de uso: verbo-sustantivo
+user.controller.ts             # controllers
+user.repository.ts             # implementaciones de repository
+user-repository.interface.ts   # interfaces de dominio (o user.repository.ts en domain/)
+order.entity.ts                # entidades
+money.value-object.ts          # value objects (si hay DDD)
+auth.middleware.ts             # middleware
+```
+
+- Siempre minúsculas con guión (`kebab-case`). Razón técnica, no de gusto: macOS/Windows no distinguen
+  mayúsculas en el filesystem y Linux/Git sí — renombrar solo el casing rompe imports en silencio.
+- El sufijo declara la capa: el archivo dice su rol sin abrirlo.
+
+### Identificadores — estándar TS/JS (Google / equipo de TypeScript)
+
+| Qué | Convención | Ejemplo |
+|---|---|---|
+| Variables, funciones, métodos, miembros | `camelCase` | `totalAmount`, `createOrder()` |
+| Clases, interfaces, types, enums | `PascalCase` | `OrderService`, `UserRepository` |
+| Constantes globales / de módulo | `UPPER_SNAKE_CASE` | `MAX_RETRIES` |
+| Miembros de enum | `PascalCase` | `OrderStatus.Pending` |
+| Booleanos | prefijo `is/has/can/should` | `isActive`, `hasStock` |
+
+- Interfaces SIN prefijo `I` ni sufijo `Interface` (`UserRepository`, no `IUserRepository`).
+- Acrónimos como palabras: `loadHttpUrl`, `userId` — no `loadHTTPURL`, `userID`.
+- Sin notación húngara; el nombre no repite lo que ya dice el tipo.
+- Nombres descriptivos, sin abreviaciones ambiguas (`customerId`, no `cstmrId`).
+
+---
+
+## Dónde vive cada patrón (resumen — detalle en references/patterns.md)
+
+| Patrón | Capa |
+|---|---|
+| Repository | interfaz en `domain`, impl en `repositories`/`adapters` |
+| Dependency Injection | cableado en composition root (`infrastructure`/main); interfaces en `domain` |
+| Decorator | `adapters` (envuelve un repo/gateway por su interfaz) |
+| Observer / Event bus | el caso de uso publica; interfaz en `application`, impl en `infrastructure` |
+| Middleware | `controllers` (borde de transporte) |
+| Unit of Work | límite definido en el caso de uso; impl en `infrastructure` |
+| "Instancia única" | lifecycle del contenedor DI (composition root) — NUNCA Singleton GoF global |

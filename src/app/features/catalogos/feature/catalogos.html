@@ -1,0 +1,48 @@
+<main class="catalogos">
+  <app-header />
+
+  <div class="catalogos__wrap">
+    <app-container>
+      <header class="catalogos__shop-header">
+        <div class="catalogos__header-row">
+          <h1 class="catalogos__page-title">{{ heading }}</h1>
+
+          <div class="catalogos__toolbar">
+            <p class="catalogos__result-count" role="status">{{ resultCount }}</p>
+
+            <select class="catalogos__orderby" aria-label="Pedido de la tienda">
+              @for (opt of orderbyOptions; track opt.value) {
+                <option [value]="opt.value" [selected]="opt.selected">
+                  {{ opt.label }}
+                </option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <nav class="catalogos__breadcrumb" aria-label="Breadcrumb">
+          @for (item of breadcrumb; track item.label; let last = $last) {
+            <span class="catalogos__crumb">
+              @if (!last && item.href) {
+                <a [routerLink]="item.href">{{ item.label }}</a>
+              } @else {
+                {{ item.label }}
+              }
+            </span>
+            @if (!last) {
+              <i class="catalogos__crumb-sep" aria-hidden="true"></i>
+            }
+          }
+        </nav>
+      </header>
+
+      <div class="catalogos__products">
+        @for (product of products; track product.title) {
+          <app-product-card [product]="product" columns="archive-4" />
+        }
+      </div>
+    </app-container>
+  </div>
+
+  <app-footer />
+</main>

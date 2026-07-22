@@ -12,6 +12,6 @@ import { ProductItem } from './product-item';
 })
 export class ProductCard {
   readonly product = input.required<ProductItem>();
-  /** 3 = catálogo Imprimaciones; 4 = relacionados single-product. */
-  readonly columns = input<3 | 4>(3);
+  /** 3 = Imprimaciones; 4 = relacionados single-product; archive-4 = archive WooCommerce 4-col. */
+  readonly columns = input<3 | 4 | 'archive-4'>(3);
 }
