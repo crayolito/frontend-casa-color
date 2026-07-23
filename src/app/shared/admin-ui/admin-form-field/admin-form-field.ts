@@ -70,25 +70,26 @@ import { ControlContainer, ReactiveFormsModule } from '@angular/forms';
 
     .admin-field__control {
       width: 100%;
-      min-height: 44px;
-      padding: 0.625rem 0.875rem;
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      border-radius: var(--radius);
+      min-height: var(--admin-input-h, 38px);
+      padding: 0.4rem 0.75rem;
+      border: 1px solid var(--admin-border);
+      border-radius: var(--radius-md);
       font-family: var(--font-body);
-      font-size: 1rem;
+      font-size: 0.9375rem;
       color: #333;
       background: var(--color-white);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
     textarea.admin-field__control {
-      min-height: 96px;
+      min-height: 80px;
       resize: vertical;
     }
 
     .admin-field__control:focus {
-      outline: 2px solid var(--color-extra-1);
-      outline-offset: 1px;
+      outline: none;
       border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px rgba(221, 51, 51, 0.12);
     }
 
     .admin-field__error {

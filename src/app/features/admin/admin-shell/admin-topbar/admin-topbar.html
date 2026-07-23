@@ -1,7 +1,73 @@
 <header class="admin-topbar">
-  <p class="admin-topbar__email">{{ email() }}</p>
-  <app-admin-button variant="ghost" type="button" (clicked)="logout()">
-    <app-admin-icon name="logout" />
-    Cerrar sesión
-  </app-admin-button>
+  <div class="admin-topbar__left">
+    <button
+      type="button"
+      class="admin-topbar__menu admin-topbar__menu--mobile"
+      aria-label="Abrir menú de navegación"
+      (click)="menuToggle.emit()"
+    >
+      <app-admin-icon name="menu" [size]="20" />
+    </button>
+    <button
+      type="button"
+      class="admin-topbar__menu admin-topbar__menu--desktop"
+      aria-label="Colapsar sidebar"
+      (click)="collapseToggle.emit()"
+    >
+      <app-admin-icon name="panel-left" [size]="18" />
+    </button>
+    <div class="admin-topbar__context">
+      <p class="admin-topbar__crumb">Admin / {{ section().crumb }}</p>
+      <p class="admin-topbar__section">{{ section().label }}</p>
+    </div>
+  </div>
+
+  <div class="admin-topbar__right">
+    <button type="button" class="admin-topbar__search" (click)="openSearch()">
+      <app-admin-icon name="search" [size]="16" />
+      <span>Buscar…</span>
+      <kbd class="admin-topbar__kbd">Ctrl K</kbd>
+    </button>
+    @if (email(); as userEmail) {
+      <div class="admin-topbar__user" [title]="userEmail">
+        <span class="admin-topbar__avatar" aria-hidden="true">{{ initials() }}</span>
+        <span class="admin-topbar__email">{{ userEmail }}</span>
+      </div>
+    }
+    <app-admin-button variant="ghost" type="button" (clicked)="logout()">
+      <app-admin-icon name="logout" />
+      <span class="admin-topbar__logout-label">Salir</span>
+    </app-admin-button>
+  </div>
 </header>
+
+@if (searchOpen()) {
+  <div class="admin-cmd" role="dialog" aria-modal="true" aria-label="Buscar en el admin">
+    <button type="button" class="admin-cmd__backdrop" aria-label="Cerrar" (click)="closeSearch()"></button>
+    <div class="admin-cmd__panel">
+      <div class="admin-cmd__input-wrap">
+        <app-admin-icon name="search" [size]="18" />
+        <input
+          class="admin-cmd__input"
+          type="search"
+          placeholder="Ir a…"
+          [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value)"
+          autofocus
+        />
+      </div>
+      <ul class="admin-cmd__list" role="listbox">
+        @for (cmd of filteredCommands(); track cmd.path) {
+          <li>
+            <button type="button" class="admin-cmd__item" (click)="goTo(cmd.path)">
+              <span>{{ cmd.label }}</span>
+              <span class="admin-cmd__hint">{{ cmd.hint }}</span>
+            </button>
+          </li>
+        } @empty {
+          <li class="admin-cmd__empty">Sin resultados</li>
+        }
+      </ul>
+    </div>
+  </div>
+}

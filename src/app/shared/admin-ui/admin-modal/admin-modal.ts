@@ -69,7 +69,9 @@ import {
       max-height: 90vh;
       overflow: auto;
       background: var(--color-white);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--admin-border);
+      box-shadow: var(--admin-card-shadow-hover);
     }
 
     .admin-modal__header {
@@ -78,7 +80,7 @@ import {
       justify-content: space-between;
       gap: 1rem;
       padding: 1.25rem 1.5rem;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      border-bottom: 1px solid var(--admin-border);
     }
 
     .admin-modal__title {
@@ -96,10 +98,14 @@ import {
       color: var(--color-text);
       cursor: pointer;
       padding: 0.25rem;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
     }
 
     .admin-modal__close:hover {
       color: var(--color-accent);
+      background: rgba(221, 51, 51, 0.06);
     }
 
     .admin-modal__body {

@@ -22,19 +22,19 @@ import { Component, ChangeDetectionStrategy, input } from '@angular/core';
   styles: `
     :host {
       display: block;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.75rem;
     }
 
     .admin-page-header {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 1rem;
+      gap: 1.25rem;
       flex-wrap: wrap;
     }
 
     .admin-page-header__crumb {
-      margin: 0 0 0.25rem;
+      margin: 0 0 0.35rem;
       font-size: 0.75rem;
       font-weight: 600;
       letter-spacing: 0.04em;
@@ -48,18 +48,21 @@ import { Component, ChangeDetectionStrategy, input } from '@angular/core';
       line-height: 1.2;
       font-weight: 300;
       color: #333;
+      letter-spacing: -0.01em;
     }
 
     .admin-page-header__subtitle {
-      margin: 0.35rem 0 0;
+      margin: 0.4rem 0 0;
       color: var(--color-text-muted);
       font-size: 0.9375rem;
+      max-width: 42rem;
     }
 
     .admin-page-header__actions {
       display: flex;
       gap: 0.75rem;
       flex-wrap: wrap;
+      align-items: center;
     }
   `,
 })

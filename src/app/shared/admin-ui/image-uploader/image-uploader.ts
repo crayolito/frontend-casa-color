@@ -88,7 +88,8 @@ import { AdminButton } from '../admin-button/admin-button';
       gap: 0.5rem;
       min-height: 140px;
       padding: 1.25rem;
-      border: 2px dashed rgba(0, 0, 0, 0.15);
+      border: 2px dashed var(--admin-border);
+      border-radius: var(--radius-md);
       background: #fafafa;
       color: var(--color-text-muted);
       cursor: pointer;
@@ -120,7 +121,8 @@ import { AdminButton } from '../admin-button/admin-button';
       max-height: 220px;
       object-fit: contain;
       background: #f8f8f8;
-      border: 1px solid rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--admin-border);
+      border-radius: var(--radius-md);
     }
 
     .uploader__preview-actions {
@@ -135,13 +137,15 @@ import { AdminButton } from '../admin-button/admin-button';
       align-items: center;
       min-height: 40px;
       padding: 0.5rem 1rem;
-      border: 2px solid rgba(0, 0, 0, 0.12);
+      border: 1px solid var(--admin-border);
+      border-radius: var(--radius-md);
       font-size: 0.875rem;
       font-weight: 600;
       letter-spacing: 0.04em;
       text-transform: uppercase;
       cursor: pointer;
       color: var(--color-text);
+      background: var(--color-white);
     }
 
     .uploader__change:hover {

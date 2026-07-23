@@ -1,7 +1,6 @@
 <app-admin-page-header
-  title="Site settings"
-  breadcrumb="Admin"
-  subtitle="Configuración key → JSON del sitio"
+  title="Configuración"
+  subtitle="Ajustes del sitio (key → JSON)"
 />
 
 @if (flash(); as msg) {
@@ -12,48 +11,40 @@
 }
 
 <div class="settings">
-  <aside class="settings__keys" aria-label="Keys conocidas">
-    <p class="settings__keys-label">Keys</p>
-    @for (key of knownKeys; track key) {
-      <button
-        type="button"
-        class="settings__key"
-        [class.settings__key--active]="selectedKey() === key"
-        (click)="selectKey(key)"
-      >
-        {{ key }}
-      </button>
-    }
-  </aside>
+  <app-admin-tabs
+    [tabs]="tabs"
+    [active]="selectedKey()"
+    (activeChange)="selectKey($event)"
+  >
+    <form class="settings__form" [formGroup]="form" (ngSubmit)="save()">
+      <label class="settings__field">
+        <span class="settings__label">Key</span>
+        <input class="settings__input" formControlName="key" readonly />
+      </label>
 
-  <form class="settings__form" [formGroup]="form" (ngSubmit)="save()">
-    <label class="settings__field">
-      <span class="settings__label">Key</span>
-      <input class="settings__input" formControlName="key" />
-    </label>
+      <label class="settings__field">
+        <span class="settings__label">Value (JSON)</span>
+        <textarea class="settings__textarea" formControlName="valueJson" rows="14"></textarea>
+      </label>
 
-    <label class="settings__field">
-      <span class="settings__label">Value (JSON)</span>
-      <textarea class="settings__textarea" formControlName="valueJson" rows="16"></textarea>
-    </label>
+      @if (updatedAt(); as at) {
+        <p class="settings__meta">Actualizado: {{ at }}</p>
+      }
 
-    @if (updatedAt(); as at) {
-      <p class="settings__meta">Actualizado: {{ at }}</p>
-    }
+      @if (loading()) {
+        <p class="settings__meta">Cargando…</p>
+      }
 
-    @if (loading()) {
-      <p class="settings__meta">Cargando…</p>
-    }
-
-    <div class="settings__actions">
-      <app-admin-button type="button" variant="danger" (clicked)="askDelete()">
-        Eliminar
-      </app-admin-button>
-      <app-admin-button type="submit" variant="primary" [loading]="saving()">
-        Guardar
-      </app-admin-button>
-    </div>
-  </form>
+      <div class="settings__actions">
+        <app-admin-button type="button" variant="danger" (clicked)="askDelete()">
+          Eliminar
+        </app-admin-button>
+        <app-admin-button type="submit" variant="primary" [loading]="saving()">
+          Guardar
+        </app-admin-button>
+      </div>
+    </form>
+  </app-admin-tabs>
 </div>
 
 <app-admin-confirm-dialog

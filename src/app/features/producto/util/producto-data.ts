@@ -102,13 +102,12 @@ export const SUMMARY_ACABADOS: IconBlock = {
   bodyHtml: '<p>Liso mate. </p>',
 };
 
-/** index.html:351-354 Color — shortcode roto del clon se deja literal */
+/** index.html:351-354 Color — shortcode WP del clon eliminado */
 export const SUMMARY_COLOR: IconBlock = {
   icon: '/img/productos/icono-color-100px.png',
   title: 'Color',
   titleColor: '#ffa100',
-  bodyHtml: `<p>19 colores<br/>
-[button open_new_tab=»true» color=»extra-color-1″ hover_text_color_override=»#fff» size=»medium» url=»» text=»Carta de colores» color_override=»»] </p>`,
+  bodyHtml: '<p>19 colores</p>',
 };
 
 /** index.html:360-361 */

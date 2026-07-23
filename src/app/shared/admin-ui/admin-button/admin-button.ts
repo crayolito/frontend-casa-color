@@ -36,15 +36,16 @@ export type AdminButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
       gap: 0.5rem;
       min-height: 40px;
       padding: 0.625rem 1.25rem;
-      border: 2px solid transparent;
-      border-radius: var(--radius);
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
       font-family: var(--font-body);
       font-size: 0.875rem;
       font-weight: 600;
       letter-spacing: 0.04em;
       text-transform: uppercase;
       cursor: pointer;
-      transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+        box-shadow 0.2s ease;
     }
 
     .admin-btn:focus-visible {
@@ -61,6 +62,7 @@ export type AdminButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
       background: var(--color-accent);
       color: var(--color-white);
       border-color: var(--color-accent);
+      box-shadow: 0 1px 2px rgba(221, 51, 51, 0.2);
     }
 
     .admin-btn--primary:hover:not(:disabled) {
@@ -71,12 +73,13 @@ export type AdminButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
     .admin-btn--secondary {
       background: var(--color-white);
       color: var(--color-text);
-      border-color: rgba(0, 0, 0, 0.15);
+      border-color: var(--admin-border);
     }
 
     .admin-btn--secondary:hover:not(:disabled) {
-      border-color: var(--color-accent);
+      border-color: rgba(221, 51, 51, 0.45);
       color: var(--color-accent);
+      background: rgba(221, 51, 51, 0.03);
     }
 
     .admin-btn--danger {
@@ -98,6 +101,7 @@ export type AdminButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
 
     .admin-btn--ghost:hover:not(:disabled) {
       color: var(--color-accent);
+      background: rgba(221, 51, 51, 0.06);
     }
 
     .admin-btn__spinner {

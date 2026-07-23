@@ -63,3 +63,11 @@
 .product-info-row__iwt-text li {
   margin-bottom: 0.15em;
 }
+
+.product-info-row__iwt--compact {
+  margin-bottom: 0.5em;
+}
+
+.product-info-row__iwt-text--flush {
+  padding-left: 0;
+}

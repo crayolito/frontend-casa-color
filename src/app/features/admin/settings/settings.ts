@@ -11,8 +11,9 @@ import { isAppError } from '../../../shared/util/api-errors';
 import { AdminPageHeader } from '../../../shared/admin-ui/admin-page-header/admin-page-header';
 import { AdminButton } from '../../../shared/admin-ui/admin-button/admin-button';
 import { AdminConfirmDialog } from '../../../shared/admin-ui/admin-confirm-dialog/admin-confirm-dialog';
+import { AdminTabs, AdminTab } from '../../../shared/admin-ui/admin-tabs/admin-tabs';
 
-const KNOWN_KEYS = ['contact', 'social', 'banner', 'home'] as const;
+const KNOWN_KEYS = ['empresa', 'contacto', 'ubicaciones', 'home'] as const;
 
 @Component({
   selector: 'app-admin-settings',
@@ -22,6 +23,7 @@ const KNOWN_KEYS = ['contact', 'social', 'banner', 'home'] as const;
     AdminPageHeader,
     AdminButton,
     AdminConfirmDialog,
+    AdminTabs,
   ],
   templateUrl: './settings.html',
   styleUrl: './settings.css',
@@ -30,8 +32,12 @@ export class AdminSettings implements OnInit {
   private readonly api = inject(SiteSettingsApi);
   private readonly fb = inject(FormBuilder);
 
-  readonly knownKeys = KNOWN_KEYS;
-  readonly selectedKey = signal<string>('contact');
+  readonly tabs: AdminTab[] = KNOWN_KEYS.map((key) => ({
+    id: key,
+    label: key.charAt(0).toUpperCase() + key.slice(1),
+  }));
+
+  readonly selectedKey = signal<string>('empresa');
   readonly loading = signal(false);
   readonly saving = signal(false);
   readonly flash = signal<string | null>(null);
@@ -40,12 +46,12 @@ export class AdminSettings implements OnInit {
   readonly deleteOpen = signal(false);
 
   readonly form = this.fb.nonNullable.group({
-    key: ['contact', [Validators.required]],
+    key: ['empresa', [Validators.required]],
     valueJson: ['{\n  \n}', [Validators.required]],
   });
 
   ngOnInit(): void {
-    this.loadKey('contact');
+    this.loadKey('empresa');
   }
 
   selectKey(key: string): void {

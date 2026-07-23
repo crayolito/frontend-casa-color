@@ -1,7 +1,26 @@
-<div class="admin-shell">
-  <app-admin-sidebar />
+<div
+  class="admin-shell"
+  [class.admin-shell--nav-open]="navOpen()"
+  [class.admin-shell--collapsed]="sidebarCollapsed()"
+>
+  <button
+    type="button"
+    class="admin-shell__backdrop"
+    aria-label="Cerrar menú"
+    (click)="closeNav()"
+  ></button>
+
+  <app-admin-sidebar
+    [open]="navOpen()"
+    [collapsed]="sidebarCollapsed()"
+    (navigated)="closeNav()"
+  />
+
   <div class="admin-shell__main">
-    <app-admin-topbar />
+    <app-admin-topbar
+      (menuToggle)="toggleNav()"
+      (collapseToggle)="toggleCollapse()"
+    />
     <main class="admin-shell__content" id="admin-main">
       <router-outlet />
     </main>

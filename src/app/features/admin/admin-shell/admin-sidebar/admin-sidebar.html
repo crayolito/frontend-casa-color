@@ -1,18 +1,48 @@
-<aside class="admin-sidebar" aria-label="Admin navigation">
+<aside
+  class="admin-sidebar"
+  [class.admin-sidebar--open]="open()"
+  [class.admin-sidebar--collapsed]="collapsed()"
+  aria-label="Navegación del panel"
+>
   <div class="admin-sidebar__brand">
-    <a routerLink="/admin/products" class="admin-sidebar__logo">Casa Color</a>
-    <p class="admin-sidebar__tag">Admin</p>
+    <a routerLink="/admin/products" class="admin-sidebar__logo" (click)="onNavigate()">
+      <span class="admin-sidebar__mark" aria-hidden="true">CC</span>
+      <span class="admin-sidebar__brand-text">
+        <span class="admin-sidebar__name">Casa Color</span>
+        <span class="admin-sidebar__tagline">Panel de gestión</span>
+      </span>
+    </a>
   </div>
+
   <nav class="admin-sidebar__nav">
-    @for (item of items; track item.path) {
-      <a
-        class="admin-sidebar__link"
-        [routerLink]="item.path"
-        routerLinkActive="admin-sidebar__link--active"
-      >
-        <app-admin-icon [name]="item.icon" />
-        <span>{{ item.label }}</span>
-      </a>
+    @for (group of groups; track group.label) {
+      <p class="admin-sidebar__group-label">{{ group.label }}</p>
+      @for (item of group.items; track item.path) {
+        <a
+          class="admin-sidebar__link"
+          [routerLink]="item.path"
+          routerLinkActive="admin-sidebar__link--active"
+          [attr.title]="collapsed() ? item.label : null"
+          (click)="onNavigate()"
+        >
+          <span class="admin-sidebar__icon" aria-hidden="true">
+            <app-admin-icon [name]="item.icon" [size]="18" />
+          </span>
+          <span class="admin-sidebar__link-text">{{ item.label }}</span>
+        </a>
+      }
     }
   </nav>
+
+  <div class="admin-sidebar__footer">
+    @if (email(); as userEmail) {
+      <div class="admin-sidebar__user" [title]="userEmail">
+        <span class="admin-sidebar__avatar" aria-hidden="true">{{ initials() }}</span>
+        <div class="admin-sidebar__user-text">
+          <p class="admin-sidebar__user-label">Sesión activa</p>
+          <p class="admin-sidebar__user-email">{{ userEmail }}</p>
+        </div>
+      </div>
+    }
+  </div>
 </aside>

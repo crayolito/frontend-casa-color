@@ -1,7 +1,6 @@
 <app-admin-page-header
   title="Catálogos"
-  breadcrumb="Admin"
-  subtitle="Catálogos asociados a una categoría"
+  subtitle="Catálogos asociados a una o más categorías"
 >
   <app-admin-button type="button" variant="primary" (clicked)="openCreate()">
     <app-admin-icon name="plus" />
@@ -62,33 +61,44 @@
   [title]="editing() ? 'Editar catálogo' : 'Nuevo catálogo'"
   (closed)="closeModal()"
 >
-  <form class="admin-form" [formGroup]="form" (ngSubmit)="save()">
-    <app-admin-form-field
-      label="Categoría"
-      controlName="categoryId"
-      type="select"
-      [error]="form.controls.categoryId.touched && form.controls.categoryId.invalid ? 'Seleccioná una categoría' : null"
-    >
-      <option value="" disabled>Seleccioná…</option>
-      @for (cat of categories(); track cat.id) {
-        <option [value]="cat.id">{{ cat.name }}</option>
-      }
-    </app-admin-form-field>
-    <app-admin-form-field
-      label="Nombre"
-      controlName="name"
-      [error]="form.controls.name.touched && form.controls.name.invalid ? 'Requerido' : null"
-    />
-    <app-admin-form-field label="Slug (opcional)" controlName="slug" />
-    <app-admin-form-field label="Descripción" controlName="description" type="textarea" />
-    <app-image-uploader
-      label="Imagen"
-      folder="catalogs"
-      [url]="form.controls.imageUrl.value || null"
-      (urlChange)="onImageChange($event)"
-    />
-    <app-admin-form-field label="Orden" controlName="displayOrder" type="number" />
-    <div class="admin-form__actions">
+  <form class="admin-form admin-form--grid" [formGroup]="form" (ngSubmit)="save()">
+    <div class="admin-form__col">
+      <app-admin-form-field
+        label="Categoría principal"
+        controlName="categoryId"
+        type="select"
+        [error]="form.controls.categoryId.touched && form.controls.categoryId.invalid ? 'Seleccioná una categoría' : null"
+      >
+        <option value="" disabled>Seleccioná…</option>
+        @for (cat of categories(); track cat.id) {
+          <option [value]="cat.id">{{ cat.name }}</option>
+        }
+      </app-admin-form-field>
+      <app-admin-multi-select
+        label="Categorías adicionales"
+        [options]="categoryOptions()"
+        [value]="extraCategoryIds()"
+        [excludeIds]="[Number(form.controls.categoryId.value) || 0]"
+        hint="Opcional. La principal no se lista acá."
+        (valueChange)="extraCategoryIds.set($event)"
+      />
+      <app-admin-form-field
+        label="Nombre"
+        controlName="name"
+        [error]="form.controls.name.touched && form.controls.name.invalid ? 'Requerido' : null"
+      />
+      <app-admin-form-field label="Descripción" controlName="description" type="textarea" [rows]="3" />
+    </div>
+    <div class="admin-form__col">
+      <app-image-uploader
+        label="Imagen"
+        folder="catalogs"
+        [url]="form.controls.imageUrl.value || null"
+        (urlChange)="onImageChange($event)"
+      />
+      <app-admin-form-field label="Orden" controlName="displayOrder" type="number" />
+    </div>
+    <div class="admin-form__actions admin-form__actions--full">
       <app-admin-button type="button" variant="secondary" (clicked)="closeModal()">
         Cancelar
       </app-admin-button>

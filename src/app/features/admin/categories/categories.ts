@@ -83,15 +83,24 @@ export class AdminCategories {
   );
 
   readonly columns: AdminTableColumn<Category>[] = [
-    { key: 'id', label: 'ID', cell: (r) => String(r.id) },
     { key: 'name', label: 'Nombre', cell: (r) => r.name },
-    { key: 'slug', label: 'Slug', cell: (r) => r.slug },
+    {
+      key: 'short',
+      label: 'Descripción corta',
+      cell: (r) => r.shortDescription ?? '—',
+      truncate: true,
+    },
     { key: 'order', label: 'Orden', cell: (r) => String(r.displayOrder) },
+    {
+      key: 'catalogs',
+      label: 'Catálogos',
+      cell: (r) => String(r.catalogsCount ?? 0),
+    },
   ];
 
   readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(150)]],
-    slug: [''],
+    shortDescription: ['', [Validators.maxLength(150)]],
     description: [''],
     imageUrl: [''],
     displayOrder: [0, [Validators.min(0)]],
@@ -164,7 +173,7 @@ export class AdminCategories {
     this.editing.set(null);
     this.form.reset({
       name: '',
-      slug: '',
+      shortDescription: '',
       description: '',
       imageUrl: '',
       displayOrder: 0,
@@ -176,7 +185,7 @@ export class AdminCategories {
     this.editing.set(row);
     this.form.reset({
       name: row.name,
-      slug: row.slug,
+      shortDescription: row.shortDescription ?? '',
       description: row.description ?? '',
       imageUrl: row.imageUrl ?? '',
       displayOrder: row.displayOrder,
@@ -200,7 +209,7 @@ export class AdminCategories {
     const raw = this.form.getRawValue();
     const body = {
       name: raw.name.trim(),
-      slug: raw.slug.trim() || undefined,
+      shortDescription: raw.shortDescription.trim() || undefined,
       description: raw.description.trim() || undefined,
       imageUrl: raw.imageUrl.trim() || undefined,
       displayOrder: Number(raw.displayOrder) || 0,

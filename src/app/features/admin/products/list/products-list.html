@@ -1,7 +1,6 @@
 <app-admin-page-header
   title="Productos"
-  breadcrumb="Admin"
-  subtitle="Productos activos del catálogo"
+  subtitle="Gestioná el catálogo de productos"
 >
   <a routerLink="/admin/products/new" class="admin-link-btn">
     <app-admin-icon name="plus" />
@@ -57,7 +56,45 @@
       }
     </select>
   </label>
+  <label class="admin-filters__field">
+    <span class="admin-filters__label">Estado</span>
+    <select
+      class="admin-filters__input"
+      [ngModel]="isActive() === null ? '' : isActive() ? 'true' : 'false'"
+      (ngModelChange)="onActiveChange($event)"
+    >
+      <option value="">Todos</option>
+      <option value="true">Activo</option>
+      <option value="false">Inactivo</option>
+    </select>
+  </label>
 </app-admin-filters>
+
+@if (selectedCount() > 0) {
+  <div class="products-bulk" role="toolbar" aria-label="Acciones masivas">
+    <span class="products-bulk__count">{{ selectedCount() }} seleccionado(s)</span>
+    <app-admin-button
+      type="button"
+      variant="secondary"
+      [disabled]="saving()"
+      [loading]="saving()"
+      (clicked)="bulkSetActive(true)"
+    >
+      Activar
+    </app-admin-button>
+    <app-admin-button
+      type="button"
+      variant="secondary"
+      [disabled]="saving()"
+      (clicked)="bulkSetActive(false)"
+    >
+      Desactivar
+    </app-admin-button>
+    <app-admin-button type="button" variant="ghost" (clicked)="clearSelection()">
+      Limpiar
+    </app-admin-button>
+  </div>
+}
 
 <app-admin-table
   [columns]="columns"
@@ -65,8 +102,15 @@
   [loading]="loading()"
   [meta]="meta()"
   [emptyMessage]="emptyMessage()"
+  [showToggle]="false"
+  [selectable]="true"
+  [selectedIds]="selectedIds()"
+  [trackBy]="trackProduct"
+  (selectionChange)="onSelectionChange($event)"
   (edit)="onEdit($event)"
   (remove)="askDelete($event)"
+  (cellClick)="onCellClick($event)"
+  (cellAction)="onCellAction($event)"
   (pageChange)="onPageChange($event)"
 />
 
@@ -78,3 +122,26 @@
   (confirmed)="confirmDelete()"
   (cancelled)="deleteTarget.set(null)"
 />
+
+<app-admin-modal
+  [open]="!!detailModal()"
+  [title]="detailModal()?.title ?? ''"
+  (closed)="closeDetailModal()"
+>
+  @if (detailModal(); as modal) {
+    @if (modal.items.length === 0) {
+      <p class="products-detail-empty">Sin elementos</p>
+    } @else {
+      <ul class="products-detail-list">
+        @for (item of modal.items; track item.id + '-' + item.name) {
+          <li>
+            <span class="products-detail-list__name">{{ item.name }}</span>
+            @if (item.detail) {
+              <span class="products-detail-list__detail">{{ item.detail }}</span>
+            }
+          </li>
+        }
+      </ul>
+    }
+  }
+</app-admin-modal>

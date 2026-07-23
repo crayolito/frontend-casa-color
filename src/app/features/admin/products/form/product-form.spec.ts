@@ -30,7 +30,21 @@ describe('AdminProductForm (create)', () => {
       (r) => r.url.startsWith(`${environment.apiUrl}/public/catalogs`),
     );
     catalogsReq.flush({
-      data: [{ id: 1, categoryId: 1, name: 'Cat', slug: 'cat', description: null, imageUrl: null, displayOrder: 0, createdAt: '', updatedAt: '' }],
+      data: [
+        {
+          id: 1,
+          categoryId: 1,
+          name: 'Cat',
+          slug: 'cat',
+          description: null,
+          imageUrl: null,
+          displayOrder: 0,
+          createdAt: '',
+          updatedAt: '',
+          extraCategoryIds: [],
+          extraCategories: [],
+        },
+      ],
       meta: { page: 1, limit: 100, total: 1, totalPages: 1 },
     });
     await fixture.whenStable();
@@ -44,23 +58,27 @@ describe('AdminProductForm (create)', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
+  it('auto-selects first catalog when catalogs load (create bugfix)', () => {
+    expect(fixture.componentInstance.selectedCatalogIds()).toEqual([1]);
+  });
+
   it('should create a product with nested presentations (happy path)', async () => {
     const component = fixture.componentInstance;
     component.form.patchValue({
-      catalogId: 1,
       title: 'Látex Premium',
-      description: 'Test',
+      description: '<p>Test</p>',
       isActive: true,
       displayOrder: 0,
     });
     component.addPresentation();
-    component.presentations.at(0).patchValue({ value: '1L', displayOrder: 0 });
+    component.presentations.at(0).patchValue({ value: '1L' });
 
     component.save();
 
     const req = http.expectOne(`${environment.apiUrl}/admin/products`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body.title).toBe('Látex Premium');
+    expect(req.request.body.catalogIds).toEqual([1]);
     expect(req.request.body.presentations).toEqual([
       { value: '1L', displayOrder: 0 },
     ]);
@@ -68,9 +86,10 @@ describe('AdminProductForm (create)', () => {
       data: {
         id: 10,
         catalogId: 1,
+        catalogs: [{ id: 1, name: 'Cat', categoryId: 1, categoryName: 'Pinturas' }],
         title: 'Látex Premium',
         slug: 'latex-premium',
-        description: 'Test',
+        description: '<p>Test</p>',
         mainImageUrl: null,
         technicalSheetUrl: null,
         isActive: true,
@@ -81,10 +100,23 @@ describe('AdminProductForm (create)', () => {
         finishes: [],
         colors: [],
         sections: [],
+        images: [],
       },
     });
     await fixture.whenStable();
     expect(component.saving()).toBe(false);
+  });
+
+  it('opens discard confirm only when form is dirty', () => {
+    const component = fixture.componentInstance;
+    expect(component.formDirty()).toBe(false);
+    component.askDiscard();
+    expect(component.discardOpen()).toBe(false);
+
+    component.form.controls.title.setValue('Cambio');
+    component.form.controls.title.markAsDirty();
+    component.askDiscard();
+    expect(component.discardOpen()).toBe(true);
   });
 });
 
@@ -107,16 +139,28 @@ describe('AdminProductForm (edit by id)', () => {
     http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
 
-    // catalogs on init
     const catalogsReq = http.expectOne(
       (r) => r.url.startsWith(`${environment.apiUrl}/public/catalogs`),
     );
     catalogsReq.flush({
-      data: [{ id: 1, categoryId: 1, name: 'Cat', slug: 'cat', description: null, imageUrl: null, displayOrder: 0, createdAt: '', updatedAt: '' }],
+      data: [
+        {
+          id: 1,
+          categoryId: 1,
+          name: 'Cat',
+          slug: 'cat',
+          description: null,
+          imageUrl: null,
+          displayOrder: 0,
+          createdAt: '',
+          updatedAt: '',
+          extraCategoryIds: [],
+          extraCategories: [],
+        },
+      ],
       meta: { page: 1, limit: 100, total: 1, totalPages: 1 },
     });
 
-    // GET by id (new admin endpoint, includes inactives)
     const productReq = http.expectOne(
       (r) => r.url === `${environment.apiUrl}/admin/products/7`,
     );
@@ -125,6 +169,7 @@ describe('AdminProductForm (edit by id)', () => {
       data: {
         id: 7,
         catalogId: 1,
+        catalogs: [{ id: 1, name: 'Cat', categoryId: 1, categoryName: 'Pinturas' }],
         title: 'Descontinuado',
         slug: 'descontinuado',
         description: null,
@@ -139,7 +184,13 @@ describe('AdminProductForm (edit by id)', () => {
         colors: [],
         sections: [],
         images: [
-          { id: 1, url: 'https://x/a.jpg', publicId: 'a', isMain: true, displayOrder: 0 },
+          {
+            id: 1,
+            url: 'https://x/a.jpg',
+            publicId: 'a',
+            isMain: true,
+            displayOrder: 0,
+          },
         ],
       },
     });
@@ -155,8 +206,12 @@ describe('AdminProductForm (edit by id)', () => {
     expect(component.loadedProduct()?.id).toBe(7);
     expect(component.loadedProduct()?.isActive).toBe(false);
     expect(component.form.controls.title.value).toBe('Descontinuado');
+    expect(component.selectedCatalogIds()).toEqual([1]);
     expect(component.images().length).toBe(1);
     expect(component.images()[0].isMain).toBe(true);
   });
-});
 
+  it('marks form pristine after load so discard does not ask without edits', () => {
+    expect(fixture.componentInstance.formDirty()).toBe(false);
+  });
+});

@@ -36,11 +36,6 @@
   }
 }
 
-.product-summary__price {
-  margin: 0;
-  min-height: 0;
-}
-
 .product-summary__iwt {
   position: relative;
   margin-bottom: 1em;

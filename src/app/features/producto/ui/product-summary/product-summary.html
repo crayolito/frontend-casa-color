@@ -1,6 +1,5 @@
 <div class="product-summary">
   <h1 class="product-summary__title">{{ title() }}</h1>
-  <p class="product-summary__price"></p>
 
   <!-- Clon visual: icono + Descripción juntos (iwithtext), no fila vacía -->
   <div class="product-summary__iwt">
@@ -11,7 +10,7 @@
       <h4 class="product-summary__heading">
         <span [style.color]="description().titleColor">{{ description().title }}</span>
       </h4>
-      <div class="product-summary__body" [innerHTML]="description().bodyHtml"></div>
+      <div class="product-summary__body" [innerHTML]="description().bodyHtml | safeHtml"></div>
     </div>
   </div>
 </div>

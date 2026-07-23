@@ -35,6 +35,7 @@ import { AdminConfirmDialog } from '../../../shared/admin-ui/admin-confirm-dialo
 import { AdminFilters } from '../../../shared/admin-ui/admin-filters/admin-filters';
 import { AdminIcon } from '../../../shared/admin-ui/icons/admin-icon';
 import { ImageUploader } from '../../../shared/admin-ui/image-uploader/image-uploader';
+import { AdminMultiSelect } from '../../../shared/admin-ui/admin-multi-select/admin-multi-select';
 
 @Component({
   selector: 'app-admin-catalogs',
@@ -51,6 +52,7 @@ import { ImageUploader } from '../../../shared/admin-ui/image-uploader/image-upl
     AdminFilters,
     AdminIcon,
     ImageUploader,
+    AdminMultiSelect,
   ],
   templateUrl: './catalogs.html',
   styleUrl: './catalogs.css',
@@ -74,6 +76,7 @@ export class AdminCatalogs {
   readonly modalOpen = signal(false);
   readonly editing = signal<Catalog | null>(null);
   readonly deleteTarget = signal<Catalog | null>(null);
+  readonly extraCategoryIds = signal<number[]>([]);
 
   readonly search = signal('');
   readonly categoryId = signal<number | null>(null);
@@ -88,22 +91,27 @@ export class AdminCatalogs {
       : 'No hay catálogos todavía',
   );
 
+  readonly categoryOptions = computed(() =>
+    this.categories().map((c) => ({ id: c.id, label: c.name })),
+  );
+
+  /** Exposed for template Number() casts. */
+  readonly Number = Number;
+
   readonly columns: AdminTableColumn<Catalog>[] = [
-    { key: 'id', label: 'ID', cell: (r) => String(r.id) },
     { key: 'name', label: 'Nombre', cell: (r) => r.name },
     {
-      key: 'category',
-      label: 'Categoría',
-      cell: (r) => this.categoryName(r.categoryId),
+      key: 'categories',
+      label: 'Categorías',
+      cell: (r) => this.formatCategories(r),
+      truncate: true,
     },
-    { key: 'slug', label: 'Slug', cell: (r) => r.slug },
     { key: 'order', label: 'Orden', cell: (r) => String(r.displayOrder) },
   ];
 
   readonly form = this.fb.nonNullable.group({
     categoryId: [0, [Validators.required, Validators.min(1)]],
     name: ['', [Validators.required, Validators.maxLength(150)]],
-    slug: [''],
     description: [''],
     imageUrl: [''],
     displayOrder: [0, [Validators.min(0)]],
@@ -114,7 +122,6 @@ export class AdminCatalogs {
       next: (res) => this.categories.set(res.data),
     });
 
-    // Hydrate from URL
     const qp = this.route.snapshot.queryParamMap;
     this.search.set(qp.get('q') ?? '');
     const cat = qp.get('categoryId');
@@ -153,6 +160,13 @@ export class AdminCatalogs {
           this.meta.set(res.meta);
         },
       });
+  }
+
+  formatCategories(row: Catalog): string {
+    const principal = this.categoryName(row.categoryId);
+    const extras = (row.extraCategories ?? []).map((c) => c.name);
+    if (!extras.length) return principal;
+    return `${principal} · ${extras.join(', ')}`;
   }
 
   categoryName(id: number): string {
@@ -207,10 +221,10 @@ export class AdminCatalogs {
   openCreate(): void {
     this.editing.set(null);
     const firstCat = this.categories()[0]?.id ?? 0;
+    this.extraCategoryIds.set([]);
     this.form.reset({
       categoryId: firstCat,
       name: '',
-      slug: '',
       description: '',
       imageUrl: '',
       displayOrder: 0,
@@ -220,10 +234,10 @@ export class AdminCatalogs {
 
   openEdit(row: Catalog): void {
     this.editing.set(row);
+    this.extraCategoryIds.set(row.extraCategoryIds ?? []);
     this.form.reset({
       categoryId: row.categoryId,
       name: row.name,
-      slug: row.slug,
       description: row.description ?? '',
       imageUrl: row.imageUrl ?? '',
       displayOrder: row.displayOrder,
@@ -248,10 +262,10 @@ export class AdminCatalogs {
     const body = {
       categoryId: Number(raw.categoryId),
       name: raw.name.trim(),
-      slug: raw.slug.trim() || undefined,
       description: raw.description.trim() || undefined,
       imageUrl: raw.imageUrl.trim() || undefined,
       displayOrder: Number(raw.displayOrder) || 0,
+      extraCategoryIds: this.extraCategoryIds(),
     };
     this.saving.set(true);
     const editing = this.editing();

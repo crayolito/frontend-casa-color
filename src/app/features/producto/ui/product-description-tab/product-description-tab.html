@@ -28,7 +28,7 @@
               <h4>
                 <span [style.color]="block.titleColor">{{ block.title }}</span>
               </h4>
-              <div [innerHTML]="block.bodyHtml"></div>
+              <div [innerHTML]="block.bodyHtml | safeHtml"></div>
             </div>
           </div>
         }
@@ -44,23 +44,25 @@
               <h4>
                 <span [style.color]="block.titleColor">{{ block.title }}</span>
               </h4>
-              <div [innerHTML]="block.bodyHtml"></div>
+              <div [innerHTML]="block.bodyHtml | safeHtml"></div>
             </div>
           </div>
         }
       </div>
     </div>
 
-    <div class="product-desc-tab__cta">
-      <a
-        class="product-desc-tab__button"
-        [href]="fichaHref()"
-        target="_blank"
-        rel="noopener noreferrer"
-        role="button"
-      >
-        <span>DESCARGAR FICHA TÉCNICA</span>
-      </a>
-    </div>
+    @if (fichaHref()) {
+      <div class="product-desc-tab__cta">
+        <a
+          class="product-desc-tab__button"
+          [href]="fichaHref()"
+          target="_blank"
+          rel="noopener noreferrer"
+          role="button"
+        >
+          <span>DESCARGAR FICHA TÉCNICA</span>
+        </a>
+      </div>
+    }
   </div>
 </div>

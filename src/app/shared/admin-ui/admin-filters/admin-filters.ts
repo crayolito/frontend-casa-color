@@ -40,7 +40,9 @@ import { AdminIcon } from '../icons/admin-icon';
     .admin-filters {
       background: var(--color-white);
       padding: 1rem 1.25rem;
-      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05), 0 4px 20px rgba(0, 0, 0, 0.04);
+      border: 1px solid var(--admin-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--admin-card-shadow);
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
@@ -86,16 +88,19 @@ import { AdminIcon } from '../icons/admin-icon';
     :host ::ng-deep .admin-filters__input {
       min-height: 40px;
       padding: 0.5rem 0.75rem;
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      border-radius: var(--radius);
+      border: 1px solid var(--admin-border);
+      border-radius: var(--radius-md);
       font-family: var(--font-body);
       font-size: 0.9375rem;
       background: var(--color-white);
+      color: #333;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
     :host ::ng-deep .admin-filters__input:focus {
-      outline: 2px solid var(--color-extra-1);
+      outline: none;
       border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px rgba(221, 51, 51, 0.12);
     }
   `,
 })

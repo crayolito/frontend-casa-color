@@ -9,6 +9,7 @@ export interface ProductListParams {
   catalogId?: number;
   categoryId?: number;
   search?: string;
+  isActive?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -16,6 +17,18 @@ export class ProductsApi {
   private readonly api = inject(ApiService);
 
   list(params: ProductListParams = {}): Observable<PaginatedResult<Product>> {
+    const query: QueryParams = {
+      page: params.page ?? 1,
+      limit: params.limit ?? 16,
+      catalogId: params.catalogId,
+      categoryId: params.categoryId,
+      search: params.search,
+      isActive: params.isActive,
+    };
+    return this.api.getList<Product>('/admin/products', query);
+  }
+
+  listPublic(params: ProductListParams = {}): Observable<PaginatedResult<Product>> {
     const query: QueryParams = {
       page: params.page ?? 1,
       limit: params.limit ?? 20,

@@ -2,7 +2,24 @@
   [title]="isEdit ? 'Editar producto' : 'Nuevo producto'"
   breadcrumb="Admin / Productos"
 >
-  <a routerLink="/admin/products" class="admin-back">Volver</a>
+  @if (!formDirty()) {
+    <app-admin-button type="button" variant="secondary" (clicked)="goBack()">
+      Volver
+    </app-admin-button>
+  } @else {
+    <app-admin-button type="button" variant="ghost" (clicked)="askDiscard()">
+      Descartar
+    </app-admin-button>
+    <app-admin-button
+      type="button"
+      variant="primary"
+      [loading]="saving()"
+      [disabled]="loading()"
+      (clicked)="save()"
+    >
+      Guardar
+    </app-admin-button>
+  }
 </app-admin-page-header>
 
 @if (loading()) {
@@ -13,140 +30,210 @@
   }
 
   <form class="product-form" [formGroup]="form" (ngSubmit)="save()">
-    <section class="product-form__section">
-      <h2 class="product-form__heading">Datos básicos</h2>
+    <div class="product-form__main">
+      <section class="product-form__section">
+        <h2 class="product-form__heading">Datos básicos</h2>
+        <app-admin-form-field
+          label="Título"
+          controlName="title"
+          [error]="form.controls.title.touched && form.controls.title.invalid ? 'Requerido' : null"
+        />
+        <app-admin-form-field label="Ficha técnica (URL)" controlName="technicalSheetUrl" type="url" />
+      </section>
 
-      <app-admin-form-field label="Catálogo" controlName="catalogId" type="select">
-        <option value="" disabled>Seleccioná…</option>
-        @for (cat of catalogs(); track cat.id) {
-          <option [value]="cat.id">{{ cat.name }}</option>
-        }
-      </app-admin-form-field>
+      <section class="product-form__section">
+        <h2 class="product-form__heading">Descripción</h2>
+        <app-admin-html-editor
+          [html]="form.controls.description.value"
+          (htmlChange)="onDescriptionChange($event)"
+        />
+      </section>
 
-      <app-admin-form-field
-        label="Título"
-        controlName="title"
-        [error]="form.controls.title.touched && form.controls.title.invalid ? 'Requerido' : null"
-      />
-      <app-admin-form-field label="Slug (opcional)" controlName="slug" />
-      <app-admin-form-field label="Descripción" controlName="description" type="textarea" />
-      <app-admin-form-field label="Ficha técnica (URL)" controlName="technicalSheetUrl" type="url" />
-      <app-admin-form-field label="Orden" controlName="displayOrder" type="number" />
+      <section class="product-form__section">
+        <app-image-gallery
+          [images]="images()"
+          (imagesChange)="onImagesChange($event)"
+        />
+      </section>
 
-      <label class="product-form__check">
-        <input type="checkbox" formControlName="isActive" />
-        Producto activo
-      </label>
-    </section>
+      <div class="product-form__two-col">
+        <section class="product-form__section" formArrayName="presentations">
+          <div class="product-form__section-head">
+            <h2 class="product-form__heading">Presentaciones</h2>
+            <button type="button" class="product-form__icon-add" (click)="addPresentation()" aria-label="Agregar presentación">
+              <app-admin-icon name="plus" [size]="16" />
+            </button>
+          </div>
+          <div class="product-form__chips" cdkDropList (cdkDropListDropped)="dropPresentation($event)">
+            @for (ctrl of presentations.controls; track $index; let i = $index) {
+              <div class="product-form__chip" cdkDrag [formGroupName]="i">
+                <span class="product-form__drag" cdkDragHandle aria-hidden="true">⋮⋮</span>
+                <input class="product-form__chip-input" formControlName="value" placeholder="Ej: 1 L" />
+                <button type="button" class="product-form__chip-del" (click)="removePresentation(i)" aria-label="Quitar">
+                  <app-admin-icon name="trash" [size]="14" />
+                </button>
+              </div>
+            }
+          </div>
+        </section>
 
-    <section class="product-form__section">
-      <app-image-gallery
-        [images]="images()"
-        (imagesChange)="onImagesChange($event)"
-      />
-    </section>
-
-    <section class="product-form__section" formArrayName="presentations">
-      <div class="product-form__section-head">
-        <h2 class="product-form__heading">Presentaciones</h2>
-        <app-admin-button type="button" variant="secondary" (clicked)="addPresentation()">
-          <app-admin-icon name="plus" />
-          Agregar
-        </app-admin-button>
+        <section class="product-form__section" formArrayName="finishes">
+          <div class="product-form__section-head">
+            <h2 class="product-form__heading">Acabados</h2>
+            <button type="button" class="product-form__icon-add" (click)="addFinish()" aria-label="Agregar acabado">
+              <app-admin-icon name="plus" [size]="16" />
+            </button>
+          </div>
+          <div class="product-form__chips" cdkDropList (cdkDropListDropped)="dropFinish($event)">
+            @for (ctrl of finishes.controls; track $index; let i = $index) {
+              <div class="product-form__chip" cdkDrag [formGroupName]="i">
+                <span class="product-form__drag" cdkDragHandle aria-hidden="true">⋮⋮</span>
+                <input class="product-form__chip-input" formControlName="name" placeholder="Ej: Mate" />
+                <button type="button" class="product-form__chip-del" (click)="removeFinish(i)" aria-label="Quitar">
+                  <app-admin-icon name="trash" [size]="14" />
+                </button>
+              </div>
+            }
+          </div>
+        </section>
       </div>
-      @for (ctrl of presentations.controls; track $index; let i = $index) {
-        <div class="product-form__row" [formGroupName]="i">
-          <input class="product-form__input" formControlName="value" placeholder="Ej: 1 Litro" />
-          <input class="product-form__input product-form__input--sm" type="number" formControlName="displayOrder" placeholder="Orden" />
-          <app-admin-button type="button" variant="ghost" (clicked)="removePresentation(i)">
-            Quitar
-          </app-admin-button>
-        </div>
-      }
-    </section>
 
-    <section class="product-form__section" formArrayName="finishes">
-      <div class="product-form__section-head">
-        <h2 class="product-form__heading">Acabados</h2>
-        <app-admin-button type="button" variant="secondary" (clicked)="addFinish()">
-          <app-admin-icon name="plus" />
-          Agregar
-        </app-admin-button>
-      </div>
-      @for (ctrl of finishes.controls; track $index; let i = $index) {
-        <div class="product-form__card" [formGroupName]="i">
-          <input class="product-form__input" formControlName="name" placeholder="Nombre" />
-          <input class="product-form__input product-form__input--sm" type="number" formControlName="displayOrder" />
-          <app-image-uploader
-            label="Imagen del acabado"
-            folder="finishes"
-            [url]="finishes.at(i).controls['imageUrl'].value || null"
-            (urlChange)="onFinishImageChange(i, $event)"
-          />
-          <app-admin-button type="button" variant="ghost" (clicked)="removeFinish(i)">
-            Quitar
-          </app-admin-button>
+      <section class="product-form__section" formArrayName="colors">
+        <div class="product-form__section-head">
+          <h2 class="product-form__heading">Colores</h2>
+          <button type="button" class="product-form__icon-add" (click)="addColor()" aria-label="Agregar color">
+            <app-admin-icon name="plus" [size]="16" />
+          </button>
         </div>
-      }
-    </section>
-
-    <section class="product-form__section" formArrayName="colors">
-      <div class="product-form__section-head">
-        <h2 class="product-form__heading">Colores</h2>
-        <app-admin-button type="button" variant="secondary" (clicked)="addColor()">
-          <app-admin-icon name="plus" />
-          Agregar
-        </app-admin-button>
-      </div>
-      @for (ctrl of colors.controls; track $index; let i = $index) {
-        <div class="product-form__card" [formGroupName]="i">
-          <input class="product-form__input" formControlName="name" placeholder="Nombre" />
-          <input class="product-form__input product-form__input--sm" formControlName="hexCode" placeholder="#RRGGBB" />
-          <input class="product-form__input product-form__input--sm" type="number" formControlName="displayOrder" />
-          <app-image-uploader
-            label="Imagen del color"
-            folder="colors"
-            [url]="colors.at(i).controls['imageUrl'].value || null"
-            (urlChange)="onColorImageChange(i, $event)"
-          />
-          <app-admin-button type="button" variant="ghost" (clicked)="removeColor(i)">
-            Quitar
-          </app-admin-button>
+        <div class="product-form__chips product-form__chips--colors" cdkDropList (cdkDropListDropped)="dropColor($event)">
+          @for (ctrl of colors.controls; track $index; let i = $index) {
+            <div class="product-form__chip product-form__chip--color" cdkDrag [formGroupName]="i">
+              <span class="product-form__drag" cdkDragHandle aria-hidden="true">⋮⋮</span>
+              <input class="product-form__chip-input" formControlName="name" placeholder="Nombre" />
+              <input
+                class="product-form__color-swatch"
+                type="color"
+                [value]="colors.at(i).controls['hexCode'].value || '#000000'"
+                (input)="onColorHexInput(i, $any($event.target).value)"
+                aria-label="Color"
+              />
+              <input
+                class="product-form__chip-input product-form__chip-input--hex"
+                formControlName="hexCode"
+                placeholder="#000000"
+              />
+              <button type="button" class="product-form__chip-del" (click)="removeColor(i)" aria-label="Quitar">
+                <app-admin-icon name="trash" [size]="14" />
+              </button>
+            </div>
+          }
         </div>
-      }
-    </section>
+      </section>
 
-    <section class="product-form__section" formArrayName="sections">
-      <div class="product-form__section-head">
-        <h2 class="product-form__heading">Secciones</h2>
-        <app-admin-button type="button" variant="secondary" (clicked)="addSection()">
-          <app-admin-icon name="plus" />
-          Agregar
-        </app-admin-button>
-      </div>
-      @for (ctrl of sections.controls; track $index; let i = $index) {
-        <div class="product-form__section-card" [formGroupName]="i">
-          <input class="product-form__input" formControlName="title" placeholder="Título de sección" />
-          <input class="product-form__input" formControlName="icon" placeholder="Icono (opcional)" />
-          <input class="product-form__input product-form__input--sm" type="number" formControlName="displayOrder" />
-          <textarea
-            class="product-form__textarea"
-            formControlName="contentJson"
-            rows="5"
-            placeholder='[{"type":"paragraph","text":"..."}]'
-          ></textarea>
-          <app-admin-button type="button" variant="ghost" (clicked)="removeSection(i)">
-            Quitar sección
-          </app-admin-button>
+      <section class="product-form__section" formArrayName="sections">
+        <div class="product-form__section-head">
+          <h2 class="product-form__heading">Secciones</h2>
+          <button type="button" class="product-form__icon-add" (click)="addSection()" aria-label="Agregar sección">
+            <app-admin-icon name="plus" [size]="16" />
+          </button>
         </div>
-      }
-    </section>
-
-    <div class="product-form__actions">
-      <a routerLink="/admin/products" class="admin-back">Cancelar</a>
-      <app-admin-button type="submit" variant="primary" [loading]="saving()">
-        Guardar producto
-      </app-admin-button>
+        <div class="product-form__sections" cdkDropList (cdkDropListDropped)="dropSection($event)">
+          @for (ctrl of sections.controls; track $index; let i = $index) {
+            <div class="product-form__section-card" cdkDrag [formGroupName]="i">
+              <div class="product-form__section-card-head">
+                <span class="product-form__drag" cdkDragHandle aria-hidden="true">⋮⋮</span>
+                <input class="product-form__chip-input" formControlName="title" placeholder="Título de sección" />
+                <input
+                  class="product-form__color-swatch"
+                  type="color"
+                  formControlName="titleColor"
+                  aria-label="Color del título"
+                />
+                <button type="button" class="product-form__chip-del" (click)="removeSection(i)" aria-label="Quitar sección">
+                  <app-admin-icon name="trash" [size]="14" />
+                </button>
+              </div>
+              <div class="product-form__icon-picker" role="listbox" aria-label="Ícono">
+                @for (icon of sectionIcons; track icon.key) {
+                  <button
+                    type="button"
+                    class="product-form__icon-opt"
+                    [class.product-form__icon-opt--active]="sections.at(i).controls['icon'].value === icon.path"
+                    (click)="setSectionIcon(i, icon.path)"
+                    [attr.aria-label]="icon.label"
+                    [title]="icon.label"
+                  >
+                    <img [src]="icon.path" alt="" width="28" height="28" />
+                  </button>
+                }
+              </div>
+              <app-admin-html-editor
+                [html]="sectionContent(i)"
+                (htmlChange)="onSectionContentChange(i, $event)"
+              />
+            </div>
+          }
+        </div>
+      </section>
     </div>
+
+    <aside class="product-form__side">
+      <section class="product-form__section product-form__section--sticky">
+        <h2 class="product-form__heading">Estado</h2>
+        <app-admin-switch formControlName="isActive" label="Producto activo" />
+      </section>
+
+      <section class="product-form__section">
+        <h2 class="product-form__heading">Catálogos</h2>
+        <div class="product-form__catalogs">
+          <div class="product-form__catalog-chips">
+            @for (cat of selectedCatalogs(); track cat.id) {
+              <span class="product-form__catalog-chip">
+                {{ cat.name }}
+                <button type="button" (click)="removeCatalog(cat.id)" aria-label="Quitar catálogo">
+                  <app-admin-icon name="x" [size]="12" />
+                </button>
+              </span>
+            }
+          </div>
+          @if (!catalogPickerOpen()) {
+            <button type="button" class="product-form__add-catalog" (click)="catalogPickerOpen.set(true)">
+              + Agregar catálogo
+            </button>
+          } @else {
+            <div class="product-form__catalog-picker">
+              <input
+                class="product-form__chip-input"
+                type="search"
+                placeholder="Buscar catálogo…"
+                [value]="catalogSearch()"
+                (input)="catalogSearch.set($any($event.target).value)"
+              />
+              <ul class="product-form__catalog-list">
+                @for (cat of filteredCatalogs(); track cat.id) {
+                  <li>
+                    <button type="button" (click)="addCatalog(cat.id)">{{ cat.name }}</button>
+                  </li>
+                } @empty {
+                  <li class="product-form__catalog-empty">Sin resultados</li>
+                }
+              </ul>
+              <button type="button" class="product-form__add-catalog" (click)="catalogPickerOpen.set(false)">
+                Cerrar
+              </button>
+            </div>
+          }
+        </div>
+      </section>
+    </aside>
   </form>
 }
+
+<app-admin-confirm-dialog
+  [open]="discardOpen()"
+  title="Descartar cambios"
+  [message]="isEdit ? '¿Restaurar el producto al estado guardado?' : '¿Descartar y volver a la lista?'"
+  confirmLabel="Descartar"
+  (confirmed)="confirmDiscard()"
+  (cancelled)="discardOpen.set(false)"
+/>
