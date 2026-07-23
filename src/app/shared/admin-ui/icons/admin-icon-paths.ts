@@ -24,7 +24,10 @@ export type AdminIconName =
   | 'eye'
   | 'eye-off'
   | 'panel-left'
-  | 'list';
+  | 'list'
+  | 'check'
+  | 'alert'
+  | 'info';
 
 export const ADMIN_ICON_PATHS: Record<AdminIconName, string> = {
   search: `
@@ -102,5 +105,18 @@ export const ADMIN_ICON_PATHS: Record<AdminIconName, string> = {
     <circle cx="4" cy="6" r="1" fill="currentColor" />
     <circle cx="4" cy="12" r="1" fill="currentColor" />
     <circle cx="4" cy="18" r="1" fill="currentColor" />
+  `,
+  check: `
+    <path d="M5 12l4.5 4.5L19 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+  `,
+  alert: `
+    <path d="M12 4l9 16H3L12 4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+    <path d="M12 10v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+    <circle cx="12" cy="16.5" r="0.75" fill="currentColor" />
+  `,
+  info: `
+    <circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.5" />
+    <path d="M12 11v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+    <circle cx="12" cy="8" r="0.9" fill="currentColor" />
   `,
 };

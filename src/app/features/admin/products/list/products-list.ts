@@ -24,7 +24,10 @@ import { CategoriesApi } from '../../data/categories.api';
 import { CatalogsApi } from '../../data/catalogs.api';
 import { Catalog, Category, Product, ProductCatalogRef } from '../../data/admin.models';
 import { PaginatedMeta } from '../../../../core/http/api.service';
-import { isAppError } from '../../../../shared/util/api-errors';
+import {
+  ResolvedErrorMessage,
+  resolveErrorMessage,
+} from '../../../../shared/errors/resolve-error-message';
 import { AdminPageHeader } from '../../../../shared/admin-ui/admin-page-header/admin-page-header';
 import {
   AdminTable,
@@ -36,6 +39,8 @@ import { AdminFilters } from '../../../../shared/admin-ui/admin-filters/admin-fi
 import { AdminIcon } from '../../../../shared/admin-ui/icons/admin-icon';
 import { AdminButton } from '../../../../shared/admin-ui/admin-button/admin-button';
 import { AdminModal } from '../../../../shared/admin-ui/admin-modal/admin-modal';
+import { AdminToastService } from '../../../../shared/admin-ui/admin-toast/admin-toast.service';
+import { AdminErrorState } from '../../../../shared/admin-ui/admin-error-state/admin-error-state';
 
 const PAGE_SIZE = 16;
 
@@ -52,6 +57,7 @@ const PAGE_SIZE = 16;
     AdminIcon,
     AdminButton,
     AdminModal,
+    AdminErrorState,
   ],
   templateUrl: './products-list.html',
   styleUrl: './products-list.css',
@@ -60,6 +66,7 @@ export class AdminProductsList {
   private readonly api = inject(ProductsApi);
   private readonly categoriesApi = inject(CategoriesApi);
   private readonly catalogsApi = inject(CatalogsApi);
+  private readonly toast = inject(AdminToastService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
@@ -69,14 +76,19 @@ export class AdminProductsList {
   readonly loading = signal(true);
   readonly initialLoad = signal(true);
   readonly saving = signal(false);
-  readonly flash = signal<string | null>(null);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ResolvedErrorMessage | null>(null);
+  readonly reloadToken = signal(0);
   readonly deleteTarget = signal<Product | null>(null);
   readonly selectedIds = signal<Set<number>>(new Set());
   readonly detailModal = signal<{
-    kind: 'catalog' | 'category';
+    kind: 'catalog' | 'category' | 'colors' | 'finishes';
     title: string;
-    items: Array<{ id: number; name: string; detail?: string }>;
+    items: Array<{
+      id: number;
+      name: string;
+      detail?: string;
+      hex?: string | null;
+    }>;
   } | null>(null);
 
   readonly categories = signal<Category[]>([]);
@@ -110,18 +122,25 @@ export class AdminProductsList {
       key: 'catalog',
       label: 'Catálogo',
       cell: (r) => String(this.catalogCount(r)),
-      action: { icon: 'list', label: 'Ver catálogos' },
+      action: { icon: 'eye', label: 'Ver catálogos' },
     },
     {
       key: 'category',
       label: 'Categoría',
       cell: (r) => String(this.categoryCount(r)),
-      action: { icon: 'list', label: 'Ver categorías' },
+      action: { icon: 'eye', label: 'Ver categorías' },
     },
     {
       key: 'colors',
       label: 'Colores',
       cell: (r) => String(r.colorsCount ?? r.colors?.length ?? 0),
+      action: { icon: 'eye', label: 'Ver colores' },
+    },
+    {
+      key: 'finishes',
+      label: 'Acabados',
+      cell: (r) => String(r.finishes?.length ?? 0),
+      action: { icon: 'eye', label: 'Ver acabados' },
     },
     {
       key: 'active',
@@ -202,6 +221,30 @@ export class AdminProductsList {
         title: `Categorías · ${row.title}`,
         items: [...byName.values()],
       });
+      return;
+    }
+    if (event.key === 'colors') {
+      this.detailModal.set({
+        kind: 'colors',
+        title: `Colores · ${row.title}`,
+        items: (row.colors ?? []).map((c) => ({
+          id: c.id,
+          name: c.name,
+          hex: c.hexCode,
+          detail: c.hexCode ?? undefined,
+        })),
+      });
+      return;
+    }
+    if (event.key === 'finishes') {
+      this.detailModal.set({
+        kind: 'finishes',
+        title: `Acabados · ${row.title}`,
+        items: (row.finishes ?? []).map((f) => ({
+          id: f.id,
+          name: f.name,
+        })),
+      });
     }
   }
 
@@ -217,13 +260,13 @@ export class AdminProductsList {
         this.rows.update((rows) =>
           rows.map((r) => (r.id === updated.id ? { ...r, isActive: updated.isActive } : r)),
         );
-        this.flash.set(
+        this.toast.success(
           updated.isActive ? 'Producto activado' : 'Producto desactivado',
         );
       },
       error: (err: unknown) => {
         this.saving.set(false);
-        this.error.set(isAppError(err) ? err.message : 'Error al cambiar estado');
+        this.toast.error(resolveErrorMessage(err).text);
       },
     });
   }
@@ -242,7 +285,6 @@ export class AdminProductsList {
 
     this.saving.set(true);
     this.error.set(null);
-    this.flash.set(null);
 
     forkJoin(
       ids.map((id) =>
@@ -262,18 +304,18 @@ export class AdminProductsList {
         );
         this.clearSelection();
         if (fail === 0) {
-          this.flash.set(
+          this.toast.success(
             isActive
               ? `${ok} producto(s) activado(s)`
               : `${ok} producto(s) desactivado(s)`,
           );
         } else {
-          this.error.set(`${ok} ok, ${fail} fallaron. Revisá e intentá de nuevo.`);
+          this.toast.error(`${ok} ok, ${fail} fallaron. Revisá e intentá de nuevo.`);
         }
       },
       error: (err: unknown) => {
         this.saving.set(false);
-        this.error.set(isAppError(err) ? err.message : 'Error en acción masiva');
+        this.toast.error(resolveErrorMessage(err).text);
       },
     });
   }
@@ -312,6 +354,7 @@ export class AdminProductsList {
       toObservable(this.catalogId),
       toObservable(this.isActive),
       toObservable(this.page),
+      toObservable(this.reloadToken),
     ])
       .pipe(
         tap(() => {
@@ -332,9 +375,7 @@ export class AdminProductsList {
             })
             .pipe(
               catchError((err: unknown) => {
-                this.error.set(
-                  isAppError(err) ? err.message : 'Error al cargar',
-                );
+                this.error.set(resolveErrorMessage(err));
                 return of(null);
               }),
             ),
@@ -350,6 +391,10 @@ export class AdminProductsList {
           this.meta.set(res.meta);
         },
       });
+  }
+
+  onRetryLoad(): void {
+    this.reloadToken.update((n) => n + 1);
   }
 
   private syncUrl(): void {
@@ -415,7 +460,7 @@ export class AdminProductsList {
       next: () => {
         this.saving.set(false);
         this.deleteTarget.set(null);
-        this.flash.set('Producto eliminado');
+        this.toast.success('Producto eliminado');
         this.loading.set(true);
         this.api
           .list({
@@ -436,7 +481,7 @@ export class AdminProductsList {
       },
       error: (err: unknown) => {
         this.saving.set(false);
-        this.error.set(isAppError(err) ? err.message : 'Error al eliminar');
+        this.toast.error(resolveErrorMessage(err).text);
       },
     });
   }

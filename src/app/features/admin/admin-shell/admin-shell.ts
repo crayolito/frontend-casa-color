@@ -2,11 +2,12 @@ import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { AdminSidebar } from './admin-sidebar/admin-sidebar';
 import { AdminTopbar } from './admin-topbar/admin-topbar';
+import { AdminToastHost } from '../../../shared/admin-ui/admin-toast/admin-toast-host';
 
 @Component({
   selector: 'app-admin-shell',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, AdminSidebar, AdminTopbar],
+  imports: [RouterOutlet, AdminSidebar, AdminTopbar, AdminToastHost],
   templateUrl: './admin-shell.html',
   styleUrl: './admin-shell.css',
 })

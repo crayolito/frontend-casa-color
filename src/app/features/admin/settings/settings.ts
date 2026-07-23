@@ -8,10 +8,16 @@ import {
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SiteSettingsApi } from '../data/site-settings.api';
 import { isAppError } from '../../../shared/util/api-errors';
+import {
+  ResolvedErrorMessage,
+  localErrorMessage,
+  resolveErrorMessage,
+} from '../../../shared/errors/resolve-error-message';
 import { AdminPageHeader } from '../../../shared/admin-ui/admin-page-header/admin-page-header';
 import { AdminButton } from '../../../shared/admin-ui/admin-button/admin-button';
 import { AdminConfirmDialog } from '../../../shared/admin-ui/admin-confirm-dialog/admin-confirm-dialog';
 import { AdminTabs, AdminTab } from '../../../shared/admin-ui/admin-tabs/admin-tabs';
+import { AdminErrorState } from '../../../shared/admin-ui/admin-error-state/admin-error-state';
 
 const KNOWN_KEYS = ['empresa', 'contacto', 'ubicaciones', 'home'] as const;
 
@@ -24,6 +30,7 @@ const KNOWN_KEYS = ['empresa', 'contacto', 'ubicaciones', 'home'] as const;
     AdminButton,
     AdminConfirmDialog,
     AdminTabs,
+    AdminErrorState,
   ],
   templateUrl: './settings.html',
   styleUrl: './settings.css',
@@ -41,7 +48,7 @@ export class AdminSettings implements OnInit {
   readonly loading = signal(false);
   readonly saving = signal(false);
   readonly flash = signal<string | null>(null);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ResolvedErrorMessage | null>(null);
   readonly updatedAt = signal<string | null>(null);
   readonly deleteOpen = signal(false);
 
@@ -84,9 +91,13 @@ export class AdminSettings implements OnInit {
           this.flash.set(`La key «${key}» aún no existe. Guardá para crearla.`);
           return;
         }
-        this.error.set(isAppError(err) ? err.message : 'Error al cargar');
+        this.error.set(resolveErrorMessage(err));
       },
     });
+  }
+
+  onRetryLoad(): void {
+    this.loadKey(this.selectedKey());
   }
 
   save(): void {
@@ -96,12 +107,12 @@ export class AdminSettings implements OnInit {
     try {
       const parsed: unknown = JSON.parse(raw.valueJson);
       if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-        this.error.set('El value debe ser un objeto JSON');
+        this.error.set(localErrorMessage('El value debe ser un objeto JSON'));
         return;
       }
       value = parsed as Record<string, unknown>;
     } catch {
-      this.error.set('JSON inválido');
+      this.error.set(localErrorMessage('JSON inválido'));
       return;
     }
 
@@ -115,7 +126,7 @@ export class AdminSettings implements OnInit {
       },
       error: (err: unknown) => {
         this.saving.set(false);
-        this.error.set(isAppError(err) ? err.message : 'Error al guardar');
+        this.error.set(resolveErrorMessage(err));
       },
     });
   }
@@ -140,7 +151,7 @@ export class AdminSettings implements OnInit {
       },
       error: (err: unknown) => {
         this.saving.set(false);
-        this.error.set(isAppError(err) ? err.message : 'Error al eliminar');
+        this.error.set(resolveErrorMessage(err));
       },
     });
   }

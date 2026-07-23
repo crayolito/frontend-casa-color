@@ -64,6 +64,20 @@
   background: #fafafa;
 }
 
+.products-detail-list__row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.products-detail-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border: 1px solid var(--admin-border);
+  flex-shrink: 0;
+}
+
 .products-detail-list__name {
   font-size: 0.875rem;
   font-weight: 600;

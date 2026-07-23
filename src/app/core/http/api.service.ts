@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, retry, timer } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export interface PaginatedMeta {
@@ -26,6 +26,9 @@ interface ListEnvelope<T> {
 
 export type QueryParams = Record<string, string | number | boolean | undefined | null>;
 
+const GET_RETRY_COUNT = 1;
+const GET_RETRY_BASE_MS = 400;
+
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly http = inject(HttpClient);
@@ -36,7 +39,14 @@ export class ApiService {
       .get<DataEnvelope<T>>(`${this.baseUrl}${path}`, {
         params: this.toHttpParams(params),
       })
-      .pipe(map((res) => res.data));
+      .pipe(
+        retry({
+          count: GET_RETRY_COUNT,
+          delay: (_error, retryCount) =>
+            timer(GET_RETRY_BASE_MS * Math.pow(2, retryCount - 1)),
+        }),
+        map((res) => res.data),
+      );
   }
 
   getList<T>(path: string, params?: QueryParams): Observable<PaginatedResult<T>> {
@@ -44,7 +54,14 @@ export class ApiService {
       .get<ListEnvelope<T>>(`${this.baseUrl}${path}`, {
         params: this.toHttpParams(params),
       })
-      .pipe(map((res) => ({ data: res.data, meta: res.meta })));
+      .pipe(
+        retry({
+          count: GET_RETRY_COUNT,
+          delay: (_error, retryCount) =>
+            timer(GET_RETRY_BASE_MS * Math.pow(2, retryCount - 1)),
+        }),
+        map((res) => ({ data: res.data, meta: res.meta })),
+      );
   }
 
   post<T>(path: string, body: unknown): Observable<T> {

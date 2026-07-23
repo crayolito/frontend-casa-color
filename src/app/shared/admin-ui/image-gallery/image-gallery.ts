@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { UploadsService } from '../../../core/uploads/uploads.service';
-import { isAppError } from '../../util/api-errors';
+import { resolveErrorMessage } from '../../errors/resolve-error-message';
 import { AdminIcon } from '../icons/admin-icon';
 
 export interface GalleryImage {
@@ -255,9 +255,7 @@ export class ImageGallery {
           if (pending === 0) this.uploading.set(false);
         },
         error: (err: unknown) => {
-          this.error.set(
-            isAppError(err) ? err.message : 'Error al subir una imagen',
-          );
+          this.error.set(resolveErrorMessage(err).text);
           pending -= 1;
           if (pending === 0) this.uploading.set(false);
         },

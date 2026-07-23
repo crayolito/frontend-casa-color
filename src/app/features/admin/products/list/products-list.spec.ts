@@ -8,6 +8,7 @@ import { provideRouter } from '@angular/router';
 import { AdminProductsList } from './products-list';
 import { environment } from '../../../../../environments/environment';
 import { Product } from '../../data/admin.models';
+import { AdminToastService } from '../../../../shared/admin-ui/admin-toast/admin-toast.service';
 
 const emptyMeta = { page: 1, limit: 16, total: 0, totalPages: 0 };
 
@@ -36,6 +37,7 @@ function product(partial: Partial<Product> & { id: number; title: string }): Pro
 describe('AdminProductsList', () => {
   let fixture: ComponentFixture<AdminProductsList>;
   let http: HttpTestingController;
+  let toast: AdminToastService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -52,6 +54,7 @@ describe('AdminProductsList', () => {
 
     fixture = TestBed.createComponent(AdminProductsList);
     http = TestBed.inject(HttpTestingController);
+    toast = TestBed.inject(AdminToastService);
     fixture.detectChanges();
   });
 
@@ -164,7 +167,7 @@ describe('AdminProductsList', () => {
     await fixture.whenStable();
 
     expect(component.selectedCount()).toBe(0);
-    expect(component.flash()).toContain('desactivado');
+    expect(toast.toasts().some((t) => t.message.includes('desactivado'))).toBe(true);
   });
 
   it('clears selection when page changes', async () => {
@@ -204,7 +207,7 @@ describe('AdminProductsList', () => {
     await fixture.whenStable();
 
     expect(component.rows()[0].isActive).toBe(false);
-    expect(component.flash()).toContain('desactivado');
+    expect(toast.toasts().some((t) => t.message.includes('desactivado'))).toBe(true);
   });
 
   it('opens catalog modal via cellAction', async () => {
@@ -216,9 +219,13 @@ describe('AdminProductsList', () => {
         { id: 1, name: 'Cat A', categoryId: 1, categoryName: 'Pinturas' },
         { id: 2, name: 'Cat B', categoryId: 1, categoryName: 'Pinturas' },
       ],
+      colors: [
+        { id: 10, name: 'Rojo', hexCode: '#ff0000', imageUrl: null, displayOrder: 0 },
+      ],
+      finishes: [{ id: 20, name: 'Mate', imageUrl: null, displayOrder: 0 }],
     });
-    flushBoot([row]);
-    await fixture.whenStable();
+    flushBoot();
+    component.rows.set([row]);
 
     expect(component.catalogCount(row)).toBe(2);
     expect(component.categoryCount(row)).toBe(1);
@@ -231,6 +238,14 @@ describe('AdminProductsList', () => {
     expect(component.detailModal()?.kind).toBe('category');
     expect(component.detailModal()?.items.length).toBe(1);
     expect(component.detailModal()?.items[0].name).toBe('Pinturas');
+
+    component.onCellAction({ row, key: 'colors' });
+    expect(component.detailModal()?.kind).toBe('colors');
+    expect(component.detailModal()?.items[0].hex).toBe('#ff0000');
+
+    component.onCellAction({ row, key: 'finishes' });
+    expect(component.detailModal()?.kind).toBe('finishes');
+    expect(component.detailModal()?.items[0].name).toBe('Mate');
 
     component.closeDetailModal();
     expect(component.detailModal()).toBeNull();

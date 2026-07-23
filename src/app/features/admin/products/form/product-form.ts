@@ -24,7 +24,11 @@ import {
   ProductWrite,
   PRODUCT_SECTION_ICONS,
 } from '../../data/admin.models';
-import { isAppError } from '../../../../shared/util/api-errors';
+import {
+  ResolvedErrorMessage,
+  localErrorMessage,
+  resolveErrorMessage,
+} from '../../../../shared/errors/resolve-error-message';
 import { AdminPageHeader } from '../../../../shared/admin-ui/admin-page-header/admin-page-header';
 import { AdminButton } from '../../../../shared/admin-ui/admin-button/admin-button';
 import { AdminFormField } from '../../../../shared/admin-ui/admin-form-field/admin-form-field';
@@ -36,6 +40,7 @@ import {
   GalleryImage,
 } from '../../../../shared/admin-ui/image-gallery/image-gallery';
 import { AdminConfirmDialog } from '../../../../shared/admin-ui/admin-confirm-dialog/admin-confirm-dialog';
+import { AdminErrorState } from '../../../../shared/admin-ui/admin-error-state/admin-error-state';
 
 @Component({
   selector: 'app-admin-product-form',
@@ -51,6 +56,7 @@ import { AdminConfirmDialog } from '../../../../shared/admin-ui/admin-confirm-di
     AdminHtmlEditor,
     ImageGallery,
     AdminConfirmDialog,
+    AdminErrorState,
   ],
   templateUrl: './product-form.html',
   styleUrl: './product-form.css',
@@ -69,7 +75,7 @@ export class AdminProductForm implements OnInit {
   readonly catalogPickerOpen = signal(false);
   readonly loading = signal(false);
   readonly saving = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ResolvedErrorMessage | null>(null);
   readonly loadedProduct = signal<Product | null>(null);
   readonly discardOpen = signal(false);
   readonly images = signal<GalleryImage[]>([]);
@@ -161,6 +167,7 @@ export class AdminProductForm implements OnInit {
 
   private loadProduct(productId: number): void {
     this.loading.set(true);
+    this.error.set(null);
     this.productsApi.getById(productId).subscribe({
       next: (product) => {
         this.loading.set(false);
@@ -169,9 +176,16 @@ export class AdminProductForm implements OnInit {
       },
       error: (err: unknown) => {
         this.loading.set(false);
-        this.error.set(isAppError(err) ? err.message : 'Error al cargar');
+        this.error.set(resolveErrorMessage(err));
       },
     });
+  }
+
+  onRetryLoad(): void {
+    const idParam = this.id();
+    if (idParam) {
+      this.loadProduct(Number(idParam));
+    }
   }
 
   private patchForm(product: Product): void {
@@ -383,12 +397,12 @@ export class AdminProductForm implements OnInit {
   save(): void {
     this.error.set(null);
     if (this.selectedCatalogIds().length === 0) {
-      this.error.set('Agregá al menos un catálogo');
+      this.error.set(localErrorMessage('Agregá al menos un catálogo'));
       return;
     }
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.error.set('Revisá los campos requeridos');
+      this.error.set(localErrorMessage('Revisá los campos requeridos'));
       return;
     }
 
@@ -443,7 +457,7 @@ export class AdminProductForm implements OnInit {
       },
       error: (err: unknown) => {
         this.saving.set(false);
-        this.error.set(isAppError(err) ? err.message : 'Error al guardar');
+        this.error.set(resolveErrorMessage(err));
       },
     });
   }

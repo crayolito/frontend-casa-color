@@ -15,7 +15,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       if (!(err instanceof HttpErrorResponse)) {
         return throwError(() => ({
           code: 'NETWORK_ERROR',
-          message: 'Network error',
+          message: 'Sin conexión',
           status: 0,
         }));
       }

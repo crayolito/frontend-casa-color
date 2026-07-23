@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { UploadsService, UploadFolder } from '../../../core/uploads/uploads.service';
-import { isAppError } from '../../util/api-errors';
+import { resolveErrorMessage } from '../../errors/resolve-error-message';
 import { AdminIcon } from '../icons/admin-icon';
 import { AdminButton } from '../admin-button/admin-button';
 
@@ -217,9 +217,7 @@ export class ImageUploader {
       },
       error: (err: unknown) => {
         this.uploading.set(false);
-        this.error.set(
-          isAppError(err) ? err.message : 'No se pudo subir la imagen',
-        );
+        this.error.set(resolveErrorMessage(err).text);
       },
     });
   }

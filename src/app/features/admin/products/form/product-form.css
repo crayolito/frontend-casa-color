@@ -28,11 +28,6 @@
   gap: 0.5rem;
 }
 
-.product-form__section--sticky {
-  position: sticky;
-  top: calc(var(--admin-topbar-height, 56px) + 0.75rem);
-}
-
 .product-form__section-head {
   display: flex;
   align-items: center;
@@ -79,8 +74,8 @@
 }
 
 .product-form__chips--colors {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 0.25rem;
 }
 
@@ -298,21 +293,7 @@
     grid-template-columns: 1fr;
   }
 
-  .product-form__section--sticky {
-    position: static;
-  }
-
   .product-form__two-col {
-    grid-template-columns: 1fr;
-  }
-
-  .product-form__chips--colors {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (max-width: 640px) {
-  .product-form__chips--colors {
     grid-template-columns: 1fr;
   }
 }

@@ -8,11 +8,13 @@
   </a>
 </app-admin-page-header>
 
-@if (flash(); as msg) {
-  <p class="admin-flash" role="status">{{ msg }}</p>
-}
 @if (error(); as err) {
-  <p class="admin-error" role="alert">{{ err }}</p>
+  <app-admin-error-state
+    [message]="err.text"
+    [correlationId]="err.correlationId ?? null"
+    [showCorrelationId]="err.showCorrelationId"
+    (retry)="onRetryLoad()"
+  />
 }
 
 <app-admin-filters
@@ -135,7 +137,16 @@
       <ul class="products-detail-list">
         @for (item of modal.items; track item.id + '-' + item.name) {
           <li>
-            <span class="products-detail-list__name">{{ item.name }}</span>
+            <div class="products-detail-list__row">
+              @if (modal.kind === 'colors' && item.hex) {
+                <span
+                  class="products-detail-swatch"
+                  [style.background]="item.hex"
+                  aria-hidden="true"
+                ></span>
+              }
+              <span class="products-detail-list__name">{{ item.name }}</span>
+            </div>
             @if (item.detail) {
               <span class="products-detail-list__detail">{{ item.detail }}</span>
             }

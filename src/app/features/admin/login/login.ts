@@ -7,7 +7,7 @@ import {
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
-import { isAppError } from '../../../shared/util/api-errors';
+import { resolveErrorMessage } from '../../../shared/errors/resolve-error-message';
 import { AdminButton } from '../../../shared/admin-ui/admin-button/admin-button';
 import { AdminFormField } from '../../../shared/admin-ui/admin-form-field/admin-form-field';
 import { AdminIcon } from '../../../shared/admin-ui/icons/admin-icon';
@@ -55,15 +55,7 @@ export class AdminLogin {
       },
       error: (err: unknown) => {
         this.submitting.set(false);
-        if (isAppError(err)) {
-          this.errorMessage.set(
-            err.code === 'INVALID_CREDENTIALS' || err.status === 401
-              ? 'Credenciales inválidas'
-              : err.message,
-          );
-          return;
-        }
-        this.errorMessage.set('No se pudo iniciar sesión');
+        this.errorMessage.set(resolveErrorMessage(err).text);
       },
     });
   }

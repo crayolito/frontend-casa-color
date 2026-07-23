@@ -22,7 +22,10 @@ import { CatalogsApi } from '../data/catalogs.api';
 import { CategoriesApi } from '../data/categories.api';
 import { Catalog, Category } from '../data/admin.models';
 import { PaginatedMeta } from '../../../core/http/api.service';
-import { isAppError } from '../../../shared/util/api-errors';
+import {
+  ResolvedErrorMessage,
+  resolveErrorMessage,
+} from '../../../shared/errors/resolve-error-message';
 import { AdminPageHeader } from '../../../shared/admin-ui/admin-page-header/admin-page-header';
 import { AdminButton } from '../../../shared/admin-ui/admin-button/admin-button';
 import {
@@ -36,6 +39,7 @@ import { AdminFilters } from '../../../shared/admin-ui/admin-filters/admin-filte
 import { AdminIcon } from '../../../shared/admin-ui/icons/admin-icon';
 import { ImageUploader } from '../../../shared/admin-ui/image-uploader/image-uploader';
 import { AdminMultiSelect } from '../../../shared/admin-ui/admin-multi-select/admin-multi-select';
+import { AdminErrorState } from '../../../shared/admin-ui/admin-error-state/admin-error-state';
 
 @Component({
   selector: 'app-admin-catalogs',
@@ -53,6 +57,7 @@ import { AdminMultiSelect } from '../../../shared/admin-ui/admin-multi-select/ad
     AdminIcon,
     ImageUploader,
     AdminMultiSelect,
+    AdminErrorState,
   ],
   templateUrl: './catalogs.html',
   styleUrl: './catalogs.css',
@@ -71,7 +76,8 @@ export class AdminCatalogs {
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly flash = signal<string | null>(null);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ResolvedErrorMessage | null>(null);
+  readonly reloadToken = signal(0);
 
   readonly modalOpen = signal(false);
   readonly editing = signal<Catalog | null>(null);
@@ -133,6 +139,7 @@ export class AdminCatalogs {
       toObservable(this.search).pipe(debounceTime(300), distinctUntilChanged()),
       toObservable(this.categoryId),
       toObservable(this.page),
+      toObservable(this.reloadToken),
     ])
       .pipe(
         tap(() => {
@@ -145,7 +152,7 @@ export class AdminCatalogs {
             .list(page, 20, categoryId ?? undefined, search.trim() || undefined)
             .pipe(
               catchError((err: unknown) => {
-                this.error.set(isAppError(err) ? err.message : 'Error al cargar');
+                this.error.set(resolveErrorMessage(err));
                 return of(null);
               }),
             ),
@@ -203,19 +210,11 @@ export class AdminCatalogs {
   }
 
   reload(): void {
-    this.api
-      .list(
-        this.page(),
-        20,
-        this.categoryId() ?? undefined,
-        this.search().trim() || undefined,
-      )
-      .subscribe({
-        next: (res) => {
-          this.rows.set(res.data);
-          this.meta.set(res.meta);
-        },
-      });
+    this.reloadToken.update((n) => n + 1);
+  }
+
+  onRetryLoad(): void {
+    this.reload();
   }
 
   openCreate(): void {
@@ -282,7 +281,7 @@ export class AdminCatalogs {
       },
       error: (err: unknown) => {
         this.saving.set(false);
-        this.error.set(isAppError(err) ? err.message : 'Error al guardar');
+        this.error.set(resolveErrorMessage(err));
       },
     });
   }
@@ -304,7 +303,7 @@ export class AdminCatalogs {
       },
       error: (err: unknown) => {
         this.saving.set(false);
-        this.error.set(isAppError(err) ? err.message : 'Error al eliminar');
+        this.error.set(resolveErrorMessage(err));
       },
     });
   }
