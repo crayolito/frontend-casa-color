@@ -1,9 +1,28 @@
 <main class="home">
-  <app-header />
-  <app-hero-slider [slides]="slides" />
-  <app-decor-divider appReveal />
-  <app-find-product appReveal />
-  <app-category-accordion [lines]="categoryLines" />
-  <app-graphic-section />
-  <app-footer />
+  @if (loading()) {
+    <div class="home__skeleton" aria-busy="true" aria-live="polite">
+      <p class="home__skeleton-text">Cargando…</p>
+    </div>
+  } @else if (error(); as err) {
+    <div class="home__error" role="alert">
+      <p>{{ err.text }}</p>
+      <button type="button" class="home__retry" (click)="load()">Reintentar</button>
+    </div>
+  } @else if (content(); as c) {
+    <app-header
+      [logo]="headerToLogo(c.header)"
+      [searchCategories]="c.categories.items"
+      [dynamicNav]="c.nav?.items ?? null"
+    />
+    <app-hero-slider [banner]="c.banner" />
+    <app-decor-divider [imageUrl]="c.findProduct.decorImageUrl" appReveal />
+    <app-find-product [data]="c.findProduct" appReveal />
+    <app-category-accordion [categories]="c.categories" />
+    <app-graphic-section [imageUrl]="c.footer.topImageUrl" />
+    <app-footer
+      [footer]="c.footer"
+      [headerLogoUrl]="c.header.imageUrl ?? null"
+      [floating]="c.floating ?? null"
+    />
+  }
 </main>

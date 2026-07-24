@@ -4,32 +4,109 @@
   gap: var(--admin-gap, 0.75rem);
 }
 
-.admin-form--grid {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: var(--admin-gap, 0.75rem);
-}
-
-.admin-form__col {
-  display: flex;
-  flex-direction: column;
-  gap: var(--admin-gap, 0.75rem);
-  min-width: 0;
+.admin-form__hint {
+  margin: -0.35rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
 }
 
 .admin-form__actions {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
-  margin-top: 0.25rem;
+  margin-top: 0.5rem;
 }
 
-.admin-form__actions--full {
-  grid-column: 1 / -1;
+.admin-entity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: 1rem;
 }
 
-@media (max-width: 720px) {
-  .admin-form--grid {
-    grid-template-columns: 1fr;
-  }
+.admin-entity-grid__status {
+  margin: 1.5rem 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+.admin-entity-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-white);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--admin-card-shadow);
+  overflow: hidden;
+}
+
+.admin-entity-card__media {
+  aspect-ratio: 16 / 10;
+  background: #f3f3f3;
+  overflow: hidden;
+}
+
+.admin-entity-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.admin-entity-card__placeholder {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.admin-entity-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.875rem 1rem 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-entity-card__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+.admin-entity-card__desc {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.admin-entity-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem 1rem;
+  border-top: 1px solid var(--admin-border);
+  margin-top: auto;
+}
+
+.admin-entity-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.admin-entity-pager__label {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
 }

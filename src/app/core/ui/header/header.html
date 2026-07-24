@@ -1,11 +1,10 @@
 <header class="header" [class.header--scrolled]="scrolled()">
   <div class="header__inner">
-    <a class="header__brand" href="/" aria-label="Pinturas Colom — Inicio">
+    <a class="header__brand" href="/" aria-label="Casa Color — Inicio">
       <img
         class="header__logo"
-        src="/img/logos/logo-colom-small.png"
-        srcset="/img/logos/logo-colom-small.png 1x, /img/logos/logo-colom-large.png 2x"
-        alt="Pinturas Colom"
+        [src]="logoSrc()"
+        [alt]="logoAlt()"
         width="100"
         height="102"
       />
@@ -13,7 +12,7 @@
 
     <nav class="header__nav" aria-label="Principal">
       <ul class="header__menu">
-        @for (item of navItems; track item.label) {
+        @for (item of navItems(); track item.label) {
           <li
             class="header__item"
             [class.header__item--open]="isItemOpen(item)"
@@ -85,9 +84,12 @@
 </header>
 
 @if (searchOpen()) {
-  <app-search-overlay (closed)="closeSearch()" />
+  <app-search-overlay
+    [categories]="searchCategories()"
+    (closed)="closeSearch()"
+  />
 }
 
 @if (mobileOpen()) {
-  <app-mobile-menu [items]="mobileItems" (closed)="closeMobile()" />
+  <app-mobile-menu [items]="mobileItems()" (closed)="closeMobile()" />
 }

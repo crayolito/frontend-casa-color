@@ -33,16 +33,4 @@
       }
     }
   </nav>
-
-  <div class="admin-sidebar__footer">
-    @if (email(); as userEmail) {
-      <div class="admin-sidebar__user" [title]="userEmail">
-        <span class="admin-sidebar__avatar" aria-hidden="true">{{ initials() }}</span>
-        <div class="admin-sidebar__user-text">
-          <p class="admin-sidebar__user-label">Sesión activa</p>
-          <p class="admin-sidebar__user-email">{{ userEmail }}</p>
-        </div>
-      </div>
-    }
-  </div>
 </aside>

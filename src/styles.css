@@ -22,6 +22,15 @@
   --logo-scrolled: 35px;
 
   --font-body: 'Open Sans', Helvetica, sans-serif;
+  /* Tipografía Salient (theme options) — px fijos, no rem */
+  --font-size-body: 16px;
+  --line-height-body: 25px;
+  --font-size-nav: 16px;
+  --line-height-nav: 16px;
+  --font-weight-nav: 300;
+  --font-size-nav-sub: 14px;
+  --line-height-nav-sub: 14px;
+  --font-size-copyright: 12px;
   --radius: 0;
 
   /* Admin UI — detalle sobre la marca (no reemplaza la identidad) */
@@ -60,22 +69,15 @@ body {
   padding: 0;
 }
 
-/* Original (theme options Salient): 16px/25px bajo 1300px, 14px/26px en desktop ancho */
+/* Clon (salient-dynamic-styles): body 16px/25px en todos los breakpoints */
 body {
   font-family: var(--font-body);
   font-weight: 400;
-  font-size: 16px;
-  line-height: 25px;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
   background: var(--bg-base);
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
-}
-
-@media (min-width: 1300px) {
-  body {
-    font-size: 14px;
-    line-height: 26px;
-  }
 }
 
 img {

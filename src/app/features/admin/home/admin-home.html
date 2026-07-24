@@ -1,0 +1,410 @@
+<div class="admin-home">
+  <app-admin-page-header
+    title="Configuración del inicio"
+    subtitle="Editá el contenido de la página de inicio"
+    breadcrumb="Inicio"
+  >
+    <app-admin-button
+      type="button"
+      variant="primary"
+      [disabled]="saving() || loading()"
+      (clicked)="saveCurrent()"
+    >
+      Guardar sección
+    </app-admin-button>
+  </app-admin-page-header>
+
+  @if (error(); as err) {
+    <app-admin-error-state
+      [message]="err.text"
+      [correlationId]="err.correlationId ?? null"
+      [showCorrelationId]="err.showCorrelationId"
+      (retry)="load()"
+    />
+  }
+
+  @if (loading()) {
+    <p class="admin-home__loading">Cargando configuración…</p>
+  } @else {
+    <app-admin-tabs
+      [tabs]="tabs"
+      [active]="selectedTab()"
+      (activeChange)="selectTab($event)"
+    >
+      @switch (selectedTab()) {
+        @case ('header') {
+          <form class="admin-home__form" [formGroup]="headerForm">
+            <app-image-uploader
+              label="Logo"
+              folder="home"
+              [url]="headerForm.controls.imageUrl.value || null"
+              (urlChange)="setHeaderImage($event)"
+            />
+            <p class="admin-home__hint">
+              Si no cargás imagen, el home usa el logo por defecto
+              <code>/img/casa-color-logo.jpg</code>.
+            </p>
+            <app-admin-form-field label="Link del logo (opcional)" controlName="link" />
+          </form>
+        }
+
+        @case ('header-nav') {
+          <div class="admin-home__form">
+            <p class="admin-home__hint">
+              Items del menú superior del sitio. Podés apuntar a una categoría, un catálogo o una página fija
+              (Empresa, Contacto, etc.). Arrastrá para reordenar.
+            </p>
+            <div class="admin-home__list-header">
+              <h3>Ítems del menú</h3>
+              <app-admin-button type="button" variant="secondary" (clicked)="addNavItem()">
+                <app-admin-icon name="plus" />
+                Agregar ítem
+              </app-admin-button>
+            </div>
+            <div class="admin-home__dnd" cdkDropList (cdkDropListDropped)="dropNavItem($event)">
+              @for (item of navItems.controls; track $index; let i = $index) {
+                <div class="admin-home__card" cdkDrag [formGroup]="item">
+                  <div
+                    class="admin-home__card-head"
+                    (click)="toggleCard('n-' + i)"
+                    role="button"
+                    tabindex="0"
+                    (keydown.enter)="toggleCard('n-' + i)"
+                  >
+                    <span class="admin-home__drag" cdkDragHandle aria-label="Arrastrar" (click)="$event.stopPropagation()">⋮⋮</span>
+                    <strong class="admin-home__card-title">
+                      {{ item.controls['label'].value || 'Nuevo ítem' }}
+                    </strong>
+                    <span class="admin-home__chevron" aria-hidden="true">
+                      {{ isCardExpanded('n-' + i) ? '▾' : '▸' }}
+                    </span>
+                    <app-admin-button
+                      type="button"
+                      variant="ghost"
+                      (clicked)="removeNavItem(i)"
+                    >
+                      <app-admin-icon name="trash" />
+                    </app-admin-button>
+                  </div>
+                  @if (isCardExpanded('n-' + i)) {
+                    <div class="admin-home__card-body">
+                      <app-admin-form-field label="Etiqueta" controlName="label" />
+                      <app-nav-destination-picker
+                        [value]="navDest('' + i)"
+                        (valueChange)="setNavDestination('' + i, $event)"
+                      />
+                      <div class="admin-home__list-header">
+                        <h4>Submenú</h4>
+                        <app-admin-button type="button" variant="ghost" (clicked)="addNavChild(i)">
+                          <app-admin-icon name="plus" />
+                          Sub-ítem
+                        </app-admin-button>
+                      </div>
+                      <div formArrayName="children" class="admin-home__sublist">
+                        @for (child of navChildren(i).controls; track $index; let j = $index) {
+                          <div class="admin-home__subcard" [formGroupName]="j">
+                            <app-admin-form-field label="Etiqueta" controlName="label" />
+                            <app-nav-destination-picker
+                              [value]="navDest(i + '-' + j)"
+                              (valueChange)="setNavDestination(i + '-' + j, $event)"
+                            />
+                            <app-admin-button type="button" variant="ghost" (clicked)="removeNavChild(i, j)">
+                              <app-admin-icon name="trash" />
+                            </app-admin-button>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @case ('banner') {
+          <form class="admin-home__form" [formGroup]="bannerForm">
+            <label class="admin-home__check">
+              <input type="checkbox" formControlName="autoplay" />
+              Autoplay
+            </label>
+            <app-admin-form-field
+              label="Intervalo (ms)"
+              controlName="intervalMs"
+              type="number"
+            />
+
+            <div class="admin-home__list-header">
+              <h3>Slides</h3>
+              <app-admin-button type="button" variant="secondary" (clicked)="addSlide()">
+                <app-admin-icon name="plus" />
+                Agregar slide
+              </app-admin-button>
+            </div>
+            <p class="admin-home__hint">Las tarjetas están colapsadas. Tocá la cabecera para editar.</p>
+
+            <div
+              class="admin-home__dnd"
+              cdkDropList
+              (cdkDropListDropped)="dropSlide($event)"
+            >
+              @for (slide of slides.controls; track $index; let i = $index) {
+                <div class="admin-home__card" cdkDrag [formGroup]="slide">
+                  <div
+                    class="admin-home__card-head"
+                    (click)="toggleCard('s-' + i)"
+                    role="button"
+                    tabindex="0"
+                    (keydown.enter)="toggleCard('s-' + i)"
+                  >
+                    <span class="admin-home__drag" cdkDragHandle aria-label="Arrastrar" (click)="$event.stopPropagation()">⋮⋮</span>
+                    <strong class="admin-home__card-title">
+                      {{ slide.controls['title'].value || 'Slide ' + (i + 1) }}
+                    </strong>
+                    <span class="admin-home__chevron" aria-hidden="true">
+                      {{ isCardExpanded('s-' + i) ? '▾' : '▸' }}
+                    </span>
+                    <app-admin-button type="button" variant="ghost" (clicked)="removeSlide(i)">
+                      <app-admin-icon name="trash" />
+                    </app-admin-button>
+                  </div>
+                  @if (isCardExpanded('s-' + i)) {
+                    <div class="admin-home__card-body">
+                      <app-image-uploader
+                        label="Imagen del slide"
+                        folder="home"
+                        [url]="slide.controls['imageUrl'].value || null"
+                        (urlChange)="setSlideImage(i, $event)"
+                      />
+                      <app-admin-form-field label="Título (opcional)" controlName="title" />
+                      <app-admin-form-field label="Texto del botón (opcional)" controlName="buttonText" />
+                      <app-destination-picker
+                        [value]="slideDestinations()[i] ?? null"
+                        (valueChange)="setSlideDestination(i, $event)"
+                      />
+                      <app-admin-form-field label="Posición del texto" controlName="textPosition" type="select">
+                        <option value="top">Arriba</option>
+                        <option value="middle">Medio</option>
+                        <option value="bottom">Abajo</option>
+                      </app-admin-form-field>
+                      <app-admin-form-field
+                        label="Intensidad del overlay"
+                        controlName="scheme"
+                        type="select"
+                      >
+                        <option value="dark">Normal (recomendado)</option>
+                        <option value="light">Suave</option>
+                      </app-admin-form-field>
+                      <p class="admin-home__hint">
+                        El título siempre se muestra en blanco para que se lea sobre cualquier foto.
+                      </p>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </form>
+        }
+
+        @case ('decor') {
+          <form class="admin-home__form" [formGroup]="findProductForm">
+            <app-image-uploader
+              label="Imagen decorativa (entre el carrusel y «Encontrá tu producto»)"
+              folder="home"
+              [url]="findProductForm.controls.decorImageUrl.value || null"
+              (urlChange)="setFindProductDecorImage($event)"
+            />
+            <p class="admin-home__hint">
+              Si no cargás imagen, se usa <code>/img/img-auxiliar.jpg</code>.
+            </p>
+          </form>
+        }
+
+        @case ('find-product') {
+          <form class="admin-home__form" [formGroup]="findProductForm">
+            <app-admin-form-field label="Título" controlName="title" />
+            <p class="admin-home__hint">
+              Franja roja debajo del decor. Solo se edita el texto.
+            </p>
+          </form>
+        }
+
+        @case ('categories') {
+          <form class="admin-home__form" [formGroup]="categoriesForm">
+            <div class="admin-home__list-header">
+              <h3>Categorías en el home (máx. {{ maxCategories }})</h3>
+              @if (categoryItems.length < maxCategories) {
+                <app-admin-button type="button" variant="secondary" (clicked)="addCategoryItem()">
+                  <app-admin-icon name="plus" />
+                  Agregar
+                </app-admin-button>
+              } @else {
+                <p class="admin-home__limit">Máximo {{ maxCategories }} categorías</p>
+              }
+            </div>
+            <p class="admin-home__hint">Arrastrá para reordenar. Tocá la cabecera para editar. Sin título de sección (como el original).</p>
+            <div
+              class="admin-home__dnd"
+              cdkDropList
+              (cdkDropListDropped)="dropCategory($event)"
+            >
+              @for (item of categoryItems.controls; track $index; let i = $index) {
+                <div class="admin-home__card" cdkDrag [formGroup]="item">
+                  <div
+                    class="admin-home__card-head"
+                    (click)="toggleCard('c-' + i)"
+                    role="button"
+                    tabindex="0"
+                    (keydown.enter)="toggleCard('c-' + i)"
+                  >
+                    <span class="admin-home__drag" cdkDragHandle aria-label="Arrastrar" (click)="$event.stopPropagation()">⋮⋮</span>
+                    <strong class="admin-home__card-title">
+                      {{ categoryName(item.controls['categoryId'].value) }}
+                    </strong>
+                    <span class="admin-home__chevron" aria-hidden="true">
+                      {{ isCardExpanded('c-' + i) ? '▾' : '▸' }}
+                    </span>
+                    <app-admin-button type="button" variant="ghost" (clicked)="removeCategoryItem(i)">
+                      <app-admin-icon name="trash" />
+                    </app-admin-button>
+                  </div>
+                  @if (isCardExpanded('c-' + i)) {
+                    <div class="admin-home__card-body">
+                      <app-admin-form-field label="Categoría" controlName="categoryId" type="select">
+                        @for (cat of allCategories(); track cat.id) {
+                          <option [value]="cat.id">{{ cat.name }}</option>
+                        }
+                      </app-admin-form-field>
+                      <app-admin-form-field
+                        label="Descripción del home (máx. ~3 líneas)"
+                        controlName="description"
+                        type="textarea"
+                      />
+                      <p class="admin-home__hint">
+                        Ideal: 2–3 líneas cortas. En el home se muestran como máximo 3 líneas.
+                      </p>
+                      <app-image-uploader
+                        label="Imagen del home (override)"
+                        folder="home"
+                        [url]="item.controls['imageUrl'].value || null"
+                        (urlChange)="setCategoryImage(i, $event)"
+                      />
+                      <p class="admin-home__hint">
+                        Si no cargás imagen, se usa
+                        <code>/img/img-auxiliar2.jpg</code>.
+                      </p>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </form>
+        }
+
+        @case ('footer') {
+          <form class="admin-home__form" [formGroup]="footerForm">
+            <app-image-uploader
+              label="Imagen inferior (graphic)"
+              folder="home"
+              [url]="footerForm.controls.topImageUrl.value || null"
+              (urlChange)="setFooterTopImage($event)"
+            />
+            <app-image-uploader
+              label="Logo del footer"
+              folder="home"
+              [url]="footerForm.controls.logoUrl.value || null"
+              (urlChange)="setFooterLogo($event)"
+            />
+            <p class="admin-home__hint">
+              Si no cargás logo, se usa el del logo principal o
+              <code>/img/casa-color-logo.jpg</code>.
+            </p>
+            <app-admin-form-field label="Copyright" controlName="copyrightText" />
+            <app-admin-form-field label="Design by" controlName="designBy" />
+            <app-admin-form-field label="Link Design by (opcional)" controlName="designByHref" />
+          </form>
+        }
+
+        @case ('social') {
+          <form class="admin-home__form" [formGroup]="socialForm">
+            <p class="admin-home__hint">
+              Se muestran en la franja negra del pie de página. WhatsApp = botón flotante (solo sitio público).
+            </p>
+
+            <div class="admin-home__social-card">
+              <div class="admin-home__social-card-head">
+                <span class="admin-home__social-name">Instagram</span>
+                <label class="admin-home__switch">
+                  <input type="checkbox" formControlName="instagramShow" />
+                  <span>Visible</span>
+                </label>
+              </div>
+              <label class="admin-home__social-url-label" for="ig-url">URL</label>
+              <input
+                id="ig-url"
+                class="admin-home__social-url"
+                type="url"
+                formControlName="instagramUrl"
+                placeholder="https://instagram.com/…"
+              />
+            </div>
+
+            <div class="admin-home__social-card">
+              <div class="admin-home__social-card-head">
+                <span class="admin-home__social-name">TikTok</span>
+                <label class="admin-home__switch">
+                  <input type="checkbox" formControlName="tiktokShow" />
+                  <span>Visible</span>
+                </label>
+              </div>
+              <label class="admin-home__social-url-label" for="tt-url">URL</label>
+              <input
+                id="tt-url"
+                class="admin-home__social-url"
+                type="url"
+                formControlName="tiktokUrl"
+                placeholder="https://tiktok.com/@…"
+              />
+            </div>
+
+            <div class="admin-home__social-card">
+              <div class="admin-home__social-card-head">
+                <span class="admin-home__social-name">Facebook</span>
+                <label class="admin-home__switch">
+                  <input type="checkbox" formControlName="facebookShow" />
+                  <span>Visible</span>
+                </label>
+              </div>
+              <label class="admin-home__social-url-label" for="fb-url">URL</label>
+              <input
+                id="fb-url"
+                class="admin-home__social-url"
+                type="url"
+                formControlName="facebookUrl"
+                placeholder="https://facebook.com/…"
+              />
+            </div>
+          </form>
+        }
+
+        @case ('whatsapp') {
+          <form class="admin-home__form" [formGroup]="whatsappForm">
+            <p class="admin-home__hint">
+              Número con código de país (ej. 59170000000). Botón flotante solo en el sitio público (no en admin).
+            </p>
+            <label class="admin-home__check">
+              <input type="checkbox" formControlName="enabled" />
+              Activar WhatsApp
+            </label>
+            <app-admin-form-field label="Teléfono (con código de país)" controlName="phone" />
+            <app-admin-form-field
+              label="Mensaje predeterminado"
+              controlName="message"
+              type="textarea"
+            />
+          </form>
+        }
+      }
+    </app-admin-tabs>
+  }
+</div>

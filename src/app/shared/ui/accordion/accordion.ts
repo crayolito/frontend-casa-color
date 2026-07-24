@@ -13,6 +13,8 @@ export class Accordion {
   readonly title = input.required<string>();
   readonly initiallyOpen = input(false);
   readonly panelId = input(this.defaultPanelId);
+  /** Color del ícono +/- (estilo Salient accent / extra-N). */
+  readonly accentColor = input<string>('#dd3333');
 
   protected readonly open = linkedSignal(() => this.initiallyOpen());
 

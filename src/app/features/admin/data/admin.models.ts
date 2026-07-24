@@ -5,7 +5,6 @@ export interface Category {
   shortDescription: string | null;
   description: string | null;
   imageUrl: string | null;
-  displayOrder: number;
   createdAt: string;
   updatedAt: string;
   catalogsCount?: number;
@@ -17,7 +16,6 @@ export interface CategoryWrite {
   shortDescription?: string;
   description?: string;
   imageUrl?: string;
-  displayOrder?: number;
 }
 
 export interface Catalog {
@@ -27,7 +25,6 @@ export interface Catalog {
   slug: string;
   description: string | null;
   imageUrl: string | null;
-  displayOrder: number;
   createdAt: string;
   updatedAt: string;
   extraCategoryIds: number[];
@@ -40,7 +37,6 @@ export interface CatalogWrite {
   slug?: string;
   description?: string;
   imageUrl?: string;
-  displayOrder?: number;
   extraCategoryIds?: number[];
 }
 

@@ -1,5 +1,20 @@
 <section class="find-product" aria-labelledby="find-product-title">
-  <div class="find-product__inner">
-    <h2 id="find-product-title" class="find-product__title">Encuentra un producto</h2>
+  <div
+    class="find-product__inner"
+    [class.find-product__inner--has-image]="!!data().imageUrl"
+    [style.background-image]="data().imageUrl ? 'url(' + data().imageUrl + ')' : null"
+  >
+    <h2 id="find-product-title" class="find-product__title">{{ data().title }}</h2>
+    @if (data().buttonText && href(); as link) {
+      @if (isInternal(link)) {
+        <a class="find-product__cta" [routerLink]="link">
+          {{ data().buttonText }}
+        </a>
+      } @else {
+        <a class="find-product__cta" [href]="link">
+          {{ data().buttonText }}
+        </a>
+      }
+    }
   </div>
 </section>

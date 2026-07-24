@@ -3,13 +3,16 @@
 }
 
 .categories {
-  padding: 3rem 0 4rem;
+  padding: 0 0 4rem;
   background: #ffffff;
 }
 
+/* Clon: 3 columnas vc_col-sm-4 a lo ancho del container */
 .categories__grid {
-  display: grid;
-  gap: 3rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0;
 }
 
 .categories__column {
@@ -17,14 +20,23 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  /* Original Salient: padding-2-percent left-right */
+  /* padding-2-percent left-right del clon */
   padding-inline: 2%;
+  flex: 0 1 100%;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
+/*
+ * Título = h4 Salient (styles.css globales: 31.5→35px, weight 300).
+ * No pisar font-size: en el clon se lee grande y rojo.
+ */
 .categories__title {
-  margin: 0 0 1rem;
+  margin: 0;
   color: #ff0000;
   font-weight: 300;
+  text-align: center;
 }
 
 .categories__arrow {
@@ -50,11 +62,18 @@
 
 .categories__spacer {
   height: 20px;
+  flex-shrink: 0;
 }
 
+.categories__spacer--top {
+  height: 40px;
+}
+
+/* Logo 354×354 como en el clon; contain para no recortar */
 .categories__logo-link {
   display: block;
   max-width: 354px;
+  width: 100%;
   transition: opacity 0.45s cubic-bezier(0.25, 1, 0.33, 1);
 }
 
@@ -70,36 +89,75 @@
 
 .categories__logo {
   width: 100%;
+  max-width: 354px;
   height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
 }
 
+/*
+ * Descripción = h6 Salient (18px / 24px, weight 300).
+ * Sin clamp: el clon muestra el texto completo.
+ */
 .categories__desc {
-  margin: 1.25rem 0;
-  color: var(--color-text-muted);
-  font-size: 0.9375rem;
-  line-height: 1.55;
+  margin: 0;
+  color: var(--color-text);
   font-weight: 300;
-  max-width: 40ch;
+  letter-spacing: 0.2px;
+  text-align: center;
+  max-width: 36ch;
 }
 
+.categories__circle-link {
+  display: inline-flex;
+  transition: opacity 0.3s ease;
+}
+
+.categories__circle-link:hover,
+.categories__circle-link:focus-visible {
+  opacity: 0.75;
+}
+
+.categories__circle-link:focus-visible {
+  outline: 2px solid var(--color-extra-1, #f5a623);
+  outline-offset: 4px;
+}
+
+.categories__circle-img {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+}
+
+/* Mismo ancho visual que el logo para que no “caiga” a la izquierda de la columna. */
 .categories__groups {
   width: 100%;
+  max-width: 354px;
+  margin-inline: auto;
   text-align: left;
 }
 
+/* Clon: <p><a>…</a><br/> — body a = accent, line-height del cuerpo */
 .categories__products {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
+.categories__products li {
+  margin: 0;
+  padding: 0;
+}
+
 .categories__products a {
   display: block;
-  padding: 0.3rem 0;
-  color: var(--color-text);
-  font-size: 0.875rem;
+  padding: 0;
+  color: var(--color-accent);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  font-weight: 400;
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: color 0.2s linear;
 }
 
 .categories__products a:hover,
@@ -108,9 +166,17 @@
   text-decoration: underline;
 }
 
+/* Tablet: 2 cols; desde desktop: 3 cols como vc_col-sm-4 (no 4) */
+@media (min-width: 700px) {
+  .categories__column {
+    flex: 0 1 50%;
+    max-width: 50%;
+  }
+}
+
 @media (min-width: 1000px) {
-  .categories__grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 2rem;
+  .categories__column {
+    flex: 0 1 33.333%;
+    max-width: 33.333%;
   }
 }

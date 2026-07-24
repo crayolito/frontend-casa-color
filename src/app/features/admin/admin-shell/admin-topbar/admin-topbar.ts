@@ -20,7 +20,8 @@ const SECTION_LABELS: { match: RegExp; label: string; crumb: string }[] = [
   { match: /^\/admin\/products(\/|$)/, label: 'Productos', crumb: 'Productos' },
   { match: /^\/admin\/categories(\/|$)/, label: 'Categorías', crumb: 'Categorías' },
   { match: /^\/admin\/catalogs(\/|$)/, label: 'Catálogos', crumb: 'Catálogos' },
-  { match: /^\/admin\/settings(\/|$)/, label: 'Configuración', crumb: 'Configuración' },
+  { match: /^\/admin\/home(\/|$)/, label: 'Inicio', crumb: 'Inicio' },
+  { match: /^\/admin\/settings(\/|$)/, label: 'Datos del sitio', crumb: 'Datos del sitio' },
 ];
 
 const COMMANDS = [
@@ -28,7 +29,8 @@ const COMMANDS = [
   { label: 'Nuevo producto', path: '/admin/products/new', hint: 'Crear' },
   { label: 'Categorías', path: '/admin/categories', hint: 'Listado' },
   { label: 'Catálogos', path: '/admin/catalogs', hint: 'Listado' },
-  { label: 'Configuración', path: '/admin/settings', hint: 'Settings' },
+  { label: 'Inicio', path: '/admin/home', hint: 'Página de inicio' },
+  { label: 'Datos del sitio', path: '/admin/settings', hint: 'Ajustes' },
 ];
 
 @Component({

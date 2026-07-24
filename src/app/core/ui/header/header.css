@@ -63,7 +63,13 @@
   height: 100%;
 }
 
-/* Original: #top nav > ul > li > a {padding: 0 7px; margin: 0 7px} (theme options) */
+/* Original theme options:
+   #top nav > ul > li > a {
+     font-family: Open Sans; text-transform: capitalize;
+     font-size: 16px; line-height: 16px; font-weight: 300;
+   }
+   Padding/margin: 0 7px / margin 0 7px
+*/
 .header__link {
   display: inline-flex;
   align-items: center;
@@ -71,10 +77,11 @@
   padding: 0 7px;
   margin: 0 7px;
   color: #676767;
-  font-size: 0.875rem;
-  font-weight: 400;
+  font-family: var(--font-body);
+  font-size: var(--font-size-nav);
+  font-weight: var(--font-weight-nav);
   letter-spacing: 0;
-  line-height: 20px;
+  line-height: var(--line-height-nav);
   text-decoration: none;
   text-transform: uppercase;
   white-space: nowrap;
@@ -137,11 +144,12 @@
   display: block;
   padding: 6px;
   color: #999;
-  font-size: 14px;
+  font-family: var(--font-body);
+  font-size: var(--font-size-nav-sub);
   font-weight: 400;
-  line-height: 14px;
+  line-height: var(--line-height-nav-sub);
   letter-spacing: 0;
-  text-transform: capitalize;
+  text-transform: uppercase;
   text-decoration: none;
   background: transparent;
   border: 0;

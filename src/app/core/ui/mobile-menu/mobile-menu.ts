@@ -1,6 +1,6 @@
 import { A11yModule } from '@angular/cdk/a11y';
 import { Component, input, output } from '@angular/core';
-import { MobileNavItem } from '../../../shared/util/data/home-data';
+import { MobileNavItem } from '../../../shared/util/data/nav-data';
 
 @Component({
   selector: 'app-mobile-menu',

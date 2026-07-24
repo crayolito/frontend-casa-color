@@ -1,14 +1,21 @@
-<div class="accordion">
+<div
+  class="accordion accordion--minimal"
+  [class.accordion--open]="open()"
+>
   <h3 class="accordion__heading">
     <button
       type="button"
       class="accordion__trigger"
       [attr.aria-expanded]="open()"
       [attr.aria-controls]="panelId()"
+      [style.--accordion-accent]="accentColor()"
       (click)="toggle()"
     >
       <span class="accordion__title">{{ title() }}</span>
-      <span class="accordion__icon" aria-hidden="true">{{ open() ? '−' : '+' }}</span>
+      <span class="accordion__icon" aria-hidden="true">
+        <span class="accordion__icon-h"></span>
+        <span class="accordion__icon-v"></span>
+      </span>
     </button>
   </h3>
 
@@ -16,12 +23,13 @@
     class="accordion__panel"
     role="region"
     [id]="panelId()"
-    [class.accordion__panel--open]="open()"
     [attr.aria-hidden]="!open()"
     [attr.inert]="open() ? null : ''"
   >
-    <div class="accordion__panel-inner">
-      <ng-content />
+    <div class="accordion__panel-clip">
+      <div class="accordion__panel-inner">
+        <ng-content />
+      </div>
     </div>
   </div>
 </div>

@@ -1,6 +1,6 @@
 <app-admin-page-header
   title="Configuración"
-  subtitle="Ajustes del sitio (key → JSON)"
+  subtitle="Datos de la empresa, contacto y ubicaciones"
 />
 
 @if (flash(); as msg) {
@@ -24,12 +24,12 @@
   >
     <form class="settings__form" [formGroup]="form" (ngSubmit)="save()">
       <label class="settings__field">
-        <span class="settings__label">Key</span>
+        <span class="settings__label">Sección</span>
         <input class="settings__input" formControlName="key" readonly />
       </label>
 
       <label class="settings__field">
-        <span class="settings__label">Value (JSON)</span>
+        <span class="settings__label">Contenido</span>
         <textarea class="settings__textarea" formControlName="valueJson" rows="14"></textarea>
       </label>
 
@@ -55,8 +55,8 @@
 
 <app-admin-confirm-dialog
   [open]="deleteOpen()"
-  title="Eliminar setting"
-  [message]="'¿Eliminar la key «' + form.controls.key.value + '»?'"
+  title="Eliminar sección"
+  [message]="'¿Eliminar «' + form.controls.key.value + '»?'"
   [loading]="saving()"
   (confirmed)="confirmDelete()"
   (cancelled)="deleteOpen.set(false)"

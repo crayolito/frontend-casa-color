@@ -1,51 +1,72 @@
-<section class="categories" aria-label="Directorio de categorías">
+<section class="categories" aria-label="Categorías">
   <app-container>
     <div class="categories__grid">
-      @for (line of lines(); track line.title) {
+      @for (line of lines(); track line.categoryId; let col = $index) {
         <div class="categories__column" appReveal>
-          <h4 class="categories__title">{{ line.title }}</h4>
+          <div class="categories__spacer categories__spacer--top" aria-hidden="true"></div>
+
+          <h4 class="categories__title">{{ line.name }}</h4>
 
           <a
             class="categories__arrow"
-            [href]="line.href"
-            [attr.aria-label]="'Ir a ' + line.title"
+            [routerLink]="categoryHref(line)"
+            [attr.aria-label]="'Ir a ' + line.name"
           >
             <img src="/img/decor/flecha-roja.png" alt="" width="70" height="70" />
           </a>
 
           <div class="categories__spacer" aria-hidden="true"></div>
 
-          <a class="categories__logo-link" [href]="line.href">
+          <a class="categories__logo-link" [routerLink]="categoryHref(line)">
             <img
               class="categories__logo"
-              [src]="line.logo"
-              [alt]="'Logo ' + line.title"
+              [src]="logoSrc(line)"
+              [alt]="'Logo ' + line.name"
               width="354"
               height="354"
             />
           </a>
 
-          <h6 class="categories__desc">{{ line.description }}</h6>
+          <div class="categories__spacer" aria-hidden="true"></div>
+
+          @if (plainDescription(line); as desc) {
+            <h6 class="categories__desc">{{ desc }}</h6>
+          }
+
+          <div class="categories__spacer" aria-hidden="true"></div>
 
           <a
-            class="categories__arrow"
-            [href]="line.href"
-            [attr.aria-label]="'Ver más de ' + line.title"
+            class="categories__circle-link"
+            [routerLink]="categoryHref(line)"
+            [attr.aria-label]="'Ver ' + line.name"
           >
-            <img src="/img/decor/flecha-roja-circulo.png" alt="" width="70" height="70" />
+            <img
+              class="categories__circle-img"
+              src="/img/decor/flecha-roja-circulo.png"
+              alt=""
+              width="70"
+              height="70"
+            />
           </a>
 
+          <div class="categories__spacer" aria-hidden="true"></div>
+
           <div class="categories__groups">
-            @for (group of line.groups; track group.title; let i = $index) {
+            @for (group of line.catalogs; track group.id; let i = $index) {
               <app-accordion
-                [title]="group.title"
-                [initiallyOpen]="i === 0"
-                [panelId]="'cat-' + line.title + '-' + i"
+                [title]="group.name"
+                [initiallyOpen]="false"
+                [panelId]="'cat-' + line.categoryId + '-' + group.id"
+                [accentColor]="toggleColor(i)"
               >
                 <ul class="categories__products">
-                  @for (product of group.products; track product) {
+                  @for (product of group.products; track product.id) {
                     <li>
-                      <a href="#">{{ product }}</a>
+                      <a [routerLink]="productHref(product.slug)">{{ product.title }}</a>
+                    </li>
+                  } @empty {
+                    <li>
+                      <a [routerLink]="catalogHref(group.slug)">Ver catálogo</a>
                     </li>
                   }
                 </ul>

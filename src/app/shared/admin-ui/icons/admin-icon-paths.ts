@@ -15,6 +15,7 @@ export type AdminIconName =
   | 'catalogs'
   | 'products'
   | 'settings'
+  | 'home'
   | 'image'
   | 'x'
   | 'lock'
@@ -64,6 +65,9 @@ export const ADMIN_ICON_PATHS: Record<AdminIconName, string> = {
   settings: `
     <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5" />
     <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+  `,
+  home: `
+    <path d="M4 11l8-7 8 7v9a1 1 0 01-1 1h-5v-5H10v5H5a1 1 0 01-1-1v-9z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
   `,
   image: `
     <rect x="3" y="5" width="18" height="14" rx="0" stroke="currentColor" stroke-width="1.5" />

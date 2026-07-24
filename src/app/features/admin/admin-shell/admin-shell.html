@@ -21,8 +21,11 @@
       (menuToggle)="toggleNav()"
       (collapseToggle)="toggleCollapse()"
     />
-    <main class="admin-shell__content" id="admin-main">
-      <router-outlet />
+    <!-- Scroll a ancho completo (barra al borde); el content interno se centra. -->
+    <main class="admin-shell__scroll" id="admin-main">
+      <div class="admin-shell__content">
+        <router-outlet />
+      </div>
     </main>
   </div>
 

@@ -19,7 +19,7 @@ import { AdminConfirmDialog } from '../../../shared/admin-ui/admin-confirm-dialo
 import { AdminTabs, AdminTab } from '../../../shared/admin-ui/admin-tabs/admin-tabs';
 import { AdminErrorState } from '../../../shared/admin-ui/admin-error-state/admin-error-state';
 
-const KNOWN_KEYS = ['empresa', 'contacto', 'ubicaciones', 'home'] as const;
+const KNOWN_KEYS = ['empresa', 'contacto', 'ubicaciones'] as const;
 
 @Component({
   selector: 'app-admin-settings',
@@ -88,7 +88,7 @@ export class AdminSettings implements OnInit {
             key,
             valueJson: '{\n  \n}',
           });
-          this.flash.set(`La key «${key}» aún no existe. Guardá para crearla.`);
+          this.flash.set(`La sección «${key}» aún no existe. Guardá para crearla.`);
           return;
         }
         this.error.set(resolveErrorMessage(err));
@@ -107,12 +107,12 @@ export class AdminSettings implements OnInit {
     try {
       const parsed: unknown = JSON.parse(raw.valueJson);
       if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-        this.error.set(localErrorMessage('El value debe ser un objeto JSON'));
+        this.error.set(localErrorMessage('El contenido debe ser un objeto válido'));
         return;
       }
       value = parsed as Record<string, unknown>;
     } catch {
-      this.error.set(localErrorMessage('JSON inválido'));
+      this.error.set(localErrorMessage('Contenido inválido'));
       return;
     }
 
@@ -121,7 +121,7 @@ export class AdminSettings implements OnInit {
       next: (res) => {
         this.saving.set(false);
         this.updatedAt.set(res.updatedAt);
-        this.flash.set('Setting guardado');
+        this.flash.set('Guardado correctamente');
         this.selectedKey.set(res.key);
       },
       error: (err: unknown) => {
@@ -145,7 +145,7 @@ export class AdminSettings implements OnInit {
       next: () => {
         this.saving.set(false);
         this.deleteOpen.set(false);
-        this.flash.set('Setting eliminado');
+        this.flash.set('Eliminado correctamente');
         this.form.patchValue({ valueJson: '{\n  \n}' });
         this.updatedAt.set(null);
       },

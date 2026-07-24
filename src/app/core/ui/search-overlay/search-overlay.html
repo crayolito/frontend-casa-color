@@ -2,7 +2,7 @@
   class="search-overlay"
   role="dialog"
   aria-modal="true"
-  aria-label="Buscar productos"
+  aria-label="Buscar"
   cdkTrapFocus
   [cdkTrapFocusAutoCapture]="true"
 >
@@ -25,11 +25,29 @@
         class="search-overlay__input"
         type="search"
         name="q"
-        placeholder="Start Typing..."
+        placeholder="Buscar…"
         autocomplete="off"
         [value]="query()"
         (input)="onQueryInput($event)"
       />
     </form>
+
+    @if (suggestions().length > 0) {
+      <ul class="search-overlay__results" role="listbox" aria-label="Sugerencias">
+        @for (item of suggestions(); track item.kind + '-' + item.id) {
+          <li role="option">
+            <a
+              class="search-overlay__result"
+              [routerLink]="item.href"
+              (click)="close()"
+            >
+              <span class="search-overlay__label">{{ item.label }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    } @else if (query().trim()) {
+      <p class="search-overlay__empty">Sin resultados</p>
+    }
   </div>
 </div>

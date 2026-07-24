@@ -20,6 +20,7 @@ import {
         ></button>
         <div
           class="admin-modal__panel"
+          [class.admin-modal__panel--wide]="wide()"
           role="dialog"
           aria-modal="true"
           [attr.aria-labelledby]="titleId"
@@ -74,6 +75,10 @@ import {
       box-shadow: var(--admin-card-shadow-hover);
     }
 
+    .admin-modal__panel--wide {
+      max-width: 42rem;
+    }
+
     .admin-modal__header {
       display: flex;
       align-items: center;
@@ -116,6 +121,8 @@ import {
 export class AdminModal {
   readonly open = input(false);
   readonly title = input.required<string>();
+  /** Modal más ancho (formularios con editor HTML, etc.). */
+  readonly wide = input(false);
   readonly closed = output<void>();
 
   protected readonly titleId = `admin-modal-title-${Math.random().toString(36).slice(2, 9)}`;

@@ -41,6 +41,11 @@ export const ADMIN_ROUTES: Routes = [
           import('./products/form/product-form').then((m) => m.AdminProductForm),
       },
       {
+        path: 'home',
+        loadComponent: () =>
+          import('./home/admin-home').then((m) => m.AdminHome),
+      },
+      {
         path: 'settings',
         loadComponent: () =>
           import('./settings/settings').then((m) => m.AdminSettings),

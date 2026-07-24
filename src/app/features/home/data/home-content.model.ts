@@ -1,0 +1,251 @@
+export type HomeTextPosition = 'top' | 'middle' | 'bottom';
+export type HomeScheme = 'dark' | 'light';
+export type HomeDestinationType = 'category' | 'catalog' | 'product';
+
+export interface HomeDestination {
+  type: HomeDestinationType;
+  id: number;
+  slug: string;
+  name: string;
+}
+
+/** Forma legacy / UI del header (el backend ahora manda shape plano). */
+export interface HomeLogo {
+  type: 'icon' | 'image';
+  iconName?: string;
+  imageUrl?: string;
+  altText?: string;
+}
+
+/**
+ * Header del home.
+ * Backend nuevo: { imageUrl, altText?, link? }.
+ * Legacy: { logo: HomeLogo }.
+ * El frontend acepta ambos.
+ */
+export interface HomeHeader {
+  imageUrl?: string;
+  altText?: string;
+  link?: string;
+  logo?: HomeLogo;
+}
+
+export interface HomeSlide {
+  id: string;
+  imageUrl: string;
+  title?: string;
+  buttonText?: string;
+  buttonDestination?: HomeDestination;
+  /** Legacy: se tolera un ciclo si aún viene del seed viejo. */
+  buttonLink?: string;
+  textPosition?: HomeTextPosition;
+  scheme?: HomeScheme;
+}
+
+export interface HomeBanner {
+  autoplay: boolean;
+  intervalMs: number;
+  slides: HomeSlide[];
+}
+
+export interface HomeFindProduct {
+  title: string;
+  imageUrl?: string;
+  /** Imagen entre banner y esta sección. */
+  decorImageUrl?: string;
+  buttonText?: string;
+  buttonDestination?: HomeDestination;
+  buttonLink?: string;
+}
+
+export interface HomeCategoryProduct {
+  id: number;
+  title: string;
+  slug: string;
+}
+
+export interface HomeCategoryCatalog {
+  id: number;
+  name: string;
+  slug: string;
+  products: HomeCategoryProduct[];
+}
+
+export interface HomeResolvedCategory {
+  categoryId: number;
+  name: string;
+  slug: string;
+  displayOrder: number;
+  description: string | null;
+  imageUrl: string | null;
+  catalogs: HomeCategoryCatalog[];
+}
+
+export interface HomeCategories {
+  title: string;
+  items: HomeResolvedCategory[];
+}
+
+export interface HomeSocialLink {
+  url?: string;
+  show: boolean;
+}
+
+export interface HomeSocial {
+  whatsapp?: HomeSocialLink;
+  instagram: HomeSocialLink;
+  tiktok: HomeSocialLink;
+  facebook: HomeSocialLink;
+  /** Legacy: se tolera un ciclo si aún viene del seed viejo. */
+  twitter?: HomeSocialLink;
+}
+
+export interface HomeCopyright {
+  text: string;
+  designBy: string;
+  designByHref?: string;
+}
+
+export interface HomeFooter {
+  topImageUrl?: string;
+  logoUrl?: string;
+  address?: string[];
+  phones?: string[];
+  legalLinks?: Array<{ label: string; href: string }>;
+  social: HomeSocial;
+  copyright: HomeCopyright;
+}
+
+export interface HomeWhatsapp {
+  enabled: boolean;
+  phone?: string;
+  message?: string;
+}
+
+export interface HomeFloating {
+  whatsapp: HomeWhatsapp;
+}
+
+export type HomeNavDestinationType = 'category' | 'catalog' | 'page';
+
+export interface HomeNavDestination {
+  type: HomeNavDestinationType;
+  slug?: string;
+  name?: string;
+}
+
+export interface HomeNavSubItem {
+  id: string;
+  label: string;
+  destination?: HomeNavDestination;
+}
+
+export interface HomeNavItem {
+  id: string;
+  label: string;
+  destination?: HomeNavDestination;
+  children: HomeNavSubItem[];
+}
+
+export interface HomeNav {
+  items: HomeNavItem[];
+}
+
+export interface HomeContent {
+  header: HomeHeader;
+  banner: HomeBanner;
+  findProduct: HomeFindProduct;
+  categories: HomeCategories;
+  footer: HomeFooter;
+  floating?: HomeFloating;
+  nav?: HomeNav;
+}
+
+export interface HomeCategoryItemWrite {
+  categoryId: number;
+  displayOrder: number;
+  description?: string;
+  imageUrl?: string;
+}
+
+export interface HomeCategoriesWrite {
+  title: string;
+  items: HomeCategoryItemWrite[];
+}
+
+export type HomeSection =
+  | 'header'
+  | 'banner'
+  | 'find-product'
+  | 'categories'
+  | 'footer'
+  | 'floating'
+  | 'nav';
+
+/** Páginas fijas del sitio (menú del header). */
+export const HOME_PAGE_OPTIONS: Array<{ value: string; label: string; href: string }> = [
+  { value: 'empresa', label: 'Empresa', href: '/empresa' },
+  { value: 'contacto', label: 'Contacto', href: '/contacto' },
+  { value: 'cartas-de-color', label: 'Cartas de color', href: '/cartas-de-color' },
+  { value: 'fichas-tecnicas', label: 'Fichas técnicas', href: '/fichas-tecnicas' },
+  { value: 'catalogos', label: 'Catálogos', href: '/catalogos' },
+];
+
+/** Arma el href público a partir de un destino tipado. */
+export function destinationHref(dest?: HomeDestination | null): string | null {
+  if (!dest?.type || !dest.slug) {
+    return null;
+  }
+  switch (dest.type) {
+    case 'category':
+      return `/catalogos?categoria=${encodeURIComponent(dest.slug)}`;
+    case 'catalog':
+      return `/catalogos?catalogo=${encodeURIComponent(dest.slug)}`;
+    case 'product':
+      return `/producto/${encodeURIComponent(dest.slug)}`;
+    default:
+      return null;
+  }
+}
+
+/** Href para destinos del menú del header (incluye páginas fijas). */
+export function navDestinationHref(dest?: HomeNavDestination | null): string {
+  if (!dest?.type) return '#';
+  if (dest.type === 'page') {
+    const page = HOME_PAGE_OPTIONS.find((p) => p.value === dest.slug);
+    return page?.href ?? (dest.slug ? `/${dest.slug}` : '#');
+  }
+  if (!dest.slug) return '#';
+  if (dest.type === 'category') {
+    return `/catalogos?categoria=${encodeURIComponent(dest.slug)}`;
+  }
+  if (dest.type === 'catalog') {
+    return `/catalogos?catalogo=${encodeURIComponent(dest.slug)}`;
+  }
+  return '#';
+}
+
+/** Prefer destination; cae a buttonLink legacy si existe. */
+export function resolveCtaHref(opts: {
+  buttonDestination?: HomeDestination;
+  buttonLink?: string;
+}): string | null {
+  const fromDest = destinationHref(opts.buttonDestination);
+  if (fromDest) return fromDest;
+  if (opts.buttonLink?.trim()) return opts.buttonLink.trim();
+  return null;
+}
+
+/** Normaliza header plano o legacy a HomeLogo para el UI. */
+export function headerToLogo(header: HomeHeader | null | undefined): HomeLogo | null {
+  if (!header) return null;
+  if (header.logo) return header.logo;
+  if (header.imageUrl) {
+    return {
+      type: 'image',
+      imageUrl: header.imageUrl,
+      altText: header.altText,
+    };
+  }
+  return null;
+}

@@ -28,10 +28,6 @@ import {
 } from '../../../shared/errors/resolve-error-message';
 import { AdminPageHeader } from '../../../shared/admin-ui/admin-page-header/admin-page-header';
 import { AdminButton } from '../../../shared/admin-ui/admin-button/admin-button';
-import {
-  AdminTable,
-  AdminTableColumn,
-} from '../../../shared/admin-ui/admin-table/admin-table';
 import { AdminModal } from '../../../shared/admin-ui/admin-modal/admin-modal';
 import { AdminFormField } from '../../../shared/admin-ui/admin-form-field/admin-form-field';
 import { AdminConfirmDialog } from '../../../shared/admin-ui/admin-confirm-dialog/admin-confirm-dialog';
@@ -39,6 +35,7 @@ import { AdminFilters } from '../../../shared/admin-ui/admin-filters/admin-filte
 import { AdminIcon } from '../../../shared/admin-ui/icons/admin-icon';
 import { ImageUploader } from '../../../shared/admin-ui/image-uploader/image-uploader';
 import { AdminErrorState } from '../../../shared/admin-ui/admin-error-state/admin-error-state';
+import { AdminHtmlEditor } from '../../../shared/admin-ui/admin-html-editor/admin-html-editor';
 
 @Component({
   selector: 'app-admin-categories',
@@ -48,7 +45,6 @@ import { AdminErrorState } from '../../../shared/admin-ui/admin-error-state/admi
     FormsModule,
     AdminPageHeader,
     AdminButton,
-    AdminTable,
     AdminModal,
     AdminFormField,
     AdminConfirmDialog,
@@ -56,6 +52,7 @@ import { AdminErrorState } from '../../../shared/admin-ui/admin-error-state/admi
     AdminIcon,
     ImageUploader,
     AdminErrorState,
+    AdminHtmlEditor,
   ],
   templateUrl: './categories.html',
   styleUrl: './categories.css',
@@ -88,28 +85,11 @@ export class AdminCategories {
       : 'No hay categorías todavía',
   );
 
-  readonly columns: AdminTableColumn<Category>[] = [
-    { key: 'name', label: 'Nombre', cell: (r) => r.name },
-    {
-      key: 'short',
-      label: 'Descripción corta',
-      cell: (r) => r.shortDescription ?? '—',
-      truncate: true,
-    },
-    { key: 'order', label: 'Orden', cell: (r) => String(r.displayOrder) },
-    {
-      key: 'catalogs',
-      label: 'Catálogos',
-      cell: (r) => String(r.catalogsCount ?? 0),
-    },
-  ];
-
   readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(150)]],
     shortDescription: ['', [Validators.maxLength(150)]],
     description: [''],
     imageUrl: [''],
-    displayOrder: [0, [Validators.min(0)]],
   });
 
   constructor() {
@@ -182,7 +162,6 @@ export class AdminCategories {
       shortDescription: '',
       description: '',
       imageUrl: '',
-      displayOrder: 0,
     });
     this.modalOpen.set(true);
   }
@@ -194,7 +173,6 @@ export class AdminCategories {
       shortDescription: row.shortDescription ?? '',
       description: row.description ?? '',
       imageUrl: row.imageUrl ?? '',
-      displayOrder: row.displayOrder,
     });
     this.modalOpen.set(true);
   }
@@ -205,6 +183,11 @@ export class AdminCategories {
 
   onImageChange(url: string | null): void {
     this.form.controls.imageUrl.setValue(url ?? '');
+  }
+
+  onDescriptionChange(html: string): void {
+    this.form.controls.description.setValue(html);
+    this.form.controls.description.markAsDirty();
   }
 
   save(): void {
@@ -218,7 +201,6 @@ export class AdminCategories {
       shortDescription: raw.shortDescription.trim() || undefined,
       description: raw.description.trim() || undefined,
       imageUrl: raw.imageUrl.trim() || undefined,
-      displayOrder: Number(raw.displayOrder) || 0,
     };
     this.saving.set(true);
     const editing = this.editing();

@@ -1,14 +1,14 @@
 <section
   class="hero"
   aria-roledescription="carrusel"
-  aria-label="Líneas de producto"
+  aria-label="Banner principal"
   (mouseenter)="pause()"
   (mouseleave)="resume()"
   (focusin)="pause()"
   (focusout)="resume()"
 >
   <div class="hero__viewport">
-    @for (slide of slides(); track $index; let i = $index) {
+    @for (slide of slides(); track slide.id; let i = $index) {
       <article
         class="hero__slide"
         [class.hero__slide--active]="current() === i"
@@ -19,20 +19,23 @@
         <div class="hero__overlay"></div>
         <div
           class="container hero__content"
-          [class.hero__content--top]="slide.textPosition === 'top'"
+          [class.hero__content--top]="(slide.textPosition ?? 'top') === 'top'"
           [class.hero__content--middle]="slide.textPosition === 'middle'"
           [class.hero__content--bottom]="slide.textPosition === 'bottom'"
         >
-          <h2 class="hero__title">{{ slide.title }}</h2>
-          @if (slide.ctaLabel && slide.ctaHref) {
-            <a
-              class="hero__cta"
-              [class.hero__cta--deco]="slide.line === 'deco'"
-              [class.hero__cta--tecno]="slide.line === 'tecno'"
-              [href]="slide.ctaHref"
-            >
-              {{ slide.ctaLabel }}
-            </a>
+          @if (slide.title) {
+            <h2 class="hero__title">{{ slide.title }}</h2>
+          }
+          @if (slide.buttonText && slideHref(slide); as href) {
+            @if (isInternal(href)) {
+              <a class="hero__cta" [routerLink]="href">
+                {{ slide.buttonText }}
+              </a>
+            } @else {
+              <a class="hero__cta" [href]="href">
+                {{ slide.buttonText }}
+              </a>
+            }
           }
         </div>
       </article>
@@ -40,15 +43,33 @@
   </div>
 
   <div class="sr-only" aria-live="polite">
-    Slide {{ current() + 1 }} de {{ slides().length }}: {{ slides()[current()].title }}
+    @if (slides()[current()]; as s) {
+      Slide {{ current() + 1 }} de {{ slides().length }}: {{ s.title || '' }}
+    }
   </div>
 
   <div class="hero__controls">
-    <button type="button" class="hero__nav" (click)="prev()" aria-label="Slide anterior">
-      ‹
+    <button type="button" class="hero__nav hero__nav--prev" (click)="prev()" aria-label="Slide anterior">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path
+          d="M15 18l-6-6 6-6"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
     </button>
-    <button type="button" class="hero__nav" (click)="next()" aria-label="Slide siguiente">
-      ›
+    <button type="button" class="hero__nav hero__nav--next" (click)="next()" aria-label="Slide siguiente">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path
+          d="M9 6l6 6-6 6"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
     </button>
   </div>
 
@@ -58,11 +79,11 @@
     aria-label="Bajar al contenido"
     (click)="scrollToContent()"
   >
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path
         d="M6 9l6 6 6-6"
         stroke="currentColor"
-        stroke-width="2"
+        stroke-width="1.75"
         stroke-linecap="round"
         stroke-linejoin="round"
       />
@@ -70,14 +91,14 @@
   </button>
 
   <div class="hero__dots" role="tablist" aria-label="Paginación del carrusel">
-    @for (slide of slides(); track $index; let i = $index) {
+    @for (slide of slides(); track slide.id; let i = $index) {
       <button
         type="button"
         class="hero__dot"
         [class.hero__dot--active]="current() === i"
         role="tab"
         [attr.aria-selected]="current() === i"
-        [attr.aria-label]="'Ir al slide ' + (i + 1) + ': ' + slide.title"
+        [attr.aria-label]="'Ir al slide ' + (i + 1)"
         (click)="goTo(i)"
       ></button>
     }

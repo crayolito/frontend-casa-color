@@ -8,6 +8,10 @@
   background: var(--bg-footer-widgets);
   color: var(--color-white);
   padding: 55px 0;
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  font-weight: 400;
 }
 
 .footer__grid {
@@ -25,11 +29,15 @@
   flex-direction: column;
   font-style: normal;
   color: var(--color-white);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
 }
 
 .footer__phones-intro {
   margin: 0;
   color: var(--color-white);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
 }
 
 .footer__phones,
@@ -37,12 +45,16 @@
   list-style: none;
   margin: 0;
   padding: 0;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
 }
 
 /* Original: links siempre blancos (color #ffffff !important); hover subrayado blanco */
 .footer__phones a,
 .footer__links a {
   color: var(--color-white);
+  font-size: inherit;
+  line-height: inherit;
   text-decoration: none;
 }
 
@@ -59,13 +71,23 @@
   background: var(--bg-footer-copyright);
   color: #777;
   padding: 20px 0;
-  font-size: 12px;
+  font-size: var(--font-size-copyright);
+  line-height: 22px;
 }
 
 .footer__copyright-inner {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  gap: 1rem;
+}
+
+@media (min-width: 691px) {
+  .footer__copyright-inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
 }
 
 .footer__copyright p {
@@ -95,4 +117,31 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 2.5rem;
   }
+}
+
+.footer__social {
+  display: flex;
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.footer__social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #a0a0a0;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.footer__social-link:hover,
+.footer__social-link:focus-visible {
+  background: rgba(255, 255, 255, 0.22);
+  color: var(--color-white);
+  transform: translateY(-1px);
 }

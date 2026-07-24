@@ -2,41 +2,47 @@
   display: block;
 }
 
+/*
+ * Estilos del clon = element-toggles.css + CSS custom inline de index.html:
+ *   font 20px/25px, padding 30px 70px 30px 0, border-bottom 2px, + bars 14px
+ */
 .accordion {
-  border-bottom: 1px solid #e5e5e5;
+  margin-bottom: 0;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.08);
+  transition: border-color 0.15s ease;
 }
 
 .accordion__heading {
   margin: 0;
-  font-size: 1rem;
+  font-size: 12px;
   line-height: 1.4;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .accordion__trigger {
-  display: flex;
+  --accordion-accent: var(--color-accent);
+  position: relative;
+  display: block;
   width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  min-height: 44px;
-  padding: 0.875rem 0;
+  padding: 30px 70px 30px 0;
   border: 0;
   background: transparent;
-  color: var(--color-text);
+  color: rgba(0, 0, 0, 0.65);
   font-family: inherit;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 25px;
   text-align: left;
   text-transform: uppercase;
   cursor: pointer;
-  transition: color 0.3s ease;
+  transition: color 0.15s ease;
 }
 
 .accordion__trigger:hover,
-.accordion__trigger:focus-visible {
-  color: var(--color-accent);
+.accordion__trigger:focus-visible,
+.accordion--open .accordion__trigger {
+  color: var(--accordion-accent);
 }
 
 .accordion__trigger:focus-visible {
@@ -45,27 +51,107 @@
 }
 
 .accordion__title {
-  flex: 1;
+  display: block;
 }
 
+/* Círculo 30×30 a la derecha — borde #888 en reposo */
 .accordion__icon {
-  flex-shrink: 0;
-  font-size: 1.25rem;
-  line-height: 1;
-  color: var(--color-accent);
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 30px;
+  height: 30px;
+  margin-top: -15px;
+  border: 2px solid #888;
+  border-radius: 50%;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
 }
 
-/* Timing del original: max-height 0.5s ease al expandir/contraer */
+.accordion__trigger:hover .accordion__icon,
+.accordion__trigger:focus-visible .accordion__icon,
+.accordion--open .accordion__icon {
+  border-color: var(--accordion-accent);
+}
+
+/* Barras del + — posiciones exactas del CSS custom del clon */
+.accordion__icon-h,
+.accordion__icon-v {
+  position: absolute;
+  background: #888;
+  content: '';
+}
+
+.accordion__icon-h {
+  top: 14px;
+  left: 6px;
+  margin-top: -2px;
+  width: 14px;
+  height: 2px;
+  transition: background-color 0.15s ease;
+}
+
+.accordion__icon-v {
+  top: 6px;
+  left: 14px;
+  margin-left: -2px;
+  width: 2px;
+  height: 14px;
+  transition:
+    transform 0.45s cubic-bezier(0.3, 0.4, 0.2, 1),
+    background-color 0.15s ease;
+}
+
+.accordion__trigger:hover .accordion__icon-h,
+.accordion__trigger:hover .accordion__icon-v,
+.accordion__trigger:focus-visible .accordion__icon-h,
+.accordion__trigger:focus-visible .accordion__icon-v,
+.accordion--open .accordion__icon-h,
+.accordion--open .accordion__icon-v {
+  background: var(--accordion-accent);
+}
+
+/* open → “menos”: scaleY del eje vertical */
+.accordion--open .accordion__icon-v {
+  transform: scale(1, 0);
+}
+
 .accordion__panel {
-  max-height: 0;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.5s ease;
+}
+
+.accordion--open .accordion__panel {
+  grid-template-rows: 1fr;
+}
+
+.accordion__panel-clip {
   overflow: hidden;
-  transition: max-height 0.5s ease;
+  min-height: 0;
+  /* Evita scrollbar interna al abrir/cerrar; el scroll es el de la página. */
+  overflow-y: clip;
 }
 
-.accordion__panel--open {
-  max-height: 2000px;
-}
-
+/* Clon custom: inner-toggle-wrap { padding: 0 0 30px } */
 .accordion__panel-inner {
-  padding: 0 0 1rem;
+  padding: 0 0 30px;
+  text-align: left;
+}
+
+@media (max-width: 690px) {
+  .accordion__trigger {
+    font-size: 20px;
+    line-height: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accordion__trigger,
+  .accordion__icon,
+  .accordion__icon-h,
+  .accordion__icon-v,
+  .accordion__panel {
+    transition: none;
+  }
 }

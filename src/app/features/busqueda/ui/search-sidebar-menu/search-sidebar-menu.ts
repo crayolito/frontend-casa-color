@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { NAV_ITEMS, NavItem } from '../../../../shared/util/data/home-data';
+import { NAV_ITEMS, NavItem } from '../../../../shared/util/data/nav-data';
 
 @Component({
   selector: 'app-search-sidebar-menu',

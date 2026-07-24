@@ -3,7 +3,9 @@ import {
   Component,
   DestroyRef,
   HostListener,
+  computed,
   inject,
+  input,
   OnDestroy,
   OnInit,
   signal,
@@ -13,8 +15,16 @@ import { fromEvent } from 'rxjs';
 import {
   MOBILE_NAV_ITEMS,
   NAV_ITEMS,
+  MobileNavItem,
   NavItem,
-} from '../../../shared/util/data/home-data';
+} from '../../../shared/util/data/nav-data';
+import {
+  HomeLogo,
+  HomeNavItem,
+  HomeResolvedCategory,
+  navDestinationHref,
+} from '../../../features/home/data/home-content.model';
+import { withLogoFallback } from '../../../shared/util/default-images';
 import { MobileMenu } from '../mobile-menu/mobile-menu';
 import { SearchOverlay } from '../search-overlay/search-overlay';
 
@@ -28,15 +38,47 @@ export class Header implements OnInit, OnDestroy {
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly navItems = NAV_ITEMS;
-  protected readonly mobileItems = MOBILE_NAV_ITEMS;
+  /** Logo configurable (home). Si no viene, usa el logo por defecto. */
+  readonly logo = input<HomeLogo | null>(null);
+  /** Categorías del home para el autocomplete de búsqueda. */
+  readonly searchCategories = input<HomeResolvedCategory[]>([]);
+  /** Menú dinámico desde admin. Si vacío/null, usa NAV_ITEMS legacy. */
+  readonly dynamicNav = input<HomeNavItem[] | null>(null);
+
   protected readonly scrolled = signal(false);
   protected readonly searchOpen = signal(false);
   protected readonly mobileOpen = signal(false);
   protected readonly openSub = signal<string | null>(null);
 
+  protected readonly navItems = computed((): NavItem[] => {
+    const items = this.dynamicNav();
+    if (!items?.length) return NAV_ITEMS;
+    return items.map((item) => this.toNavItem(item));
+  });
+
+  protected readonly mobileItems = computed((): MobileNavItem[] => {
+    const items = this.dynamicNav();
+    if (!items?.length) return MOBILE_NAV_ITEMS;
+    return items.map((item) => this.toMobileNavItem(item));
+  });
+
   private lastFocused: HTMLElement | null = null;
   private hoverTimer: ReturnType<typeof setTimeout> | null = null;
+
+  protected logoSrc(): string {
+    const logo = this.logo();
+    if (logo?.type === 'image' && logo.imageUrl) {
+      return withLogoFallback(logo.imageUrl);
+    }
+    if (logo?.imageUrl) {
+      return withLogoFallback(logo.imageUrl);
+    }
+    return withLogoFallback(null);
+  }
+
+  protected logoAlt(): string {
+    return this.logo()?.altText || 'Casa Color';
+  }
 
   ngOnInit(): void {
     this.updateScrolled();
@@ -73,7 +115,6 @@ export class Header implements OnInit, OnDestroy {
     return this.openSub() === item.label;
   }
 
-  /** Hoverintent-like delay; solo tiene efecto visual en desktop (≥1000px). */
   protected onItemEnter(item: NavItem): void {
     if (!item.children?.length || !this.isDesktop()) {
       return;
@@ -120,6 +161,36 @@ export class Header implements OnInit, OnDestroy {
     this.lockScroll(false);
     this.lastFocused?.focus();
     this.lastFocused = null;
+  }
+
+  private toNavItem(item: HomeNavItem): NavItem {
+    const href = navDestinationHref(item.destination);
+    const children = (item.children ?? [])
+      .filter((c) => !!c.label)
+      .map((c) => ({
+        label: c.label,
+        href: navDestinationHref(c.destination),
+      }));
+    return {
+      label: item.label,
+      href,
+      children: children.length ? children : undefined,
+    };
+  }
+
+  private toMobileNavItem(item: HomeNavItem): MobileNavItem {
+    const href = navDestinationHref(item.destination);
+    const children = (item.children ?? [])
+      .filter((c) => !!c.label)
+      .map((c) => ({
+        label: c.label,
+        href: navDestinationHref(c.destination),
+      }));
+    return {
+      label: item.label,
+      href: children.length ? undefined : href,
+      children: children.length ? children : undefined,
+    };
   }
 
   private isDesktop(): boolean {

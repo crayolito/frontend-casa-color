@@ -8,7 +8,8 @@ export type UploadFolder =
   | 'categories'
   | 'catalogs'
   | 'finishes'
-  | 'colors';
+  | 'colors'
+  | 'home';
 
 export interface UploadResult {
   url: string;
