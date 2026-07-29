@@ -1,69 +1,70 @@
 <main class="producto">
-  <app-header />
-
-  <div class="producto__wrap">
-    <app-container>
-      <nav class="producto__breadcrumb" aria-label="Breadcrumb">
-        @for (item of breadcrumb; track item.label; let last = $last) {
-          <span class="producto__crumb">
-            @if (item.href && !last) {
-              <a [href]="item.href">{{ item.label }}</a>
-            } @else {
-              {{ item.label }}
-            }
-          </span>
-          @if (!last) {
-            <i class="producto__crumb-sep" aria-hidden="true"></i>
-          }
-        }
-      </nav>
-
-      <div class="producto__main">
-        <div class="producto__gallery">
-          <app-product-gallery [images]="gallery" />
-        </div>
-
-        <div class="producto__summary">
-          <app-product-summary [title]="title" [description]="description" />
-
-          <!-- Clon: dentro de .summary, vc_row 50/50 (index.html:317-358) -->
-          <app-product-info-row
-            [presentacion]="presentacion"
-            [acabados]="acabados"
-            [color]="color"
-          />
-
-          <div class="producto__meta">
-            <span class="producto__meta-cats">
-              Categorías:
-              @for (cat of categories; track cat.label; let last = $last) {
-                <a [href]="cat.href" rel="tag">{{ cat.label }}</a
-                >@if (!last) {
-                  <span>, </span>
-                }
+  @if (loading()) {
+    <div class="producto__status" aria-busy="true">
+      <p>Cargando producto…</p>
+    </div>
+  } @else if (error(); as err) {
+    <div class="producto__status producto__status--error" role="alert">
+      <p>{{ err.text }}</p>
+      <button type="button" class="producto__retry" (click)="retry()">
+        Reintentar
+      </button>
+    </div>
+  } @else if (view(); as v) {
+    <div class="producto__wrap">
+      <app-container>
+        <nav class="producto__breadcrumb" aria-label="Breadcrumb">
+          @for (item of v.breadcrumb; track item.label; let last = $last) {
+            <span class="producto__crumb" [class.producto__crumb--current]="last">
+              @if (item.href && !last) {
+                <a [routerLink]="item.href">{{ item.label }}</a>
+              } @else {
+                {{ item.label }}
               }
             </span>
+            @if (!last) {
+              <i class="producto__crumb-sep" aria-hidden="true"></i>
+            }
+          }
+        </nav>
+
+        <div class="producto__main">
+          <div class="producto__gallery">
+            <app-product-gallery [images]="v.gallery" />
+          </div>
+
+          <div class="producto__summary">
+            <app-product-summary
+              [title]="v.title"
+              [description]="v.description"
+              [presentacion]="v.presentacion"
+              [acabados]="v.acabados"
+              [color]="v.color"
+              [categories]="v.categories"
+            />
           </div>
         </div>
-      </div>
-    </app-container>
+      </app-container>
 
-    <app-product-description-tab
-      [blocks]="tabBlocks"
-      [fichaHref]="fichaHref"
-    />
+      @if (v.tabBlocks.length || v.fichaHref) {
+        <app-product-description-tab
+          [blocks]="v.tabBlocks"
+          [fichaHref]="v.fichaHref"
+        />
+      }
 
-    <app-container>
-      <section class="producto__related">
-        <h2 class="producto__related-title">Productos relacionados</h2>
-        <div class="producto__related-list">
-          @for (product of related; track product.title) {
-            <app-product-card [product]="product" [columns]="4" />
-          }
-        </div>
-      </section>
-    </app-container>
-  </div>
-
-  <app-footer />
+      @if (v.related.length) {
+        <app-container>
+          <section class="producto__related">
+            <h2 class="producto__related-title">Productos relacionados</h2>
+            <div class="producto__related-list">
+              @for (product of v.related; track product.href) {
+                <app-product-card [product]="product" [columns]="4" />
+              }
+            </div>
+          </section>
+        </app-container>
+      }
+    </div>
+  }
 </main>

@@ -1,24 +1,80 @@
 <main class="fichas">
-  <app-header />
-
-  <!-- Clon: #page-header-wrap / #page-header-bg height:700px (index.html:260-272)
-       h1 "Fichas Técnicas" dentro del hero, alignment left/top, padding-amt high -->
-  <div class="fichas__hero">
-    <app-container>
-      <h1 class="fichas__title">{{ title }}</h1>
-    </app-container>
-  </div>
-
-  <div class="fichas__content">
-    <app-container>
-      <!-- Clon: vc_row-fluid con 3× vc_col-sm-4 (index.html:276-568) -->
-      <div class="fichas__row">
-        @for (column of columns; track column.id) {
-          <app-fichas-column [column]="column" />
-        }
+  @if (loading()) {
+    <div class="fichas__skeleton" aria-busy="true" aria-live="polite">
+      <p class="fichas__status">Cargando…</p>
+    </div>
+  } @else if (error(); as err) {
+    <div class="fichas__error-wrap" role="alert">
+      <div class="fichas__error">
+        <p>{{ err.text }}</p>
+        <button type="button" class="fichas__retry" (click)="load()">
+          Reintentar
+        </button>
       </div>
-    </app-container>
-  </div>
+    </div>
+  } @else {
+    <div
+      class="fichas__hero"
+      [style.background-image]="
+        heroImageUrl() ? 'url(' + heroImageUrl() + ')' : null
+      "
+    >
+      <app-container>
+        <h1 class="fichas__title">{{ heading() }}</h1>
+      </app-container>
+    </div>
 
-  <app-footer />
+    <div class="fichas__content">
+      <app-container>
+        @if (categories().length === 0) {
+          <p class="fichas__status">
+            Todavía no hay fichas técnicas publicadas.
+          </p>
+        } @else {
+          <div
+            class="fichas__cards"
+            role="tablist"
+            aria-label="Categorías de fichas técnicas"
+          >
+            @for (cat of categories(); track cat.categoryId) {
+              <button
+                type="button"
+                class="fichas__card"
+                role="tab"
+                [attr.aria-selected]="selectedId() === cat.categoryId"
+                [class.fichas__card--active]="selectedId() === cat.categoryId"
+                (click)="selectCategory(cat.categoryId)"
+              >
+                @if (cat.imageUrl; as src) {
+                  <img
+                    class="fichas__card-img"
+                    [src]="src"
+                    [alt]=""
+                    width="120"
+                    height="120"
+                    appImgFallback="category"
+                  />
+                } @else {
+                  <img
+                    class="fichas__card-img"
+                    src="/img/img-auxiliar2.jpg"
+                    alt=""
+                    width="120"
+                    height="120"
+                  />
+                }
+                <span class="fichas__card-label">{{ cat.label }}</span>
+              </button>
+            }
+          </div>
+
+          @if (selectedCategory(); as cat) {
+            <div class="fichas__detail" role="tabpanel">
+              <app-fichas-column [category]="cat" />
+            </div>
+          }
+        }
+      </app-container>
+    </div>
+  }
 </main>

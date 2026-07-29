@@ -1,0 +1,29 @@
+<nav class="search-cat-acc" aria-label="Categorías">
+  @if (loading()) {
+    <p class="search-cat-acc__status">Cargando categorías…</p>
+  } @else if (groups().length === 0) {
+    <p class="search-cat-acc__status">Sin categorías</p>
+  } @else {
+    @for (group of groups(); track group.id; let i = $index) {
+      <app-accordion
+        [title]="group.name"
+        [initiallyOpen]="false"
+        [panelId]="'search-cat-' + group.id"
+        [accentColor]="accentColor(i)"
+      >
+        <ul class="search-cat-acc__list">
+          @if (group.catalogs.length) {
+            <li>
+              <a [routerLink]="['/categoria', group.slug]">Ver categoría</a>
+            </li>
+          }
+          @for (catalog of group.catalogs; track catalog.id) {
+            <li>
+              <a [routerLink]="['/catalogo', catalog.slug]">{{ catalog.name }}</a>
+            </li>
+          }
+        </ul>
+      </app-accordion>
+    }
+  }
+</nav>

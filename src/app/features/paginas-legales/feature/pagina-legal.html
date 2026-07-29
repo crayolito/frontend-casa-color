@@ -1,0 +1,29 @@
+<main class="pagina-legal">
+  <app-container>
+    @if (loading()) {
+      <p class="pagina-legal__status" aria-busy="true" aria-live="polite">
+        Cargando…
+      </p>
+    } @else if (error(); as err) {
+      <div class="pagina-legal__status pagina-legal__status--error" role="alert">
+        <p>{{ err.text }}</p>
+        <button type="button" class="pagina-legal__retry" (click)="load()">
+          Reintentar
+        </button>
+      </div>
+    } @else {
+      <article class="pagina-legal__article">
+        <h1 class="pagina-legal__title">{{ pageTitle() }}</h1>
+
+        @if (isEmpty()) {
+          <p class="pagina-legal__status">Próximamente.</p>
+        } @else {
+          <div
+            class="pagina-legal__content"
+            [innerHTML]="bodyHtml() | safeHtml"
+          ></div>
+        }
+      </article>
+    }
+  </app-container>
+</main>

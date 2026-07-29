@@ -1,0 +1,253 @@
+<main class="categoria-productos">
+  @if (loading()) {
+    <div class="categoria-productos__status" aria-busy="true">
+      <p>Cargando productos…</p>
+    </div>
+  } @else if (error(); as err) {
+    <div
+      class="categoria-productos__status categoria-productos__status--error"
+      role="alert"
+    >
+      <p>{{ err.text }}</p>
+      <button type="button" class="categoria-productos__retry" (click)="retry()">
+        Reintentar
+      </button>
+    </div>
+  } @else if (archive(); as ctx) {
+    <div class="categoria-productos__shop-header">
+      <app-container>
+        <nav class="categoria-productos__breadcrumb" aria-label="Miga de pan">
+          <a routerLink="/">Inicio</a>
+          @if (ctx.mode === 'category') {
+            <span class="categoria-productos__crumb-sep" aria-hidden="true">/</span>
+            <span aria-current="page">{{ ctx.title }}</span>
+          } @else {
+            @if (ctx.categoryName && ctx.categorySlug) {
+              <span class="categoria-productos__crumb-sep" aria-hidden="true">/</span>
+              <a [routerLink]="['/categoria', ctx.categorySlug, 'productos']">
+                {{ ctx.categoryName }}
+              </a>
+            }
+            <span class="categoria-productos__crumb-sep" aria-hidden="true">/</span>
+            <span aria-current="page">{{ ctx.title }}</span>
+          }
+        </nav>
+
+        <div class="categoria-productos__header-row">
+          <h1 class="categoria-productos__title">{{ ctx.title }}</h1>
+          <div class="categoria-productos__sort">
+            <span class="categoria-productos__sort-label" id="categoria-productos-sort-label">
+              Ordenar
+            </span>
+            <app-select
+              [options]="sortOptions"
+              [value]="sort()"
+              [ariaLabel]="'Ordenar productos'"
+              (valueChange)="onSortChange($event)"
+            />
+          </div>
+        </div>
+
+        @if (resultRange(); as range) {
+          <p class="categoria-productos__count" role="status" aria-live="polite">
+            @if (range.total === 0) {
+              Sin resultados
+            } @else if (range.from === range.to) {
+              Mostrando {{ range.from }} de {{ range.total }}
+              {{ range.total === 1 ? 'producto' : 'productos' }}
+            } @else {
+              Mostrando {{ range.from }}–{{ range.to }} de {{ range.total }} productos
+            }
+          </p>
+        }
+      </app-container>
+    </div>
+
+    <app-container>
+      <div class="categoria-productos__row">
+        <aside
+          class="categoria-productos__sidebar"
+          [attr.aria-label]="
+            ctx.mode === 'catalog'
+              ? 'Filtros del catálogo'
+              : 'Filtros de la categoría'
+          "
+        >
+          <label class="categoria-productos__search">
+            <span class="categoria-productos__search-label">Buscar producto</span>
+            <div class="categoria-productos__search-wrap">
+              <svg
+                class="categoria-productos__search-icon"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
+                <circle
+                  cx="11"
+                  cy="11"
+                  r="7"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                />
+                <path
+                  d="M20 20l-3.5-3.5"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <input
+                type="search"
+                class="categoria-productos__search-input"
+                placeholder="Nombre del producto…"
+                [ngModel]="searchDraft()"
+                (ngModelChange)="onSearchInput($event)"
+                autocomplete="off"
+              />
+            </div>
+          </label>
+
+          @if (facets(); as f) {
+            @if (f.presentations.length > 0) {
+              <fieldset class="categoria-productos__facet">
+                <legend class="categoria-productos__facet-legend">Presentación</legend>
+                <ul class="categoria-productos__facet-list">
+                  @for (name of f.presentations; track name) {
+                    <li>
+                      <label class="categoria-productos__check">
+                        <input
+                          type="checkbox"
+                          [checked]="isPresentationSelected(name)"
+                          (change)="togglePresentation(name)"
+                        />
+                        <span>{{ name }}</span>
+                      </label>
+                    </li>
+                  }
+                </ul>
+              </fieldset>
+            }
+
+            @if (f.finishes.length > 0) {
+              <fieldset class="categoria-productos__facet">
+                <legend class="categoria-productos__facet-legend">Acabado</legend>
+                <ul class="categoria-productos__facet-list">
+                  @for (name of f.finishes; track name) {
+                    <li>
+                      <label class="categoria-productos__check">
+                        <input
+                          type="checkbox"
+                          [checked]="isFinishSelected(name)"
+                          (change)="toggleFinish(name)"
+                        />
+                        <span>{{ name }}</span>
+                      </label>
+                    </li>
+                  }
+                </ul>
+              </fieldset>
+            }
+
+            @if (f.colors.length > 0) {
+              <fieldset class="categoria-productos__facet">
+                <legend class="categoria-productos__facet-legend">Color</legend>
+                <ul class="categoria-productos__facet-list">
+                  @for (color of f.colors; track color.name) {
+                    <li>
+                      <label class="categoria-productos__check categoria-productos__check--color">
+                        <input
+                          type="checkbox"
+                          [checked]="isColorSelected(color.name)"
+                          (change)="toggleColor(color.name)"
+                        />
+                        @if (color.hex) {
+                          <span
+                            class="categoria-productos__swatch"
+                            [style.background-color]="color.hex"
+                            aria-hidden="true"
+                          ></span>
+                        }
+                        <span>{{ color.name }}</span>
+                      </label>
+                    </li>
+                  }
+                </ul>
+              </fieldset>
+            }
+          }
+
+          @if (hasActiveFilters()) {
+            <button
+              type="button"
+              class="categoria-productos__clear"
+              (click)="clearFilters()"
+            >
+              Limpiar filtros
+            </button>
+          }
+        </aside>
+
+        <div class="categoria-productos__catalog">
+          @if (allProducts().length === 0) {
+            <p class="categoria-productos__empty">
+              {{ emptyNoProductsMessage() }}
+            </p>
+          } @else if (productItems().length === 0) {
+            <p class="categoria-productos__empty">
+              @if (search().trim()) {
+                No hay productos que coincidan con «{{ search() }}».
+              } @else {
+                No hay productos que coincidan con los filtros seleccionados.
+              }
+            </p>
+          } @else {
+            <div class="categoria-productos__products">
+              @for (product of productItems(); track product.href + product.title) {
+                <app-product-card [product]="product" columns="archive-4" />
+              }
+            </div>
+
+            @if (totalPages() > 1) {
+              <nav
+                class="categoria-productos__pagination"
+                aria-label="Paginación"
+              >
+                <button
+                  type="button"
+                  class="categoria-productos__page-btn"
+                  [disabled]="currentPage() <= 1"
+                  (click)="goToPage(currentPage() - 1)"
+                  aria-label="Página anterior"
+                >
+                  Anterior
+                </button>
+                @for (n of pageNumbers(); track n) {
+                  <button
+                    type="button"
+                    class="categoria-productos__page-btn"
+                    [class.categoria-productos__page-btn--current]="n === currentPage()"
+                    [attr.aria-current]="n === currentPage() ? 'page' : null"
+                    (click)="goToPage(n)"
+                  >
+                    {{ n }}
+                  </button>
+                }
+                <button
+                  type="button"
+                  class="categoria-productos__page-btn"
+                  [disabled]="currentPage() >= totalPages()"
+                  (click)="goToPage(currentPage() + 1)"
+                  aria-label="Página siguiente"
+                >
+                  Siguiente
+                </button>
+              </nav>
+            }
+          }
+        </div>
+      </div>
+    </app-container>
+  }
+</main>

@@ -3,15 +3,18 @@
 }
 
 .categories {
-  padding: 0 0 4rem;
+  /* Fondo blanco full-bleed. Padding inferior = divider 50px del clon
+     (row separada antes del red-paint) — evita que choque con la sección de abajo. */
+  padding: 0 0 50px;
   background: #ffffff;
 }
 
-/* Clon: 3 columnas vc_col-sm-4 a lo ancho del container */
+/* Clon: 3 columnas vc_col-sm-4 full-width-section */
 .categories__grid {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: flex-start;
   gap: 0;
 }
 
@@ -20,8 +23,8 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  /* padding-2-percent left-right del clon */
-  padding-inline: 2%;
+  /* Dentro de .container: gutters más chicos que full-bleed (clon ~12–18px) */
+  padding-inline: 0.75rem;
   flex: 0 1 100%;
   width: 100%;
   max-width: 100%;
@@ -29,13 +32,17 @@
 }
 
 /*
- * Título = h4 Salient (styles.css globales: 31.5→35px, weight 300).
- * No pisar font-size: en el clon se lee grande y rojo.
+ * Título categoría = body h4 theme options:
+ * 35px / 40px / weight 300 (mobile 31.5 / 36). Color #ff0000 como el clon.
  */
 .categories__title {
   margin: 0;
   color: #ff0000;
+  font-family: var(--font-body);
   font-weight: 300;
+  font-size: var(--font-size-h4);
+  line-height: var(--line-height-h4);
+  letter-spacing: 0;
   text-align: center;
 }
 
@@ -96,16 +103,19 @@
 }
 
 /*
- * Descripción = h6 Salient (18px / 24px, weight 300).
- * Sin clamp: el clon muestra el texto completo.
+ * Descripción = body h6 theme options:
+ * 18px / 24px / weight 300 / letter-spacing .2px.
  */
 .categories__desc {
   margin: 0;
   color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--font-size-h6);
+  line-height: var(--line-height-h6);
   font-weight: 300;
-  letter-spacing: 0.2px;
+  letter-spacing: var(--letter-spacing-h6);
   text-align: center;
-  max-width: 36ch;
+  max-width: none;
 }
 
 .categories__circle-link {
@@ -129,12 +139,14 @@
   object-fit: contain;
 }
 
-/* Mismo ancho visual que el logo para que no “caiga” a la izquierda de la columna. */
+/* Toggles a ANCHO DE COLUMNA (clon), no limitados al logo 354px.
+   Limitar a 354px dejaba huecos enormes entre columnas. */
 .categories__groups {
   width: 100%;
-  max-width: 354px;
-  margin-inline: auto;
+  max-width: none;
+  margin-inline: 0;
   text-align: left;
+  align-self: stretch;
 }
 
 /* Clon: <p><a>…</a><br/> — body a = accent, line-height del cuerpo */
@@ -156,6 +168,7 @@
   font-size: var(--font-size-body);
   line-height: var(--line-height-body);
   font-weight: 400;
+  letter-spacing: 0;
   text-decoration: none;
   transition: color 0.2s linear;
 }
@@ -166,11 +179,12 @@
   text-decoration: underline;
 }
 
-/* Tablet: 2 cols; desde desktop: 3 cols como vc_col-sm-4 (no 4) */
+/* Tablet: 2 cols; desde desktop: 3 cols como vc_col-sm-4 */
 @media (min-width: 700px) {
   .categories__column {
     flex: 0 1 50%;
     max-width: 50%;
+    padding-inline: 0.85rem;
   }
 }
 
@@ -178,5 +192,7 @@
   .categories__column {
     flex: 0 1 33.333%;
     max-width: 33.333%;
+    /* Dentro de .container: clon estático ~12–13px (no el padding de full-bleed) */
+    padding-inline: 0.9rem;
   }
 }

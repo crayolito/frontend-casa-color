@@ -1,29 +1,33 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { HomeCategories } from '../../data/home-content.model';
 import { CategoryAccordion } from './category-accordion';
+import { HomeCategories } from '../../data/home-content.model';
 
 describe('CategoryAccordion', () => {
   let fixture: ComponentFixture<CategoryAccordion>;
 
-  const categories: HomeCategories = {
-    title: 'Nuestras categorías',
+  const base: HomeCategories = {
+    title: 'Cats',
     items: [
       {
         categoryId: 1,
-        name: 'Decoración',
-        slug: 'decoracion',
+        name: 'Con catálogos',
+        slug: 'con-catalogos',
         displayOrder: 0,
-        description: 'Línea Deco',
-        imageUrl: '/deco.jpg',
-        catalogs: [
-          {
-            id: 10,
-            name: 'Línea Deco',
-            slug: 'linea-deco',
-            products: [{ id: 100, title: 'Pintura', slug: 'pintura' }],
-          },
-        ],
+        description: '<p>Hola</p>',
+        description2: null,
+        imageUrl: null,
+        catalogs: [{ id: 10, name: 'Cat', slug: 'cat', products: [] }],
+      },
+      {
+        categoryId: 2,
+        name: 'Sin catálogos',
+        slug: 'sin-catalogos',
+        displayOrder: 1,
+        description: null,
+        description2: null,
+        imageUrl: null,
+        catalogs: [],
       },
     ],
   };
@@ -33,35 +37,24 @@ describe('CategoryAccordion', () => {
       imports: [CategoryAccordion],
       providers: [provideRouter([])],
     }).compileComponents();
-
     fixture = TestBed.createComponent(CategoryAccordion);
-    fixture.componentRef.setInput('categories', categories);
+    fixture.componentRef.setInput('categories', base);
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(fixture.componentInstance).toBeTruthy();
-  });
-
-  it('does not paint section title on public', () => {
-    const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('.categories__section-title')).toBeNull();
-    expect(el.textContent).not.toContain('Nuestras categorías');
-  });
-
-  it('shows collections always visible (clone behavior)', () => {
-    const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('.categories__groups')).not.toBeNull();
-    expect(el.querySelector('.accordion')).not.toBeNull();
-    expect(el.querySelector('.categories__circle-toggle')).toBeNull();
-  });
-
-  it('circle is a link like the clone', () => {
-    const el = fixture.nativeElement as HTMLElement;
-    const circle = el.querySelector(
+  it('linkea a /categoria/:slug cuando hay catálogos', () => {
+    const links = fixture.nativeElement.querySelectorAll(
       'a.categories__circle-link',
-    ) as HTMLAnchorElement | null;
-    expect(circle).not.toBeNull();
-    expect(circle?.getAttribute('href')).toBeTruthy();
+    ) as NodeListOf<HTMLAnchorElement>;
+    expect(links.length).toBe(1);
+    expect(links[0].getAttribute('href')).toBe('/categoria/con-catalogos');
+  });
+
+  it('no renderiza el botón rojo circular si no hay catálogos', () => {
+    const columns = fixture.nativeElement.querySelectorAll(
+      '.categories__column',
+    ) as NodeListOf<HTMLElement>;
+    expect(columns.length).toBe(2);
+    expect(columns[1].querySelector('a.categories__circle-link')).toBeNull();
   });
 });

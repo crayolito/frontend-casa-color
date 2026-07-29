@@ -2,7 +2,6 @@
   <app-admin-page-header
     title="Configuración del inicio"
     subtitle="Editá el contenido de la página de inicio"
-    breadcrumb="Inicio"
   >
     <app-admin-button
       type="button"
@@ -33,26 +32,27 @@
     >
       @switch (selectedTab()) {
         @case ('header') {
-          <form class="admin-home__form" [formGroup]="headerForm">
-            <app-image-uploader
-              label="Logo"
-              folder="home"
-              [url]="headerForm.controls.imageUrl.value || null"
-              (urlChange)="setHeaderImage($event)"
-            />
-            <p class="admin-home__hint">
-              Si no cargás imagen, el home usa el logo por defecto
-              <code>/img/casa-color-logo.jpg</code>.
-            </p>
-            <app-admin-form-field label="Link del logo (opcional)" controlName="link" />
-          </form>
+          <div class="admin-home__form">
+            <form [formGroup]="headerForm">
+              <app-image-uploader
+                label="Logo"
+                folder="home"
+                fallbackKind="logo"
+                [url]="headerForm.controls.imageUrl.value || null"
+                (urlChange)="setHeaderImage($event)"
+              />
+              <p class="admin-home__hint">
+                Si no cargás imagen, el sitio usa el logo por defecto.
+              </p>
+            </form>
+          </div>
         }
 
-        @case ('header-nav') {
+        @case ('nav') {
           <div class="admin-home__form">
             <p class="admin-home__hint">
-              Items del menú superior del sitio. Podés apuntar a una categoría, un catálogo o una página fija
-              (Empresa, Contacto, etc.). Arrastrá para reordenar.
+              Ítems del menú. Podés apuntar a una categoría, un catálogo o una página fija.
+              Arrastrá para reordenar.
             </p>
             <div class="admin-home__list-header">
               <h3>Ítems del menú</h3>
@@ -135,13 +135,20 @@
             />
 
             <div class="admin-home__list-header">
-              <h3>Slides</h3>
-              <app-admin-button type="button" variant="secondary" (clicked)="addSlide()">
+              <h3>Slides ({{ slides.length }}/{{ maxSlides }})</h3>
+              <app-admin-button
+                type="button"
+                variant="secondary"
+                [disabled]="slides.length >= maxSlides"
+                (clicked)="addSlide()"
+              >
                 <app-admin-icon name="plus" />
                 Agregar slide
               </app-admin-button>
             </div>
-            <p class="admin-home__hint">Las tarjetas están colapsadas. Tocá la cabecera para editar.</p>
+            <p class="admin-home__hint">
+              Mínimo {{ minSlides }}, máximo {{ maxSlides }}. Tocá la cabecera para editar.
+            </p>
 
             <div
               class="admin-home__dnd"
@@ -164,15 +171,18 @@
                     <span class="admin-home__chevron" aria-hidden="true">
                       {{ isCardExpanded('s-' + i) ? '▾' : '▸' }}
                     </span>
-                    <app-admin-button type="button" variant="ghost" (clicked)="removeSlide(i)">
-                      <app-admin-icon name="trash" />
-                    </app-admin-button>
+                    @if (slides.length > minSlides) {
+                      <app-admin-button type="button" variant="ghost" (clicked)="removeSlide(i)">
+                        <app-admin-icon name="trash" />
+                      </app-admin-button>
+                    }
                   </div>
                   @if (isCardExpanded('s-' + i)) {
                     <div class="admin-home__card-body">
                       <app-image-uploader
                         label="Imagen del slide"
                         folder="home"
+                        fallbackKind="product"
                         [url]="slide.controls['imageUrl'].value || null"
                         (urlChange)="setSlideImage(i, $event)"
                       />
@@ -182,19 +192,18 @@
                         [value]="slideDestinations()[i] ?? null"
                         (valueChange)="setSlideDestination(i, $event)"
                       />
-                      <app-admin-form-field label="Posición del texto" controlName="textPosition" type="select">
-                        <option value="top">Arriba</option>
-                        <option value="middle">Medio</option>
-                        <option value="bottom">Abajo</option>
-                      </app-admin-form-field>
+                      <app-admin-form-field
+                        label="Posición del texto"
+                        controlName="textPosition"
+                        type="select"
+                        [options]="textPositionOptions"
+                      />
                       <app-admin-form-field
                         label="Intensidad del overlay"
                         controlName="scheme"
                         type="select"
-                      >
-                        <option value="dark">Normal (recomendado)</option>
-                        <option value="light">Suave</option>
-                      </app-admin-form-field>
+                        [options]="schemeOptions"
+                      />
                       <p class="admin-home__hint">
                         El título siempre se muestra en blanco para que se lea sobre cualquier foto.
                       </p>
@@ -208,20 +217,19 @@
 
         @case ('decor') {
           <form class="admin-home__form" [formGroup]="findProductForm">
+            <h3 class="admin-home__section-title">Imagen decorativa</h3>
             <app-image-uploader
-              label="Imagen decorativa (entre el carrusel y «Encontrá tu producto»)"
+              label="Entre el carrusel y «Encontrá tu producto»"
               folder="home"
+              fallbackKind="product"
               [url]="findProductForm.controls.decorImageUrl.value || null"
               (urlChange)="setFindProductDecorImage($event)"
             />
             <p class="admin-home__hint">
-              Si no cargás imagen, se usa <code>/img/img-auxiliar.jpg</code>.
+              Si no cargás imagen, se usa la auxiliar de producto.
             </p>
-          </form>
-        }
 
-        @case ('find-product') {
-          <form class="admin-home__form" [formGroup]="findProductForm">
+            <h3 class="admin-home__section-title">Encontrá tu producto</h3>
             <app-admin-form-field label="Título" controlName="title" />
             <p class="admin-home__hint">
               Franja roja debajo del decor. Solo se edita el texto.
@@ -242,7 +250,7 @@
                 <p class="admin-home__limit">Máximo {{ maxCategories }} categorías</p>
               }
             </div>
-            <p class="admin-home__hint">Arrastrá para reordenar. Tocá la cabecera para editar. Sin título de sección (como el original).</p>
+            <p class="admin-home__hint">Arrastrá para reordenar. Tocá la cabecera para editar.</p>
             <div
               class="admin-home__dnd"
               cdkDropList
@@ -270,28 +278,27 @@
                   </div>
                   @if (isCardExpanded('c-' + i)) {
                     <div class="admin-home__card-body">
-                      <app-admin-form-field label="Categoría" controlName="categoryId" type="select">
-                        @for (cat of allCategories(); track cat.id) {
-                          <option [value]="cat.id">{{ cat.name }}</option>
-                        }
-                      </app-admin-form-field>
+                      <app-admin-form-field
+                        label="Categoría"
+                        controlName="categoryId"
+                        type="select"
+                        [options]="categoryFormOptions()"
+                        placeholder="Seleccioná…"
+                      />
                       <app-admin-form-field
                         label="Descripción del home (máx. ~3 líneas)"
                         controlName="description"
                         type="textarea"
                       />
-                      <p class="admin-home__hint">
-                        Ideal: 2–3 líneas cortas. En el home se muestran como máximo 3 líneas.
-                      </p>
                       <app-image-uploader
                         label="Imagen del home (override)"
                         folder="home"
+                        fallbackKind="category"
                         [url]="item.controls['imageUrl'].value || null"
                         (urlChange)="setCategoryImage(i, $event)"
                       />
                       <p class="admin-home__hint">
-                        Si no cargás imagen, se usa
-                        <code>/img/img-auxiliar2.jpg</code>.
+                        Si no cargás imagen, se usa la auxiliar de categoría.
                       </p>
                     </div>
                   }
@@ -302,107 +309,109 @@
         }
 
         @case ('footer') {
-          <form class="admin-home__form" [formGroup]="footerForm">
-            <app-image-uploader
-              label="Imagen inferior (graphic)"
-              folder="home"
-              [url]="footerForm.controls.topImageUrl.value || null"
-              (urlChange)="setFooterTopImage($event)"
-            />
-            <app-image-uploader
-              label="Logo del footer"
-              folder="home"
-              [url]="footerForm.controls.logoUrl.value || null"
-              (urlChange)="setFooterLogo($event)"
-            />
-            <p class="admin-home__hint">
-              Si no cargás logo, se usa el del logo principal o
-              <code>/img/casa-color-logo.jpg</code>.
-            </p>
-            <app-admin-form-field label="Copyright" controlName="copyrightText" />
-            <app-admin-form-field label="Design by" controlName="designBy" />
-            <app-admin-form-field label="Link Design by (opcional)" controlName="designByHref" />
-          </form>
-        }
-
-        @case ('social') {
-          <form class="admin-home__form" [formGroup]="socialForm">
-            <p class="admin-home__hint">
-              Se muestran en la franja negra del pie de página. WhatsApp = botón flotante (solo sitio público).
-            </p>
-
-            <div class="admin-home__social-card">
-              <div class="admin-home__social-card-head">
-                <span class="admin-home__social-name">Instagram</span>
-                <label class="admin-home__switch">
-                  <input type="checkbox" formControlName="instagramShow" />
-                  <span>Visible</span>
-                </label>
-              </div>
-              <label class="admin-home__social-url-label" for="ig-url">URL</label>
-              <input
-                id="ig-url"
-                class="admin-home__social-url"
-                type="url"
-                formControlName="instagramUrl"
-                placeholder="https://instagram.com/…"
+          <div class="admin-home__form">
+            <h3 class="admin-home__section-title">Pie de página</h3>
+            <form [formGroup]="footerForm">
+              <app-image-uploader
+                label="Imagen inferior (graphic)"
+                folder="home"
+                fallbackKind="product"
+                [url]="footerForm.controls.topImageUrl.value || null"
+                (urlChange)="setFooterTopImage($event)"
               />
-            </div>
-
-            <div class="admin-home__social-card">
-              <div class="admin-home__social-card-head">
-                <span class="admin-home__social-name">TikTok</span>
-                <label class="admin-home__switch">
-                  <input type="checkbox" formControlName="tiktokShow" />
-                  <span>Visible</span>
-                </label>
-              </div>
-              <label class="admin-home__social-url-label" for="tt-url">URL</label>
-              <input
-                id="tt-url"
-                class="admin-home__social-url"
-                type="url"
-                formControlName="tiktokUrl"
-                placeholder="https://tiktok.com/@…"
+              <app-image-uploader
+                label="Logo del footer"
+                folder="home"
+                fallbackKind="logo"
+                [url]="footerForm.controls.logoUrl.value || null"
+                (urlChange)="setFooterLogo($event)"
               />
-            </div>
+              <p class="admin-home__hint">
+                Si no cargás logo, se usa el del logo principal o el por defecto.
+              </p>
+              <app-admin-form-field label="Copyright" controlName="copyrightText" />
+              <app-admin-form-field label="Design by" controlName="designBy" />
+              <app-admin-form-field label="Link Design by (opcional)" controlName="designByHref" />
+            </form>
 
-            <div class="admin-home__social-card">
-              <div class="admin-home__social-card-head">
-                <span class="admin-home__social-name">Facebook</span>
-                <label class="admin-home__switch">
-                  <input type="checkbox" formControlName="facebookShow" />
-                  <span>Visible</span>
-                </label>
+            <h3 class="admin-home__section-title">Redes</h3>
+            <form [formGroup]="socialForm">
+              <p class="admin-home__hint">
+                Se muestran en la franja negra del pie. WhatsApp = botón flotante (solo sitio público).
+              </p>
+
+              <div class="admin-home__social-card">
+                <div class="admin-home__social-card-head">
+                  <span class="admin-home__social-name">Instagram</span>
+                  <label class="admin-home__switch">
+                    <input type="checkbox" formControlName="instagramShow" />
+                    <span>Visible</span>
+                  </label>
+                </div>
+                <label class="admin-home__social-url-label" for="ig-url">URL</label>
+                <input
+                  id="ig-url"
+                  class="admin-home__social-url"
+                  type="url"
+                  formControlName="instagramUrl"
+                  placeholder="https://instagram.com/…"
+                />
               </div>
-              <label class="admin-home__social-url-label" for="fb-url">URL</label>
-              <input
-                id="fb-url"
-                class="admin-home__social-url"
-                type="url"
-                formControlName="facebookUrl"
-                placeholder="https://facebook.com/…"
-              />
-            </div>
-          </form>
-        }
 
-        @case ('whatsapp') {
-          <form class="admin-home__form" [formGroup]="whatsappForm">
-            <p class="admin-home__hint">
-              Número con código de país (ej. 59170000000). Botón flotante solo en el sitio público (no en admin).
-            </p>
-            <label class="admin-home__check">
-              <input type="checkbox" formControlName="enabled" />
-              Activar WhatsApp
-            </label>
-            <app-admin-form-field label="Teléfono (con código de país)" controlName="phone" />
-            <app-admin-form-field
-              label="Mensaje predeterminado"
-              controlName="message"
-              type="textarea"
-            />
-          </form>
+              <div class="admin-home__social-card">
+                <div class="admin-home__social-card-head">
+                  <span class="admin-home__social-name">TikTok</span>
+                  <label class="admin-home__switch">
+                    <input type="checkbox" formControlName="tiktokShow" />
+                    <span>Visible</span>
+                  </label>
+                </div>
+                <label class="admin-home__social-url-label" for="tt-url">URL</label>
+                <input
+                  id="tt-url"
+                  class="admin-home__social-url"
+                  type="url"
+                  formControlName="tiktokUrl"
+                  placeholder="https://tiktok.com/@…"
+                />
+              </div>
+
+              <div class="admin-home__social-card">
+                <div class="admin-home__social-card-head">
+                  <span class="admin-home__social-name">Facebook</span>
+                  <label class="admin-home__switch">
+                    <input type="checkbox" formControlName="facebookShow" />
+                    <span>Visible</span>
+                  </label>
+                </div>
+                <label class="admin-home__social-url-label" for="fb-url">URL</label>
+                <input
+                  id="fb-url"
+                  class="admin-home__social-url"
+                  type="url"
+                  formControlName="facebookUrl"
+                  placeholder="https://facebook.com/…"
+                />
+              </div>
+            </form>
+
+            <h3 class="admin-home__section-title">WhatsApp</h3>
+            <form [formGroup]="whatsappForm">
+              <p class="admin-home__hint">
+                Número con código de país (ej. 59170000000). Botón flotante solo en el sitio público.
+              </p>
+              <label class="admin-home__check">
+                <input type="checkbox" formControlName="enabled" />
+                Activar WhatsApp
+              </label>
+              <app-admin-form-field label="Teléfono (con código de país)" controlName="phone" />
+              <app-admin-form-field
+                label="Mensaje predeterminado"
+                controlName="message"
+                type="textarea"
+              />
+            </form>
+          </div>
         }
       }
     </app-admin-tabs>

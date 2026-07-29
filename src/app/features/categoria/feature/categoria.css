@@ -1,0 +1,128 @@
+:host {
+  display: block;
+}
+
+.categoria {
+  background: #ffffff;
+}
+
+.categoria__skeleton,
+.categoria__error {
+  min-height: 40vh;
+  display: grid;
+  place-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.categoria__retry {
+  justify-self: center;
+  padding: 0.5rem 1rem;
+  border: 1px solid #dd3333;
+  background: #dd3333;
+  color: #fff;
+  cursor: pointer;
+}
+
+.categoria__retry:focus-visible {
+  outline: 2px solid #dd3333;
+  outline-offset: 2px;
+}
+
+.categoria__hero {
+  margin-top: var(--header-h-mobile);
+  height: auto;
+  padding: 13% 0;
+  background-color: #000;
+  background-size: cover;
+  background-position: center;
+}
+
+@media (min-width: 1000px) {
+  .categoria__hero {
+    margin-top: var(--header-h-desktop);
+    height: 700px;
+    padding: 0;
+  }
+}
+
+.categoria__heading {
+  margin: 40px 0 20px;
+}
+
+.categoria__intro {
+  display: grid;
+  gap: 0 2%;
+  margin-bottom: 30px;
+}
+
+.categoria__intro > div {
+  margin: 0 0 30px;
+}
+
+.categoria__intro :is(p, ul, ol) {
+  margin: 0 0 1rem;
+}
+
+@media (min-width: 691px) {
+  .categoria__intro {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.categoria__empty {
+  margin: 0 0 100px;
+  color: #666;
+}
+
+.categoria__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2%;
+  padding-bottom: 100px;
+}
+
+.categoria__card {
+  display: block;
+  margin-bottom: 2%;
+  text-decoration: none;
+}
+
+.categoria__card:hover,
+.categoria__card:focus-visible {
+  text-decoration: none;
+}
+
+.categoria__card:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.categoria__card-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.categoria__card-title {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 24px;
+  font-weight: 600;
+  color: #444;
+  text-align: center;
+}
+
+@media (min-width: 1000px) {
+  .categoria__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .categoria__card {
+    margin-bottom: 0;
+  }
+}

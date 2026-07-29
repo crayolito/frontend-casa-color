@@ -1,0 +1,111 @@
+<div class="admin-content-narrow">
+  <app-admin-page-header
+    title="Contacto (página)"
+    subtitle="Datos centrales de la página pública de Contacto"
+  />
+
+  @if (flash(); as msg) {
+    <p class="admin-flash" role="status">{{ msg }}</p>
+  }
+  @if (error(); as err) {
+    <app-admin-error-state
+      [message]="err.text"
+      [correlationId]="err.correlationId ?? null"
+      [showCorrelationId]="err.showCorrelationId"
+      (retry)="onRetryLoad()"
+    />
+  }
+
+  @if (loading()) {
+    <p class="admin-contacto__status">Cargando…</p>
+  } @else {
+    <form class="admin-form" [formGroup]="form" (ngSubmit)="save()">
+      <app-image-uploader
+        label="Imagen hero"
+        folder="home"
+        [url]="form.controls.heroImageUrl.value || null"
+        (urlChange)="onHeroChange($event)"
+      />
+      <p class="admin-form__hint">
+        Si queda vacía, la página pública usa la imagen por defecto.
+      </p>
+
+      <app-admin-form-field
+        label="Dirección central (una línea por renglón)"
+        controlName="centralAddressLines"
+        type="textarea"
+        [rows]="4"
+        [error]="
+          form.controls.centralAddressLines.touched &&
+          form.controls.centralAddressLines.invalid
+            ? 'Requerido'
+            : null
+        "
+      />
+
+      <app-admin-form-field
+        label="Etiqueta atención"
+        controlName="attentionLabel"
+        [error]="
+          form.controls.attentionLabel.touched &&
+          form.controls.attentionLabel.invalid
+            ? 'Requerido'
+            : null
+        "
+      />
+
+      <app-admin-form-field
+        label="Teléfono (texto visible)"
+        controlName="centralPhone"
+        [error]="
+          form.controls.centralPhone.touched && form.controls.centralPhone.invalid
+            ? 'Requerido'
+            : null
+        "
+      />
+
+      <app-admin-form-field
+        label="WhatsApp (solo dígitos, para wa.me)"
+        controlName="centralWhatsapp"
+        [error]="
+          form.controls.centralWhatsapp.touched &&
+          form.controls.centralWhatsapp.invalid
+            ? 'Requerido'
+            : null
+        "
+      />
+      <p class="admin-form__hint">Ej.: 59133441200 — el teléfono abre WhatsApp.</p>
+
+      <app-admin-form-field
+        label="Etiqueta email"
+        controlName="infoRequestLabel"
+        [error]="
+          form.controls.infoRequestLabel.touched &&
+          form.controls.infoRequestLabel.invalid
+            ? 'Requerido'
+            : null
+        "
+      />
+
+      <app-admin-form-field
+        label="Email"
+        controlName="centralEmail"
+        [error]="
+          form.controls.centralEmail.touched && form.controls.centralEmail.invalid
+            ? 'Email inválido'
+            : null
+        "
+      />
+
+      @if (updatedAt(); as at) {
+        <p class="admin-form__hint">Última actualización: {{ at }}</p>
+      }
+
+      <div class="admin-form__actions">
+        <app-admin-button type="submit" variant="primary" [loading]="saving()">
+          Guardar
+        </app-admin-button>
+      </div>
+    </form>
+  }
+</div>

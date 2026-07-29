@@ -37,16 +37,13 @@
   </label>
   <label class="admin-filters__field">
     <span class="admin-filters__label">Categoría</span>
-    <select
-      class="admin-filters__input"
-      [ngModel]="categoryId() ?? ''"
-      (ngModelChange)="onCategoryChange($event)"
-    >
-      <option value="">Todas</option>
-      @for (cat of categories(); track cat.id) {
-        <option [value]="cat.id">{{ cat.name }}</option>
-      }
-    </select>
+    <app-select
+      [options]="categorySelectOptions()"
+      [value]="categoryId() ?? ''"
+      placeholder="Todas"
+      ariaLabel="Categoría"
+      (valueChange)="onCategoryChange($event)"
+    />
   </label>
 </app-admin-filters>
 
@@ -59,14 +56,20 @@
     @for (row of rows(); track row.id) {
       <article class="admin-entity-card">
         <div class="admin-entity-card__media">
-          @if (row.imageUrl) {
-            <img [src]="row.imageUrl" [alt]="row.name" width="320" height="200" />
-          } @else {
-            <div class="admin-entity-card__placeholder" aria-hidden="true">Sin imagen</div>
-          }
+          <img
+            [src]="row.imageUrl || '/img/img-auxiliar2.jpg'"
+            [alt]="row.name"
+            width="320"
+            height="200"
+            appImgFallback="catalog"
+          />
         </div>
         <div class="admin-entity-card__body">
           <h3 class="admin-entity-card__title">{{ row.name }}</h3>
+          <p class="admin-entity-card__count">
+            {{ row.productsCount ?? 0 }}
+            {{ (row.productsCount ?? 0) === 1 ? 'producto' : 'productos' }}
+          </p>
           <p class="admin-entity-card__desc">{{ formatCategories(row) }}</p>
         </div>
         <div class="admin-entity-card__actions">
@@ -118,13 +121,10 @@
       label="Categoría principal"
       controlName="categoryId"
       type="select"
+      [options]="categoryFormOptions()"
+      placeholder="Seleccioná…"
       [error]="form.controls.categoryId.touched && form.controls.categoryId.invalid ? 'Seleccioná una categoría' : null"
-    >
-      <option value="" disabled>Seleccioná…</option>
-      @for (cat of categories(); track cat.id) {
-        <option [value]="cat.id">{{ cat.name }}</option>
-      }
-    </app-admin-form-field>
+    />
     <app-admin-multi-select
       label="Categorías adicionales"
       [options]="categoryOptions()"
@@ -149,9 +149,24 @@
     <app-image-uploader
       label="Imagen"
       folder="catalogs"
+      fallbackKind="catalog"
       [url]="form.controls.imageUrl.value || null"
       (urlChange)="onImageChange($event)"
     />
+
+    <app-pdf-uploader
+      label="PDF del catálogo"
+      folder="catalogs_pdfs"
+      [url]="form.controls.pdfUrl.value || null"
+      (urlChange)="onPdfChange($event)"
+    />
+
+    <app-admin-form-field
+      label="Texto del botón PDF"
+      controlName="pdfButtonLabel"
+      [error]="form.controls.pdfButtonLabel.touched && form.controls.pdfButtonLabel.invalid ? 'Máx. 50 caracteres' : null"
+    />
+    <p class="admin-form__hint">Se muestra en la web pública solo si hay PDF cargado.</p>
 
     <div class="admin-form__actions">
       <app-admin-button type="button" variant="secondary" (clicked)="closeModal()">

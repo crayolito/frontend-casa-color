@@ -19,18 +19,27 @@
   position: absolute;
   inset: 0;
   display: flex;
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.6s ease, visibility 0.6s ease;
+  transition: opacity 0.6s cubic-bezier(0.65, 0, 0.35, 1),
+    visibility 0.6s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .hero__slide--active {
   opacity: 1;
   visibility: visible;
   z-index: 1;
+}
+
+/* Capa de fondo separada para parallax bg_only (Salient .image-bg) */
+.hero__bg {
+  position: absolute;
+  /* Extra altura para que el translate no deje huecos */
+  inset: -8% 0;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  will-change: transform;
 }
 
 .hero__overlay {
@@ -68,13 +77,34 @@
   padding-block: 5rem 5.5rem;
 }
 
+/* Salient data-caption-trans="fade_in_from_bottom" — NectarSlider caption */
+.hero__content--enter .hero__title,
+.hero__content--enter .hero__cta {
+  animation: hero-caption-bottom 0.6s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+.hero__content--enter .hero__cta {
+  animation-delay: 0.08s;
+}
+
+@keyframes hero-caption-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .hero__title {
   margin: 0 0 1.5rem;
   color: var(--color-white);
-  font-size: 32px;
-  line-height: 1.12;
+  font-size: var(--font-size-hero);
+  line-height: var(--line-height-hero);
   font-weight: 300;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--letter-spacing-hero);
   text-shadow: 0 2px 20px rgb(0 0 0 / 0.65), 0 1px 4px rgb(0 0 0 / 0.5);
 }
 
@@ -223,6 +253,15 @@
   .hero__down-arrow {
     animation: none;
   }
+
+  .hero__content--enter .hero__title,
+  .hero__content--enter .hero__cta {
+    animation: none;
+  }
+
+  .hero__bg {
+    transform: none !important;
+  }
 }
 
 @media (min-width: 691px) {
@@ -230,21 +269,12 @@
   .hero__viewport {
     min-height: 643px;
   }
-
-  .hero__title {
-    font-size: 40px;
-  }
 }
 
 @media (min-width: 1000px) {
   .hero,
   .hero__viewport {
     min-height: 750px;
-  }
-
-  .hero__title {
-    font-size: 72px;
-    line-height: 1.05;
   }
 
   .hero__content--top {
@@ -274,9 +304,5 @@
   .hero,
   .hero__viewport {
     min-height: 900px;
-  }
-
-  .hero__title {
-    font-size: 88px;
   }
 }

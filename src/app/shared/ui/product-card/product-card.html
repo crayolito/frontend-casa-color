@@ -6,6 +6,7 @@
     [width]="product().imageWidth"
     [height]="product().imageHeight"
     loading="lazy"
+    appImgFallback="product"
   />
   @if (product().hoverImage; as hover) {
     <img
@@ -16,6 +17,7 @@
       [height]="product().imageHeight"
       loading="lazy"
       aria-hidden="true"
+      appImgFallback="product"
     />
   }
   <div class="product-card__overlay" aria-hidden="true"></div>

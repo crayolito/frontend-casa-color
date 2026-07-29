@@ -1,0 +1,16 @@
+<div class="inner-wrap">
+  <a class="search-product-card__media" [routerLink]="result().href">
+    <img
+      [src]="result().image || fallbackSrc()"
+      [alt]="result().title"
+      width="375"
+      height="400"
+      loading="lazy"
+      [appImgFallback]="fallbackKind()"
+    />
+  </a>
+  <h2 class="title">
+    <a [routerLink]="result().href">{{ result().title }}</a>
+    <span>{{ badge() }}</span>
+  </h2>
+</div>

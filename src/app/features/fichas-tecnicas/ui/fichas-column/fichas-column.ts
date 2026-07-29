@@ -1,6 +1,14 @@
 import { Component, input } from '@angular/core';
-import { FichasToggle } from '../fichas-toggle/fichas-toggle';
-import { FichasColumn as FichasColumnData } from '../../util/fichas-tecnicas-data';
+import { FichasTecnicasCategoryPublic } from '../../../admin/data/admin.models';
+import { FichasToggle, FichasToggleVariant } from '../fichas-toggle/fichas-toggle';
+
+const VARIANTS: FichasToggleVariant[] = [
+  'accent',
+  'extra-1',
+  'extra-2',
+  'extra-3',
+  'default',
+];
 
 @Component({
   selector: 'app-fichas-column',
@@ -9,5 +17,9 @@ import { FichasColumn as FichasColumnData } from '../../util/fichas-tecnicas-dat
   styleUrl: './fichas-column.css',
 })
 export class FichasColumn {
-  readonly column = input.required<FichasColumnData>();
+  readonly category = input.required<FichasTecnicasCategoryPublic>();
+
+  protected variantFor(index: number): FichasToggleVariant {
+    return VARIANTS[index % VARIANTS.length];
+  }
 }

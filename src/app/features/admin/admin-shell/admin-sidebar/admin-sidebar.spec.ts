@@ -19,4 +19,16 @@ describe('AdminSidebar', () => {
     expect(el.textContent).not.toContain('Sesión activa');
     expect(el.querySelector('.admin-sidebar__footer')).toBeNull();
   });
+
+  it('lists Inicio in Configuración and omits Datos del sitio', () => {
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).not.toContain('Datos del sitio');
+    expect(el.querySelector('a[href="/admin/settings"]')).toBeNull();
+    expect(el.querySelector('a[href="/admin/home"]')).not.toBeNull();
+    expect(el.textContent).toContain('Inicio');
+    expect(el.textContent).toContain('Sucursales');
+    expect(el.textContent).toContain('Contacto (página)');
+    expect(el.textContent).toContain('Páginas legales');
+    expect(el.querySelector('a[href="/admin/paginas-legales"]')).not.toBeNull();
+  });
 });

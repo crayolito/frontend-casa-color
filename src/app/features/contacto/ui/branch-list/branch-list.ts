@@ -1,5 +1,5 @@
 import { Component, input, output } from '@angular/core';
-import { BranchWithDistance } from '../../util/contacto-data';
+import { BranchWithDistance } from '../../data/contacto.models';
 
 @Component({
   selector: 'app-branch-list',
@@ -8,8 +8,8 @@ import { BranchWithDistance } from '../../util/contacto-data';
 })
 export class BranchList {
   readonly branches = input.required<BranchWithDistance[]>();
-  readonly selectedId = input<string | null>(null);
-  readonly select = output<string>();
+  readonly selectedId = input<number | null>(null);
+  readonly select = output<number>();
 
   protected formatDistance(km: number | null): string | null {
     if (km === null) {
@@ -21,7 +21,7 @@ export class BranchList {
     return `${km.toFixed(1)} km`;
   }
 
-  protected onSelect(id: string): void {
+  protected onSelect(id: number): void {
     this.select.emit(id);
   }
 }

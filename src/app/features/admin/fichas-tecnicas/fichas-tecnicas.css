@@ -1,0 +1,124 @@
+.fichas-admin {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.fichas-admin__status {
+  margin: 1.5rem 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+.fichas-admin__cats-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.fichas-admin__cats-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.fichas-admin__hint {
+  margin: -0.5rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.fichas-admin__dnd {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.fichas-admin__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  box-shadow: var(--admin-card-shadow);
+}
+
+.fichas-admin__card.cdk-drag-preview {
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
+}
+
+.fichas-admin__card.cdk-drag-placeholder {
+  opacity: 0.4;
+}
+
+.fichas-admin__card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  min-height: 40px;
+}
+
+.fichas-admin__drag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  cursor: grab;
+  color: var(--color-text-muted);
+  user-select: none;
+}
+
+.fichas-admin__card-title {
+  flex: 1;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fichas-admin__chevron {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.fichas-admin__card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--admin-border);
+}
+
+.fichas-admin__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.fichas-admin__field-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.fichas-admin__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.admin-flash {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-accent) 12%, white);
+  color: var(--color-text);
+  font-size: 0.9375rem;
+}

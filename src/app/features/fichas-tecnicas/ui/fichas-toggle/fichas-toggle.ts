@@ -1,7 +1,12 @@
 import { Component, input, linkedSignal } from '@angular/core';
-import { FichasToggleVariant } from '../../util/fichas-tecnicas-data';
 
-export type { FichasToggleVariant };
+/** Clase Salient del clon: accent-color / extra-color-1|2|3 / default. */
+export type FichasToggleVariant =
+  | 'accent'
+  | 'extra-1'
+  | 'extra-2'
+  | 'extra-3'
+  | 'default';
 
 let fichasToggleSeq = 0;
 

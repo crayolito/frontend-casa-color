@@ -37,3 +37,17 @@
 .info-block__text strong {
   font-weight: 700;
 }
+
+.info-block__link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.info-block__link:hover {
+  color: var(--color-accent);
+}
+
+.info-block__link--strong {
+  font-weight: 700;
+}

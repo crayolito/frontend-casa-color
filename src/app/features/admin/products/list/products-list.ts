@@ -41,6 +41,7 @@ import { AdminButton } from '../../../../shared/admin-ui/admin-button/admin-butt
 import { AdminModal } from '../../../../shared/admin-ui/admin-modal/admin-modal';
 import { AdminToastService } from '../../../../shared/admin-ui/admin-toast/admin-toast.service';
 import { AdminErrorState } from '../../../../shared/admin-ui/admin-error-state/admin-error-state';
+import { AppSelect, SelectOption } from '../../../../shared/ui/select/select';
 
 const PAGE_SIZE = 16;
 
@@ -58,6 +59,7 @@ const PAGE_SIZE = 16;
     AdminButton,
     AdminModal,
     AdminErrorState,
+    AppSelect,
   ],
   templateUrl: './products-list.html',
   styleUrl: './products-list.css',
@@ -115,6 +117,22 @@ export class AdminProductsList {
   );
 
   readonly selectedCount = computed(() => this.selectedIds().size);
+
+  readonly categorySelectOptions = computed((): SelectOption[] => [
+    { value: '', label: 'Todas' },
+    ...this.categories().map((c) => ({ value: c.id, label: c.name })),
+  ]);
+
+  readonly catalogSelectOptions = computed((): SelectOption[] => [
+    { value: '', label: 'Todos' },
+    ...this.catalogs().map((c) => ({ value: c.id, label: c.name })),
+  ]);
+
+  readonly activeSelectOptions: SelectOption[] = [
+    { value: '', label: 'Todos' },
+    { value: 'true', label: 'Activo' },
+    { value: 'false', label: 'Inactivo' },
+  ];
 
   readonly columns: AdminTableColumn<Product>[] = [
     { key: 'title', label: 'Título', cell: (r) => r.title },
@@ -418,18 +436,18 @@ export class AdminProductsList {
     this.page.set(1);
   }
 
-  onCategoryChange(value: string): void {
-    this.categoryId.set(value ? Number(value) : null);
+  onCategoryChange(value: string | number | null): void {
+    this.categoryId.set(value !== null && value !== '' ? Number(value) : null);
     this.catalogId.set(null);
     this.page.set(1);
   }
 
-  onCatalogChange(value: string): void {
-    this.catalogId.set(value ? Number(value) : null);
+  onCatalogChange(value: string | number | null): void {
+    this.catalogId.set(value !== null && value !== '' ? Number(value) : null);
     this.page.set(1);
   }
 
-  onActiveChange(value: string): void {
+  onActiveChange(value: string | number | null): void {
     if (value === 'true') this.isActive.set(true);
     else if (value === 'false') this.isActive.set(false);
     else this.isActive.set(null);

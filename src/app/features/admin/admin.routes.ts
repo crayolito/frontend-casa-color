@@ -26,6 +26,18 @@ export const ADMIN_ROUTES: Routes = [
           import('./catalogs/catalogs').then((m) => m.AdminCatalogs),
       },
       {
+        path: 'color-cards',
+        loadComponent: () =>
+          import('./color-cards/color-cards').then((m) => m.AdminColorCards),
+      },
+      {
+        path: 'fichas-tecnicas',
+        loadComponent: () =>
+          import('./fichas-tecnicas/fichas-tecnicas').then(
+            (m) => m.AdminFichasTecnicas,
+          ),
+      },
+      {
         path: 'products',
         loadComponent: () =>
           import('./products/list/products-list').then((m) => m.AdminProductsList),
@@ -41,9 +53,28 @@ export const ADMIN_ROUTES: Routes = [
           import('./products/form/product-form').then((m) => m.AdminProductForm),
       },
       {
+        path: 'branches',
+        loadComponent: () =>
+          import('./branches/branches').then((m) => m.AdminBranches),
+      },
+      {
+        path: 'contacto',
+        loadComponent: () =>
+          import('./contacto-settings/contacto-settings').then(
+            (m) => m.AdminContactoSettings,
+          ),
+      },
+      {
         path: 'home',
         loadComponent: () =>
           import('./home/admin-home').then((m) => m.AdminHome),
+      },
+      {
+        path: 'paginas-legales',
+        loadComponent: () =>
+          import('./paginas-legales/paginas-legales').then(
+            (m) => m.AdminPaginasLegales,
+          ),
       },
       {
         path: 'settings',

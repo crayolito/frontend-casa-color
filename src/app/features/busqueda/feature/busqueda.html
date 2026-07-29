@@ -1,14 +1,25 @@
 <main class="busqueda">
-  <app-header />
-
-  <!-- Clon: #page-header-bg index.html:266-276 -->
   <div class="busqueda__page-header" id="page-header-bg">
     <app-container>
       <div class="busqueda__page-header-inner">
-        <h1>
-          Results For <span>"{{ searchTerm }}"</span>
-        </h1>
-        <span class="result-num">{{ resultCount }} results found</span>
+        @if (query()) {
+          <h1>
+            Resultados para <span>"{{ query() }}"</span>
+          </h1>
+          @if (!loading() && !error()) {
+            <span class="result-num" role="status">
+              {{ resultRange().total }}
+              {{
+                resultRange().total === 1
+                  ? 'resultado encontrado'
+                  : 'resultados encontrados'
+              }}
+            </span>
+          }
+        } @else {
+          <h1>Búsqueda</h1>
+          <span class="result-num">Escribí un término en el buscador</span>
+        }
       </div>
     </app-container>
   </div>
@@ -17,38 +28,100 @@
     <app-container>
       <div class="busqueda__row">
         <div class="busqueda__main">
-          <div class="busqueda__results" id="search-results" data-layout="default">
-            @for (result of results; track result.title) {
-              <app-search-result-card [result]="result" />
+          @if (loading()) {
+            <p class="busqueda__status" aria-busy="true">Buscando productos…</p>
+          } @else if (error(); as err) {
+            <div class="busqueda__status busqueda__status--error" role="alert">
+              <p>{{ err.text }}</p>
+              <button type="button" class="busqueda__retry" (click)="retry()">
+                Reintentar
+              </button>
+            </div>
+          } @else if (!query()) {
+            <p class="busqueda__status">
+              Usá el ícono de búsqueda del encabezado para encontrar productos.
+            </p>
+          } @else if (products().length === 0 && typedPrefix().length === 0) {
+            <p class="busqueda__status">
+              Sin resultados para “{{ query() }}”.
+            </p>
+          } @else {
+            @if (typedPrefix().length) {
+              <div
+                class="busqueda__typed"
+                id="search-typed"
+                aria-label="Categorías y catálogos"
+              >
+                @for (item of typedPrefix(); track item.href) {
+                  <app-search-product-card [result]="item" />
+                }
+              </div>
             }
-          </div>
 
-          <!-- Clon: .search-result-pagination index.html:333-339 -->
-          <div class="busqueda__pagination search-result-pagination" data-layout="default">
-            <nav id="pagination" aria-label="Pagination Navigation" role="navigation">
-              <ul class="page-numbers">
-                <li>
-                  <span aria-current="page" aria-label="Página 1" class="page-numbers current"
-                    >1</span
+            @if (products().length) {
+              <div
+                class="busqueda__results"
+                id="search-results"
+                data-layout="default"
+              >
+                @for (product of products(); track product.href) {
+                  <app-search-product-card [result]="product" />
+                }
+              </div>
+            }
+
+            @if (totalPages() > 1) {
+              <nav class="busqueda__pagination" aria-label="Paginación">
+                <button
+                  type="button"
+                  class="busqueda__page-btn"
+                  [disabled]="currentPage() <= 1"
+                  (click)="goToPage(currentPage() - 1)"
+                  aria-label="Página anterior"
+                >
+                  Anterior
+                </button>
+                @for (n of pageNumbers(); track n) {
+                  <button
+                    type="button"
+                    class="busqueda__page-btn"
+                    [class.busqueda__page-btn--current]="n === currentPage()"
+                    [attr.aria-current]="n === currentPage() ? 'page' : null"
+                    (click)="goToPage(n)"
                   >
-                </li>
-                <li>
-                  <a aria-label="Página 2" class="page-numbers" href="#">2</a>
-                </li>
-                <li>
-                  <a class="next page-numbers" href="#">Next</a>
-                </li>
-              </ul>
-            </nav>
-          </div>
+                    {{ n }}
+                  </button>
+                }
+                <button
+                  type="button"
+                  class="busqueda__page-btn"
+                  [disabled]="currentPage() >= totalPages()"
+                  (click)="goToPage(currentPage() + 1)"
+                  aria-label="Página siguiente"
+                >
+                  Siguiente
+                </button>
+              </nav>
+            }
+          }
         </div>
 
-        <aside class="busqueda__sidebar" id="sidebar" aria-label="Navegación">
-          <app-search-sidebar-menu />
+        <aside class="busqueda__sidebar" id="sidebar" aria-label="Categorías">
+          @if (treeError(); as err) {
+            <div class="busqueda__status busqueda__status--error" role="alert">
+              <p>{{ err.text }}</p>
+              <button type="button" class="busqueda__retry" (click)="retryTree()">
+                Reintentar
+              </button>
+            </div>
+          } @else {
+            <app-search-category-accordion
+              [groups]="categoryGroups()"
+              [loading]="treeLoading()"
+            />
+          }
         </aside>
       </div>
     </app-container>
   </div>
-
-  <app-footer />
 </main>

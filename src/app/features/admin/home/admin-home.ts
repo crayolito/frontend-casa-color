@@ -17,6 +17,7 @@ import {
   DragDropModule,
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
+import { forkJoin } from 'rxjs';
 import { HomeApi } from '../../home/data/home.api';
 import {
   HomeContent,
@@ -41,8 +42,22 @@ import { ImageUploader } from '../../../shared/admin-ui/image-uploader/image-upl
 import { AdminIcon } from '../../../shared/admin-ui/icons/admin-icon';
 import { DestinationPicker } from './destination-picker/destination-picker';
 import { NavDestinationPicker } from './nav-destination-picker/nav-destination-picker';
+import { SelectOption } from '../../../shared/ui/select/select';
 
 const MAX_HOME_CATEGORIES = 4;
+const MIN_SLIDES = 1;
+const MAX_SLIDES = 5;
+
+const TEXT_POSITION_OPTIONS: SelectOption[] = [
+  { value: 'top', label: 'Arriba' },
+  { value: 'middle', label: 'Medio' },
+  { value: 'bottom', label: 'Abajo' },
+];
+
+const SCHEME_OPTIONS: SelectOption[] = [
+  { value: 'dark', label: 'Normal (recomendado)' },
+  { value: 'light', label: 'Suave' },
+];
 
 @Component({
   selector: 'app-admin-home',
@@ -70,17 +85,22 @@ export class AdminHome implements OnInit {
   private readonly toast = inject(AdminToastService);
 
   readonly maxCategories = MAX_HOME_CATEGORIES;
+  readonly minSlides = MIN_SLIDES;
+  readonly maxSlides = MAX_SLIDES;
+  readonly textPositionOptions = TEXT_POSITION_OPTIONS;
+  readonly schemeOptions = SCHEME_OPTIONS;
+
+  categoryFormOptions(): SelectOption[] {
+    return this.allCategories().map((c) => ({ value: c.id, label: c.name }));
+  }
 
   readonly tabs: AdminTab[] = [
-    { id: 'header', label: 'Logo' },
-    { id: 'header-nav', label: 'Menú superior' },
+    { id: 'header', label: 'Encabezado' },
+    { id: 'nav', label: 'Menú' },
     { id: 'banner', label: 'Carrusel' },
     { id: 'decor', label: 'Decoración' },
-    { id: 'find-product', label: 'Encontrá tu producto' },
     { id: 'categories', label: 'Categorías' },
     { id: 'footer', label: 'Pie de página' },
-    { id: 'social', label: 'Redes' },
-    { id: 'whatsapp', label: 'WhatsApp' },
   ];
 
   readonly selectedTab = signal('header');
@@ -100,7 +120,6 @@ export class AdminHome implements OnInit {
 
   readonly headerForm = this.fb.nonNullable.group({
     imageUrl: [''],
-    link: ['/'],
   });
 
   readonly bannerForm = this.fb.nonNullable.group({
@@ -194,6 +213,10 @@ export class AdminHome implements OnInit {
   }
 
   addSlide(): void {
+    if (this.slides.length >= MAX_SLIDES) {
+      this.toast.error(`Máximo ${MAX_SLIDES} slides`);
+      return;
+    }
     this.slides.push(this.createSlideGroup());
     this.slideDestinations.update((list) => [...list, null]);
     const idx = this.slides.length - 1;
@@ -201,6 +224,10 @@ export class AdminHome implements OnInit {
   }
 
   removeSlide(index: number): void {
+    if (this.slides.length <= MIN_SLIDES) {
+      this.toast.error(`Mínimo ${MIN_SLIDES} slide`);
+      return;
+    }
     this.slides.removeAt(index);
     this.slideDestinations.update((list) => list.filter((_, i) => i !== index));
   }
@@ -330,40 +357,46 @@ export class AdminHome implements OnInit {
 
   saveCurrent(): void {
     const tab = this.selectedTab();
-    if (tab === 'social' || tab === 'footer') {
-      this.saveSection('footer', this.buildFooterPayload());
-      return;
-    }
-    if (tab === 'whatsapp') {
+    if (tab === 'footer') {
       const v = this.whatsappForm.getRawValue();
       if (v.enabled && !/^\d{6,15}$/.test(v.phone.trim())) {
         this.toast.error('El teléfono debe ser solo dígitos (6-15) con código de país');
         return;
       }
-      this.saveSection('floating', {
-        whatsapp: {
-          enabled: v.enabled,
-          phone: v.phone.trim(),
-          message: v.message.trim(),
+      this.saveMany([
+        { section: 'footer', body: this.buildFooterPayload() },
+        {
+          section: 'floating',
+          body: {
+            whatsapp: {
+              enabled: v.enabled,
+              phone: v.phone.trim(),
+              message: v.message.trim(),
+            },
+          },
         },
-      });
+      ]);
       return;
     }
     if (tab === 'header') {
       const v = this.headerForm.getRawValue();
       this.saveSection('header', {
         imageUrl: v.imageUrl.trim() || undefined,
-        link: v.link || undefined,
+        link: '/',
       });
       return;
     }
-    if (tab === 'header-nav') {
+    if (tab === 'nav') {
       this.saveSection('nav', { items: this.buildNavPayload() });
       return;
     }
     if (tab === 'banner') {
-      if (this.slides.length === 0) {
-        this.toast.error('Agregá al menos un slide con imagen');
+      if (this.slides.length < MIN_SLIDES) {
+        this.toast.error(`Agregá al menos ${MIN_SLIDES} slide con imagen`);
+        return;
+      }
+      if (this.slides.length > MAX_SLIDES) {
+        this.toast.error(`Máximo ${MAX_SLIDES} slides`);
         return;
       }
       const invalid = this.slides.controls.some(
@@ -391,24 +424,12 @@ export class AdminHome implements OnInit {
       return;
     }
     if (tab === 'decor') {
-      const existing = this.content()?.findProduct;
-      const decor = this.findProductForm.controls.decorImageUrl.value.trim();
-      this.saveSection('find-product', {
-        title: existing?.title || 'Encuentra un producto',
-        imageUrl: existing?.imageUrl,
-        decorImageUrl: decor || undefined,
-        buttonText: existing?.buttonText,
-        buttonDestination: existing?.buttonDestination,
-      });
-      return;
-    }
-    if (tab === 'find-product') {
-      const existing = this.content()?.findProduct;
       const v = this.findProductForm.getRawValue();
+      const existing = this.content()?.findProduct;
       this.saveSection('find-product', {
-        title: v.title,
+        title: v.title || existing?.title || 'Encuentra un producto',
         imageUrl: existing?.imageUrl,
-        decorImageUrl: existing?.decorImageUrl ?? (v.decorImageUrl || undefined),
+        decorImageUrl: v.decorImageUrl.trim() || undefined,
         buttonText: existing?.buttonText,
         buttonDestination: existing?.buttonDestination,
       });
@@ -477,9 +498,17 @@ export class AdminHome implements OnInit {
   }
 
   private saveSection(section: HomeSection, body: Record<string, unknown>): void {
+    this.saveMany([{ section, body }]);
+  }
+
+  private saveMany(
+    items: Array<{ section: HomeSection; body: Record<string, unknown> }>,
+  ): void {
     this.saving.set(true);
     this.error.set(null);
-    this.homeApi.upsertSection(section, body).subscribe({
+    forkJoin(
+      items.map((item) => this.homeApi.upsertSection(item.section, item.body)),
+    ).subscribe({
       next: () => {
         this.saving.set(false);
         this.toast.success('Sección guardada');
@@ -499,7 +528,6 @@ export class AdminHome implements OnInit {
     };
     this.headerForm.patchValue({
       imageUrl: header.imageUrl || header.logo?.imageUrl || '',
-      link: header.link || '/',
     });
 
     this.slides.clear();

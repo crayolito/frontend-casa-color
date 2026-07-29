@@ -34,41 +34,33 @@
   </label>
   <label class="admin-filters__field">
     <span class="admin-filters__label">Categoría</span>
-    <select
-      class="admin-filters__input"
-      [ngModel]="categoryId() ?? ''"
-      (ngModelChange)="onCategoryChange($event)"
-    >
-      <option value="">Todas</option>
-      @for (cat of categories(); track cat.id) {
-        <option [value]="cat.id">{{ cat.name }}</option>
-      }
-    </select>
+    <app-select
+      [options]="categorySelectOptions()"
+      [value]="categoryId() ?? ''"
+      placeholder="Todas"
+      ariaLabel="Categoría"
+      (valueChange)="onCategoryChange($event)"
+    />
   </label>
   <label class="admin-filters__field">
     <span class="admin-filters__label">Catálogo</span>
-    <select
-      class="admin-filters__input"
-      [ngModel]="catalogId() ?? ''"
-      (ngModelChange)="onCatalogChange($event)"
-    >
-      <option value="">Todos</option>
-      @for (c of catalogs(); track c.id) {
-        <option [value]="c.id">{{ c.name }}</option>
-      }
-    </select>
+    <app-select
+      [options]="catalogSelectOptions()"
+      [value]="catalogId() ?? ''"
+      placeholder="Todos"
+      ariaLabel="Catálogo"
+      (valueChange)="onCatalogChange($event)"
+    />
   </label>
   <label class="admin-filters__field">
     <span class="admin-filters__label">Estado</span>
-    <select
-      class="admin-filters__input"
-      [ngModel]="isActive() === null ? '' : isActive() ? 'true' : 'false'"
-      (ngModelChange)="onActiveChange($event)"
-    >
-      <option value="">Todos</option>
-      <option value="true">Activo</option>
-      <option value="false">Inactivo</option>
-    </select>
+    <app-select
+      [options]="activeSelectOptions"
+      [value]="isActive() === null ? '' : isActive() ? 'true' : 'false'"
+      placeholder="Todos"
+      ariaLabel="Estado"
+      (valueChange)="onActiveChange($event)"
+    />
   </label>
 </app-admin-filters>
 

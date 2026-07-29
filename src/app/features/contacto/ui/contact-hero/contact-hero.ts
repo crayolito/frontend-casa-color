@@ -1,5 +1,4 @@
-import { Component } from '@angular/core';
-import { CONTACT_HERO_IMAGE } from '../../util/contacto-data';
+import { Component, input } from '@angular/core';
 
 /** Hero parallax — clon index.html:261-273 (#page-header-wrap height 700px). */
 @Component({
@@ -8,5 +7,5 @@ import { CONTACT_HERO_IMAGE } from '../../util/contacto-data';
   styleUrl: './contact-hero.css',
 })
 export class ContactHero {
-  protected readonly backgroundImage = CONTACT_HERO_IMAGE;
+  readonly backgroundImage = input.required<string>();
 }

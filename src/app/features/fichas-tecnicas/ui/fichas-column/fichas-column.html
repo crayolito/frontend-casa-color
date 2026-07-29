@@ -1,44 +1,29 @@
 <div class="fichas-column">
-  <!-- Clon: divider-wrap height:50px (index.html:280) -->
-  <div class="fichas-column__spacer" aria-hidden="true"></div>
-
-  <!-- Clon: img-with-aniamtion-wrap center, img 200×200 (index.html:280-287) -->
-  <div class="fichas-column__logo-wrap">
-    <img
-      class="fichas-column__logo"
-      [src]="column().logo"
-      [alt]="column().logoAlt"
-      width="200"
-      height="200"
-    />
-  </div>
-
-  <!-- Clon: divider-wrap height:50px (index.html:288) -->
-  <div class="fichas-column__spacer" aria-hidden="true"></div>
-
   <div class="fichas-column__toggles">
-    @for (toggle of column().toggles; track toggle.title; let i = $index) {
-      <app-fichas-toggle
-        [title]="toggle.title"
-        [variant]="toggle.variant"
-        [panelId]="'ficha-' + column().id + '-' + i"
-      >
-        @if (toggle.links.length > 0) {
+    @if (category().catalogs.length === 0) {
+      <p class="fichas-column__empty">Sin fichas técnicas en esta categoría.</p>
+    } @else {
+      @for (catalog of category().catalogs; track catalog.id; let i = $index) {
+        <app-fichas-toggle
+          [title]="catalog.name"
+          [variant]="variantFor(i)"
+          [panelId]="'ficha-' + category().categoryId + '-' + catalog.id"
+        >
           <p class="fichas-column__links">
-            @for (link of toggle.links; track link.href; let last = $last) {
+            @for (product of catalog.products; track product.id; let last = $last) {
               <a
-                [href]="link.href"
+                [href]="product.technicalSheetUrl"
                 target="_blank"
                 rel="noopener noreferrer"
-                >{{ link.label }}</a
+                >{{ product.title }}</a
               >
               @if (!last) {
                 <br />
               }
             }
           </p>
-        }
-      </app-fichas-toggle>
+        </app-fichas-toggle>
+      }
     }
   </div>
 </div>

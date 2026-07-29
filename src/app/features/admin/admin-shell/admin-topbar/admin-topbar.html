@@ -16,10 +16,6 @@
     >
       <app-admin-icon name="panel-left" [size]="18" />
     </button>
-    <div class="admin-topbar__context">
-      <p class="admin-topbar__crumb">{{ section().crumb }}</p>
-      <p class="admin-topbar__section">{{ section().label }}</p>
-    </div>
   </div>
 
   <div class="admin-topbar__right">
@@ -28,9 +24,6 @@
       <span>Buscar…</span>
       <kbd class="admin-topbar__kbd">Ctrl K</kbd>
     </button>
-    <div class="admin-topbar__user" aria-hidden="true">
-      <span class="admin-topbar__avatar">{{ initials() }}</span>
-    </div>
     <app-admin-button variant="ghost" type="button" (clicked)="logout()">
       <app-admin-icon name="logout" />
       <span class="admin-topbar__logout-label">Salir</span>

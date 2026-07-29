@@ -5,11 +5,12 @@ import {
   inject,
 } from '@angular/core';
 import { ControlContainer, ReactiveFormsModule } from '@angular/forms';
+import { AppSelect, SelectOption } from '../../ui/select/select';
 
 @Component({
   selector: 'app-admin-form-field',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, AppSelect],
   viewProviders: [
     {
       provide: ControlContainer,
@@ -28,13 +29,12 @@ import { ControlContainer, ReactiveFormsModule } from '@angular/forms';
           [attr.autocomplete]="autocomplete() ?? null"
         ></textarea>
       } @else if (type() === 'select') {
-        <select
-          class="admin-field__control"
+        <app-select
           [id]="controlName()"
           [formControlName]="controlName()"
-        >
-          <ng-content />
-        </select>
+          [options]="options()"
+          [placeholder]="placeholder()"
+        />
       } @else {
         <input
           class="admin-field__control"
@@ -109,4 +109,6 @@ export class AdminFormField {
   readonly error = input<string | null>(null);
   readonly autocomplete = input<string | undefined>(undefined);
   readonly rows = input(4);
+  readonly options = input<SelectOption[]>([]);
+  readonly placeholder = input('Seleccioná…');
 }

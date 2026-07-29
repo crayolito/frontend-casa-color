@@ -22,6 +22,33 @@
   height: auto;
 }
 
+.fichas-column__logo-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  max-width: 100%;
+  aspect-ratio: 1;
+  background: #f3f3f3;
+  color: #666;
+  font-size: 0.875rem;
+  text-align: center;
+  padding: 0.75rem;
+}
+
+.fichas-column__name {
+  margin: 0.75rem 0 0;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+
+.fichas-column__empty {
+  margin: 0;
+  color: var(--color-text-muted, #666);
+  font-size: 0.9375rem;
+}
+
 .fichas-column__toggles {
   width: 100%;
 }

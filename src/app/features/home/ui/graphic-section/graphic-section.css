@@ -2,10 +2,8 @@
   display: block;
 }
 
-.spacer {
-  height: 50px;
-}
-
+/* El aire de 50px vive como padding-bottom blanco en .categories.
+   Acá solo la franja de pintura. */
 .graphic {
   padding-top: 15vw;
   background-position: center bottom;

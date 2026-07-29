@@ -29,10 +29,11 @@
   background: transparent;
   color: rgba(0, 0, 0, 0.65);
   font-family: inherit;
-  font-size: 20px;
+  /* Custom CSS del clon index.html: font-size 20px !important; line-height 25px */
+  font-size: 1.25rem;
   font-weight: 400;
   letter-spacing: 0;
-  line-height: 25px;
+  line-height: 1.25; /* 25/20 */
   text-align: left;
   text-transform: uppercase;
   cursor: pointer;
@@ -137,13 +138,6 @@
 .accordion__panel-inner {
   padding: 0 0 30px;
   text-align: left;
-}
-
-@media (max-width: 690px) {
-  .accordion__trigger {
-    font-size: 20px;
-    line-height: 24px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

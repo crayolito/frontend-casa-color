@@ -4,7 +4,7 @@ import { inject } from '@angular/core';
 import { sanitizeHtml } from '../util/sanitize-html';
 
 /** Sanitiza con DOMPurify y marca como SafeHtml para [innerHTML]. */
-@Pipe({ name: 'safeHtml', pure: true })
+@Pipe({ name: 'safeHtml', pure: true, standalone: true })
 export class SafeHtmlPipe implements PipeTransform {
   private readonly sanitizer = inject(DomSanitizer);
 

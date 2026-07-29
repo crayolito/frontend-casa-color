@@ -1,8 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { Header } from '../../../core/ui/header/header';
-import { Footer } from '../../../core/ui/footer/footer';
 import { HomeApi } from '../data/home.api';
-import { HomeContent, headerToLogo } from '../data/home-content.model';
+import { HomeContent } from '../data/home-content.model';
 import {
   ResolvedErrorMessage,
   resolveErrorMessage,
@@ -17,8 +15,6 @@ import { Reveal } from '../../../shared/util/reveal/reveal';
 @Component({
   selector: 'app-home',
   imports: [
-    Header,
-    Footer,
     HeroSlider,
     DecorDivider,
     FindProduct,
@@ -35,8 +31,6 @@ export class Home implements OnInit {
   protected readonly content = signal<HomeContent | null>(null);
   protected readonly loading = signal(true);
   protected readonly error = signal<ResolvedErrorMessage | null>(null);
-
-  protected readonly headerToLogo = headerToLogo;
 
   ngOnInit(): void {
     this.load();

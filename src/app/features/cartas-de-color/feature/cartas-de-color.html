@@ -1,24 +1,37 @@
 <main class="cartas">
-  <app-header />
+  @if (loading()) {
+    <div class="cartas__skeleton" aria-busy="true" aria-live="polite">
+      <p class="cartas__status">Cargando…</p>
+    </div>
+  } @else if (error(); as err) {
+    <div class="cartas__error-wrap" role="alert">
+      <div class="cartas__error">
+        <p>{{ err.text }}</p>
+        <button type="button" class="cartas__retry" (click)="load()">Reintentar</button>
+      </div>
+    </div>
+  } @else {
+    <div
+      class="cartas__hero"
+      role="img"
+      aria-label="Cartas de Color"
+    ></div>
 
-  <div
-    class="cartas__hero"
-    role="img"
-    aria-label="Cartas de Color"
-  ></div>
+    <app-container>
+      <h5 class="cartas__heading">
+        {{ heading.prefix }}<strong>{{ heading.strong }}</strong>
+      </h5>
 
-  <app-container>
-    <h5 class="cartas__heading">
-      {{ heading.prefix }}<strong>{{ heading.strong }}</strong>
-    </h5>
-
-    @for (carta of cartas; track carta.pdfHref; let last = $last) {
-      <app-color-card [card]="carta" />
-      @if (!last) {
-        <div class="cartas__divider" aria-hidden="true"></div>
+      @if (cartas().length === 0) {
+        <p class="cartas__status">Todavía no hay cartas de color publicadas.</p>
+      } @else {
+        @for (carta of cartas(); track carta.id; let last = $last) {
+          <app-color-card [card]="carta" />
+          @if (!last) {
+            <div class="cartas__divider" aria-hidden="true"></div>
+          }
+        }
       }
-    }
-  </app-container>
-
-  <app-footer />
+    </app-container>
+  }
 </main>

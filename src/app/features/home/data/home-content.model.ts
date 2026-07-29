@@ -77,6 +77,7 @@ export interface HomeResolvedCategory {
   slug: string;
   displayOrder: number;
   description: string | null;
+  description2: string | null;
   imageUrl: string | null;
   catalogs: HomeCategoryCatalog[];
 }
@@ -165,6 +166,7 @@ export interface HomeCategoryItemWrite {
   categoryId: number;
   displayOrder: number;
   description?: string;
+  description2?: string;
   imageUrl?: string;
 }
 
@@ -184,11 +186,9 @@ export type HomeSection =
 
 /** Páginas fijas del sitio (menú del header). */
 export const HOME_PAGE_OPTIONS: Array<{ value: string; label: string; href: string }> = [
-  { value: 'empresa', label: 'Empresa', href: '/empresa' },
   { value: 'contacto', label: 'Contacto', href: '/contacto' },
   { value: 'cartas-de-color', label: 'Cartas de color', href: '/cartas-de-color' },
   { value: 'fichas-tecnicas', label: 'Fichas técnicas', href: '/fichas-tecnicas' },
-  { value: 'catalogos', label: 'Catálogos', href: '/catalogos' },
 ];
 
 /** Arma el href público a partir de un destino tipado. */
@@ -198,9 +198,9 @@ export function destinationHref(dest?: HomeDestination | null): string | null {
   }
   switch (dest.type) {
     case 'category':
-      return `/catalogos?categoria=${encodeURIComponent(dest.slug)}`;
+      return `/categoria/${encodeURIComponent(dest.slug)}`;
     case 'catalog':
-      return `/catalogos?catalogo=${encodeURIComponent(dest.slug)}`;
+      return `/catalogo/${encodeURIComponent(dest.slug)}`;
     case 'product':
       return `/producto/${encodeURIComponent(dest.slug)}`;
     default:
@@ -217,10 +217,10 @@ export function navDestinationHref(dest?: HomeNavDestination | null): string {
   }
   if (!dest.slug) return '#';
   if (dest.type === 'category') {
-    return `/catalogos?categoria=${encodeURIComponent(dest.slug)}`;
+    return `/categoria/${encodeURIComponent(dest.slug)}`;
   }
   if (dest.type === 'catalog') {
-    return `/catalogos?catalogo=${encodeURIComponent(dest.slug)}`;
+    return `/catalogo/${encodeURIComponent(dest.slug)}`;
   }
   return '#';
 }

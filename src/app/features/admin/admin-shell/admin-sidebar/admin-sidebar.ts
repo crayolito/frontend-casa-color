@@ -40,10 +40,23 @@ export class AdminSidebar {
       ],
     },
     {
+      label: 'Documentación',
+      items: [
+        { label: 'Cartas de color', path: '/admin/color-cards', icon: 'image' },
+        { label: 'Fichas técnicas', path: '/admin/fichas-tecnicas', icon: 'list' },
+      ],
+    },
+    {
       label: 'Configuración',
       items: [
         { label: 'Inicio', path: '/admin/home', icon: 'home' },
-        { label: 'Datos del sitio', path: '/admin/settings', icon: 'settings' },
+        { label: 'Sucursales', path: '/admin/branches', icon: 'home' },
+        { label: 'Contacto (página)', path: '/admin/contacto', icon: 'settings' },
+        {
+          label: 'Páginas legales',
+          path: '/admin/paginas-legales',
+          icon: 'list',
+        },
       ],
     },
   ];

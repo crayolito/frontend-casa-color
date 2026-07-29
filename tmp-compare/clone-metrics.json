@@ -1,0 +1,63 @@
+{
+  "h4": {
+    "fontSize": "35px",
+    "fontWeight": "300",
+    "lineHeight": "40px",
+    "letterSpacing": "normal",
+    "color": "rgb(68, 68, 68)",
+    "width": "348.125px",
+    "paddingLeft": "0px",
+    "paddingRight": "0px"
+  },
+  "h6": {
+    "fontSize": "18px",
+    "fontWeight": "300",
+    "lineHeight": "24px",
+    "letterSpacing": "0.2px",
+    "color": "rgb(68, 68, 68)",
+    "width": "348.125px",
+    "paddingLeft": "0px",
+    "paddingRight": "0px"
+  },
+  "col": {
+    "fontSize": "16px",
+    "fontWeight": "300",
+    "lineHeight": "25px",
+    "letterSpacing": "normal",
+    "color": "rgb(103, 103, 103)",
+    "width": "423.281px",
+    "paddingLeft": "12.6875px",
+    "paddingRight": "12.6875px"
+  },
+  "footerOuter": {
+    "fontSize": "16px",
+    "fontWeight": "300",
+    "lineHeight": "25px",
+    "letterSpacing": "normal",
+    "color": "rgb(255, 255, 255)",
+    "width": "1440px",
+    "paddingLeft": "0px",
+    "paddingRight": "0px"
+  },
+  "textwidget": {
+    "fontSize": "16px",
+    "fontWeight": "300",
+    "lineHeight": "25px",
+    "letterSpacing": "normal",
+    "color": "rgb(255, 255, 255)",
+    "width": "292.562px",
+    "paddingLeft": "0px",
+    "paddingRight": "0px"
+  },
+  "copyright": {
+    "fontSize": "12px",
+    "fontWeight": "300",
+    "lineHeight": "22px",
+    "letterSpacing": "normal",
+    "color": "rgb(160, 160, 160)",
+    "width": "504.219px",
+    "paddingLeft": "0px",
+    "paddingRight": "0px"
+  },
+  "h4Text": "Decoración"
+}

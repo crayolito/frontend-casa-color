@@ -1,56 +1,58 @@
-<app-admin-page-header
-  title="Configuración"
-  subtitle="Datos de la empresa, contacto y ubicaciones"
-/>
-
-@if (flash(); as msg) {
-  <p class="admin-flash" role="status">{{ msg }}</p>
-}
-@if (error(); as err) {
-  <app-admin-error-state
-    [message]="err.text"
-    [correlationId]="err.correlationId ?? null"
-    [showCorrelationId]="err.showCorrelationId"
-    [showRetry]="err.code !== 'VALIDATION_ERROR'"
-    (retry)="onRetryLoad()"
+<div class="admin-content-narrow">
+  <app-admin-page-header
+    title="Configuración"
+    subtitle="Datos de la empresa, contacto y ubicaciones"
   />
-}
 
-<div class="settings">
-  <app-admin-tabs
-    [tabs]="tabs"
-    [active]="selectedKey()"
-    (activeChange)="selectKey($event)"
-  >
-    <form class="settings__form" [formGroup]="form" (ngSubmit)="save()">
-      <label class="settings__field">
-        <span class="settings__label">Sección</span>
-        <input class="settings__input" formControlName="key" readonly />
-      </label>
+  @if (flash(); as msg) {
+    <p class="admin-flash" role="status">{{ msg }}</p>
+  }
+  @if (error(); as err) {
+    <app-admin-error-state
+      [message]="err.text"
+      [correlationId]="err.correlationId ?? null"
+      [showCorrelationId]="err.showCorrelationId"
+      [showRetry]="err.code !== 'VALIDATION_ERROR'"
+      (retry)="onRetryLoad()"
+    />
+  }
 
-      <label class="settings__field">
-        <span class="settings__label">Contenido</span>
-        <textarea class="settings__textarea" formControlName="valueJson" rows="14"></textarea>
-      </label>
+  <div class="settings">
+    <app-admin-tabs
+      [tabs]="tabs"
+      [active]="selectedKey()"
+      (activeChange)="selectKey($event)"
+    >
+      <form class="settings__form" [formGroup]="form" (ngSubmit)="save()">
+        <label class="settings__field">
+          <span class="settings__label">Sección</span>
+          <input class="settings__input" formControlName="key" readonly />
+        </label>
 
-      @if (updatedAt(); as at) {
-        <p class="settings__meta">Actualizado: {{ at }}</p>
-      }
+        <label class="settings__field">
+          <span class="settings__label">Contenido</span>
+          <textarea class="settings__textarea" formControlName="valueJson" rows="14"></textarea>
+        </label>
 
-      @if (loading()) {
-        <p class="settings__meta">Cargando…</p>
-      }
+        @if (updatedAt(); as at) {
+          <p class="settings__meta">Actualizado: {{ at }}</p>
+        }
 
-      <div class="settings__actions">
-        <app-admin-button type="button" variant="danger" (clicked)="askDelete()">
-          Eliminar
-        </app-admin-button>
-        <app-admin-button type="submit" variant="primary" [loading]="saving()">
-          Guardar
-        </app-admin-button>
-      </div>
-    </form>
-  </app-admin-tabs>
+        @if (loading()) {
+          <p class="settings__meta">Cargando…</p>
+        }
+
+        <div class="settings__actions">
+          <app-admin-button type="button" variant="danger" (clicked)="askDelete()">
+            Eliminar
+          </app-admin-button>
+          <app-admin-button type="submit" variant="primary" [loading]="saving()">
+            Guardar
+          </app-admin-button>
+        </div>
+      </form>
+    </app-admin-tabs>
+  </div>
 </div>
 
 <app-admin-confirm-dialog

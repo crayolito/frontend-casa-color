@@ -1,0 +1,54 @@
+<main class="categoria">
+  @if (loading()) {
+    <div class="categoria__skeleton" aria-busy="true" aria-live="polite">
+      <p class="categoria__skeleton-text">Cargando…</p>
+    </div>
+  } @else if (error(); as err) {
+    <div class="categoria__error" role="alert">
+      <p>{{ err.text }}</p>
+      <button type="button" class="categoria__retry" (click)="load()">Reintentar</button>
+    </div>
+  } @else if (content(); as c) {
+    <div
+      class="categoria__hero"
+      [style]="heroStyle(c.imageUrl)"
+      role="img"
+      [attr.aria-label]="c.name"
+    ></div>
+
+    <app-container>
+      <h5 class="categoria__heading">{{ c.name }}</h5>
+
+      @if (c.description || c.description2) {
+        <div class="categoria__intro">
+          @if (c.description) {
+            <div [innerHTML]="c.description | safeHtml"></div>
+          }
+          @if (c.description2) {
+            <div [innerHTML]="c.description2 | safeHtml"></div>
+          }
+        </div>
+      }
+
+      @if (c.catalogs.length === 0) {
+        <p class="categoria__empty">Esta categoría todavía no tiene catálogos.</p>
+      } @else {
+        <div class="categoria__grid">
+          @for (cat of c.catalogs; track cat.id) {
+            <a class="categoria__card" [routerLink]="['/catalogo', cat.slug]">
+              <img
+                class="categoria__card-img"
+                [src]="catalogImage(cat.imageUrl)"
+                width="480"
+                height="320"
+                [alt]="cat.name"
+                loading="lazy"
+              />
+              <h6 class="categoria__card-title">{{ cat.name }}</h6>
+            </a>
+          }
+        </div>
+      }
+    </app-container>
+  }
+</main>

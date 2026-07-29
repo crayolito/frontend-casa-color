@@ -46,17 +46,16 @@
     @for (row of rows(); track row.id) {
       <article class="admin-entity-card">
         <div class="admin-entity-card__media">
-          @if (row.imageUrl) {
-            <img [src]="row.imageUrl" [alt]="row.name" width="320" height="200" />
-          } @else {
-            <div class="admin-entity-card__placeholder" aria-hidden="true">Sin imagen</div>
-          }
+          <img
+            [src]="row.imageUrl || '/img/img-auxiliar2.jpg'"
+            [alt]="row.name"
+            width="320"
+            height="200"
+            appImgFallback="category"
+          />
         </div>
         <div class="admin-entity-card__body">
           <h3 class="admin-entity-card__title">{{ row.name }}</h3>
-          @if (row.shortDescription) {
-            <p class="admin-entity-card__desc">{{ row.shortDescription }}</p>
-          }
           <p class="admin-entity-card__meta">
             {{ row.catalogsCount ?? 0 }} catálogo(s)
           </p>
@@ -111,23 +110,25 @@
       controlName="name"
       [error]="form.controls.name.touched && form.controls.name.invalid ? 'Requerido' : null"
     />
-    <app-admin-form-field
-      label="Descripción corta"
-      controlName="shortDescription"
-      [error]="form.controls.shortDescription.invalid ? 'Máx. 150 caracteres' : null"
-    />
-    <p class="admin-form__hint">Resumen breve para listados (máx. 150 caracteres).</p>
 
     <app-admin-html-editor
-      label="Descripción"
+      label="Descripción 1"
       [html]="form.controls.description.value"
       (htmlChange)="onDescriptionChange($event)"
     />
-    <p class="admin-form__hint">Detalle completo, mismo editor que en productos.</p>
+    <p class="admin-form__hint">Descripción principal (HTML enriquecido).</p>
+
+    <app-admin-html-editor
+      label="Descripción 2"
+      [html]="form.controls.description2.value"
+      (htmlChange)="onDescription2Change($event)"
+    />
+    <p class="admin-form__hint">Descripción secundaria (HTML enriquecido).</p>
 
     <app-image-uploader
       label="Imagen"
       folder="categories"
+      fallbackKind="category"
       [url]="form.controls.imageUrl.value || null"
       (urlChange)="onImageChange($event)"
     />

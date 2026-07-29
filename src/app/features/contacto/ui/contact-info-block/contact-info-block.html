@@ -8,17 +8,18 @@
           />
         </svg>
       }
-      @case ('comment') {
+      @case ('phone') {
+        <!-- Teléfono / WhatsApp -->
         <svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor">
           <path
-            d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1z"
+            d="M6.62 10.79a15.15 15.15 0 0 0 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.4 21 3 13.6 3 4c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"
           />
         </svg>
       }
-      @case ('at') {
+      @case ('envelope') {
         <svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor">
           <path
-            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm1.5-4.5h-1.75c-.41 0-.75-.34-.75-.75V9.75c0-.41.34-.75.75-.75H13.5c1.24 0 2.25 1.01 2.25 2.25S14.74 13.5 13.5 13.5zm0-3.75h-1v2.25h1c.41 0 .75-.34.75-.75s-.34-.75-.75-.75z"
+            d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"
           />
         </svg>
       }
@@ -26,10 +27,18 @@
   </div>
   <div class="info-block__text">
     @for (line of block().lines; track $index) {
-      @if (block().strongLineIndex === $index) {
-        <strong>{{ line }}</strong>
+      @if (line.href) {
+        <a
+          class="info-block__link"
+          [class.info-block__link--strong]="line.strong"
+          [href]="line.href"
+          [attr.target]="line.href.startsWith('http') ? '_blank' : null"
+          [attr.rel]="line.href.startsWith('http') ? 'noopener noreferrer' : null"
+        >{{ line.text }}</a>
+      } @else if (line.strong) {
+        <strong>{{ line.text }}</strong>
       } @else {
-        <span>{{ line }}</span>
+        <span>{{ line.text }}</span>
       }
       @if (!$last) {
         <br />

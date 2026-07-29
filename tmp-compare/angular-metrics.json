@@ -1,0 +1,90 @@
+{
+  "title": {
+    "fontSize": "35px",
+    "fontWeight": "300",
+    "lineHeight": "40px",
+    "letterSpacing": "normal",
+    "color": "rgb(255, 0, 0)",
+    "maxWidth": "none",
+    "width": "304.219px",
+    "paddingBottom": "0px",
+    "paddingLeft": "0px",
+    "paddingRight": "0px"
+  },
+  "desc": {
+    "fontSize": "18px",
+    "fontWeight": "300",
+    "lineHeight": "24px",
+    "letterSpacing": "0.2px",
+    "color": "rgb(103, 103, 103)",
+    "maxWidth": "none",
+    "width": "365.203px",
+    "paddingBottom": "0px",
+    "paddingLeft": "0px",
+    "paddingRight": "0px"
+  },
+  "groups": {
+    "fontSize": "16px",
+    "fontWeight": "300",
+    "lineHeight": "25px",
+    "letterSpacing": "normal",
+    "color": "rgb(103, 103, 103)",
+    "maxWidth": "none",
+    "width": "365.203px",
+    "paddingBottom": "0px",
+    "paddingLeft": "0px",
+    "paddingRight": "0px"
+  },
+  "categories": {
+    "fontSize": "16px",
+    "fontWeight": "300",
+    "lineHeight": "25px",
+    "letterSpacing": "normal",
+    "color": "rgb(103, 103, 103)",
+    "maxWidth": "none",
+    "width": "1440px",
+    "paddingBottom": "50px",
+    "paddingLeft": "0px",
+    "paddingRight": "0px"
+  },
+  "column": {
+    "fontSize": "16px",
+    "fontWeight": "300",
+    "lineHeight": "25px",
+    "letterSpacing": "normal",
+    "color": "rgb(103, 103, 103)",
+    "maxWidth": "33.333%",
+    "width": "414.984px",
+    "paddingBottom": "0px",
+    "paddingLeft": "24.9px",
+    "paddingRight": "24.9px"
+  },
+  "footerCol": {
+    "fontSize": "16px",
+    "fontWeight": "300",
+    "lineHeight": "25px",
+    "letterSpacing": "normal",
+    "color": "rgb(255, 255, 255)",
+    "maxWidth": "none",
+    "width": "317.469px",
+    "paddingBottom": "0px",
+    "paddingLeft": "0px",
+    "paddingRight": "24.8906px"
+  },
+  "footerWidgets": {
+    "fontSize": "16px",
+    "fontWeight": "300",
+    "lineHeight": "25px",
+    "letterSpacing": "normal",
+    "color": "rgb(255, 255, 255)",
+    "maxWidth": "none",
+    "width": "1440px",
+    "paddingBottom": "55px",
+    "paddingLeft": "0px",
+    "paddingRight": "0px"
+  },
+  "titleText": "Pinturas de Interior",
+  "cols": 3,
+  "containerMax": "1425px",
+  "h4var": "2.1875rem"
+}

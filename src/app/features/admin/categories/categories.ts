@@ -36,6 +36,7 @@ import { AdminIcon } from '../../../shared/admin-ui/icons/admin-icon';
 import { ImageUploader } from '../../../shared/admin-ui/image-uploader/image-uploader';
 import { AdminErrorState } from '../../../shared/admin-ui/admin-error-state/admin-error-state';
 import { AdminHtmlEditor } from '../../../shared/admin-ui/admin-html-editor/admin-html-editor';
+import { ImgFallback } from '../../../shared/util/img-fallback/img-fallback';
 
 @Component({
   selector: 'app-admin-categories',
@@ -53,6 +54,7 @@ import { AdminHtmlEditor } from '../../../shared/admin-ui/admin-html-editor/admi
     ImageUploader,
     AdminErrorState,
     AdminHtmlEditor,
+    ImgFallback,
   ],
   templateUrl: './categories.html',
   styleUrl: './categories.css',
@@ -87,8 +89,8 @@ export class AdminCategories {
 
   readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(150)]],
-    shortDescription: ['', [Validators.maxLength(150)]],
     description: [''],
+    description2: [''],
     imageUrl: [''],
   });
 
@@ -159,8 +161,8 @@ export class AdminCategories {
     this.editing.set(null);
     this.form.reset({
       name: '',
-      shortDescription: '',
       description: '',
+      description2: '',
       imageUrl: '',
     });
     this.modalOpen.set(true);
@@ -170,8 +172,8 @@ export class AdminCategories {
     this.editing.set(row);
     this.form.reset({
       name: row.name,
-      shortDescription: row.shortDescription ?? '',
       description: row.description ?? '',
+      description2: row.description2 ?? '',
       imageUrl: row.imageUrl ?? '',
     });
     this.modalOpen.set(true);
@@ -190,6 +192,11 @@ export class AdminCategories {
     this.form.controls.description.markAsDirty();
   }
 
+  onDescription2Change(html: string): void {
+    this.form.controls.description2.setValue(html);
+    this.form.controls.description2.markAsDirty();
+  }
+
   save(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -198,8 +205,8 @@ export class AdminCategories {
     const raw = this.form.getRawValue();
     const body = {
       name: raw.name.trim(),
-      shortDescription: raw.shortDescription.trim() || undefined,
       description: raw.description.trim() || undefined,
+      description2: raw.description2.trim() || undefined,
       imageUrl: raw.imageUrl.trim() || undefined,
     };
     this.saving.set(true);

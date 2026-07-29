@@ -1,28 +1,16 @@
 import {
   Component,
   ChangeDetectionStrategy,
-  computed,
   HostListener,
   inject,
   output,
   signal,
+  computed,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router } from '@angular/router';
-import { filter, map, startWith } from 'rxjs';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { AdminButton } from '../../../../shared/admin-ui/admin-button/admin-button';
 import { AdminIcon } from '../../../../shared/admin-ui/icons/admin-icon';
-
-const SECTION_LABELS: { match: RegExp; label: string; crumb: string }[] = [
-  { match: /^\/admin\/products\/new/, label: 'Nuevo producto', crumb: 'Productos / Nuevo' },
-  { match: /^\/admin\/products\/\d+\/edit/, label: 'Editar producto', crumb: 'Productos / Editar' },
-  { match: /^\/admin\/products(\/|$)/, label: 'Productos', crumb: 'Productos' },
-  { match: /^\/admin\/categories(\/|$)/, label: 'Categorías', crumb: 'Categorías' },
-  { match: /^\/admin\/catalogs(\/|$)/, label: 'Catálogos', crumb: 'Catálogos' },
-  { match: /^\/admin\/home(\/|$)/, label: 'Inicio', crumb: 'Inicio' },
-  { match: /^\/admin\/settings(\/|$)/, label: 'Datos del sitio', crumb: 'Datos del sitio' },
-];
 
 const COMMANDS = [
   { label: 'Productos', path: '/admin/products', hint: 'Listado' },
@@ -49,39 +37,6 @@ export class AdminTopbar {
 
   readonly searchOpen = signal(false);
   readonly searchQuery = signal('');
-
-  readonly email = this.auth.email;
-  readonly initials = computed(() => {
-    const value = this.email();
-    if (!value) {
-      return 'CC';
-    }
-    const local = value.split('@')[0] ?? value;
-    const parts = local.split(/[._-]/).filter(Boolean);
-    if (parts.length >= 2) {
-      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-    }
-    return local.slice(0, 2).toUpperCase();
-  });
-
-  private readonly url = toSignal(
-    this.router.events.pipe(
-      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-      map((event) => event.urlAfterRedirects),
-      startWith(this.router.url),
-    ),
-    { initialValue: this.router.url },
-  );
-
-  readonly section = computed(() => {
-    const path = this.url().split('?')[0] ?? '';
-    return (
-      SECTION_LABELS.find((entry) => entry.match.test(path)) ?? {
-        label: 'Panel',
-        crumb: 'Panel',
-      }
-    );
-  });
 
   readonly filteredCommands = computed(() => {
     const q = this.searchQuery().trim().toLowerCase();

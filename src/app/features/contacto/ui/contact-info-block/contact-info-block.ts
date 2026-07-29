@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { ContactInfoBlock } from '../../util/contacto-data';
+import { ContactInfoBlock } from '../../data/contacto.models';
 
 /** Bloque icono + texto — clon index.html:281-303 (.iwithtext). */
 @Component({

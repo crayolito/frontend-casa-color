@@ -36,7 +36,7 @@
 
 .admin-shell__content {
   width: 100%;
-  max-width: 80rem;
+  max-width: 75rem;
   margin-inline: auto;
   padding: 1.15rem 1.15rem 2rem;
   box-sizing: border-box;
@@ -45,6 +45,20 @@
 @media (min-width: 1000px) {
   .admin-shell__content {
     padding: 1.5rem 2rem 2.5rem;
+  }
+}
+
+@media (min-width: 1440px) {
+  .admin-shell__content {
+    max-width: 80rem;
+    padding: 1.75rem 2.5rem 2.75rem;
+  }
+}
+
+@media (min-width: 1680px) {
+  .admin-shell__content {
+    max-width: 82.5rem;
+    padding: 2rem 3rem 3rem;
   }
 }
 

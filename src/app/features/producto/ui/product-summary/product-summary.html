@@ -1,7 +1,7 @@
 <div class="product-summary">
   <h1 class="product-summary__title">{{ title() }}</h1>
 
-  <!-- Clon visual: icono + Descripción juntos (iwithtext), no fila vacía -->
+  <!-- Clon: icono + Descripción (iwithtext) dentro de short-description -->
   <div class="product-summary__iwt">
     <div class="product-summary__iwt-icon">
       <img [src]="description().icon" alt="" width="100" height="100" />
@@ -13,4 +13,31 @@
       <div class="product-summary__body" [innerHTML]="description().bodyHtml | safeHtml"></div>
     </div>
   </div>
+
+  <!-- Clon: Presentación | Acabados+Color viven DENTRO del summary (mitad derecha) -->
+  <div class="product-summary__info">
+    <app-product-info-row
+      [presentacion]="presentacion()"
+      [acabados]="acabados()"
+      [color]="color()"
+    />
+  </div>
+
+  @if (categories().length) {
+    <div class="product-summary__meta">
+      <span class="product-summary__meta-cats">
+        Categorías:
+        @for (cat of categories(); track cat.label; let last = $last) {
+          @if (cat.href && cat.href !== '#') {
+            <a [routerLink]="cat.href" rel="tag">{{ cat.label }}</a>
+          } @else {
+            <span>{{ cat.label }}</span>
+          }
+          @if (!last) {
+            <span>, </span>
+          }
+        }
+      </span>
+    </div>
+  }
 </div>

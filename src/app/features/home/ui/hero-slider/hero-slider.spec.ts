@@ -15,7 +15,7 @@ describe('HeroSlider', () => {
         imageUrl: '/a.jpg',
         title: 'Línea Deco',
         buttonText: 'Ver gama',
-        buttonLink: '/catalogos',
+        buttonLink: '/cartas-de-color',
       },
     ],
   };
@@ -40,9 +40,38 @@ describe('HeroSlider', () => {
     expect(el.querySelector('.hero__down-arrow')).not.toBeNull();
   });
 
+  it('hides dots by default (Salient data-bullets=false)', () => {
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.hero__dots')).toBeNull();
+  });
+
+  it('shows dots when showDots is true', () => {
+    fixture.componentRef.setInput('showDots', true);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.hero__dots')).not.toBeNull();
+  });
+
+  it('hides arrows by default (Salient data-arrows=false)', () => {
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.hero__nav')).toBeNull();
+  });
+
+  it('shows arrows when showArrows is true', () => {
+    fixture.componentRef.setInput('showArrows', true);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelectorAll('.hero__nav').length).toBe(2);
+  });
+
+  it('renders a separate bg layer for parallax', () => {
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.hero__bg')).not.toBeNull();
+  });
+
   it('should resolve CTA href from buttonLink', () => {
     const href = fixture.componentInstance['slideHref'](banner.slides[0]);
-    expect(href).toBe('/catalogos');
+    expect(href).toBe('/cartas-de-color');
   });
 
   it('keeps white title even with light scheme', () => {

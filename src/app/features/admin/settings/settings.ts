@@ -19,7 +19,7 @@ import { AdminConfirmDialog } from '../../../shared/admin-ui/admin-confirm-dialo
 import { AdminTabs, AdminTab } from '../../../shared/admin-ui/admin-tabs/admin-tabs';
 import { AdminErrorState } from '../../../shared/admin-ui/admin-error-state/admin-error-state';
 
-const KNOWN_KEYS = ['empresa', 'contacto', 'ubicaciones'] as const;
+const KNOWN_KEYS = ['empresa', 'ubicaciones'] as const;
 
 @Component({
   selector: 'app-admin-settings',

@@ -1,51 +1,122 @@
-import { Component } from '@angular/core';
-import { Header } from '../../../core/ui/header/header';
-import { Footer } from '../../../core/ui/footer/footer';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { catchError, of, switchMap, tap } from 'rxjs';
+import { ProductsPublicApi } from '../../../core/http/products-public.api';
+import {
+  ResolvedErrorMessage,
+  localErrorMessage,
+  resolveErrorMessage,
+} from '../../../shared/errors/resolve-error-message';
 import { Container } from '../../../shared/ui/container/container';
 import { ProductCard } from '../../../shared/ui/product-card/product-card';
 import { ProductGallery } from '../ui/product-gallery/product-gallery';
 import { ProductSummary } from '../ui/product-summary/product-summary';
-import { ProductInfoRow } from '../ui/product-info-row/product-info-row';
 import { ProductDescriptionTab } from '../ui/product-description-tab/product-description-tab';
 import {
-  BREADCRUMB,
-  FICHA_TECNICA_HREF,
-  GALLERY_IMAGES,
-  PRODUCT_CATEGORIES,
-  PRODUCT_TITLE,
-  RELATED_PRODUCTS,
-  SUMMARY_ACABADOS,
-  SUMMARY_COLOR,
-  SUMMARY_DESCRIPTION,
-  SUMMARY_PRESENTACION,
-  TAB_BLOCKS,
-} from '../util/producto-data';
+  mapPublicProductToView,
+  mapRelatedProducts,
+} from '../util/map-public-product';
+import { ProductoView } from '../util/producto-view.model';
+
+const RELATED_LIMIT = 4;
 
 @Component({
   selector: 'app-producto',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    Header,
-    Footer,
     Container,
     ProductCard,
     ProductGallery,
     ProductSummary,
-    ProductInfoRow,
     ProductDescriptionTab,
+    RouterLink,
   ],
   templateUrl: './producto.html',
   styleUrl: './producto.css',
 })
-export class Producto {
-  protected readonly breadcrumb = BREADCRUMB;
-  protected readonly gallery = GALLERY_IMAGES;
-  protected readonly title = PRODUCT_TITLE;
-  protected readonly description = SUMMARY_DESCRIPTION;
-  protected readonly presentacion = SUMMARY_PRESENTACION;
-  protected readonly acabados = SUMMARY_ACABADOS;
-  protected readonly color = SUMMARY_COLOR;
-  protected readonly categories = PRODUCT_CATEGORIES;
-  protected readonly tabBlocks = TAB_BLOCKS;
-  protected readonly fichaHref = FICHA_TECNICA_HREF;
-  protected readonly related = RELATED_PRODUCTS;
+export class Producto implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly productsApi = inject(ProductsPublicApi);
+  private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly view = signal<ProductoView | null>(null);
+  protected readonly loading = signal(true);
+  protected readonly error = signal<ResolvedErrorMessage | null>(null);
+
+  ngOnInit(): void {
+    this.route.paramMap
+      .pipe(
+        tap(() => {
+          this.loading.set(true);
+          this.error.set(null);
+          this.view.set(null);
+        }),
+        switchMap((params) => {
+          const slug = params.get('slug');
+          if (!slug) {
+            this.error.set(localErrorMessage('Producto no encontrado'));
+            return of(null);
+          }
+          return this.loadProduct(slug);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (view) => {
+          this.loading.set(false);
+          if (view) this.view.set(view);
+        },
+      });
+  }
+
+  protected retry(): void {
+    const slug = this.route.snapshot.paramMap.get('slug');
+    if (!slug) return;
+    this.loading.set(true);
+    this.error.set(null);
+    this.loadProduct(slug)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (view) => {
+          this.loading.set(false);
+          if (view) this.view.set(view);
+        },
+      });
+  }
+
+  private loadProduct(slug: string) {
+    return this.productsApi.getBySlug(slug).pipe(
+      switchMap((product) =>
+        this.productsApi
+          .list({
+            catalogId: product.catalogId,
+            page: 1,
+            limit: RELATED_LIMIT + 1,
+          })
+          .pipe(
+            catchError(() => of({ data: [], meta: { page: 1, limit: 0, total: 0, totalPages: 0 } })),
+            switchMap((relatedRes) =>
+              of(
+                mapPublicProductToView(
+                  product,
+                  mapRelatedProducts(relatedRes.data, product.slug, RELATED_LIMIT),
+                ),
+              ),
+            ),
+          ),
+      ),
+      catchError((err: unknown) => {
+        this.error.set(resolveErrorMessage(err));
+        return of(null);
+      }),
+    );
+  }
 }

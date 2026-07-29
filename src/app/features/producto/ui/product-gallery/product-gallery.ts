@@ -3,17 +3,20 @@ import {
   Component,
   ElementRef,
   HostListener,
+  NgZone,
   inject,
   input,
   OnDestroy,
   signal,
   viewChild,
 } from '@angular/core';
-import { GalleryImage } from '../../util/producto-data';
+import { GalleryImage } from '../../util/producto-view.model';
 
 /**
  * Galería single-product: thumbs + easyzoom (hover, fondo #fff) + lightbox (lupa).
- * Cascada clon: element easyzoom en nectar-single-product.js + woocommerce.css.
+ * Cascada clon: nectar-single-product.js easyzoom + product-single.css.
+ *
+ * Zoom: top/left por DOM directo fuera de NgZone (como jQuery .css) para fluidez.
  */
 @Component({
   selector: 'app-product-gallery',
@@ -22,36 +25,45 @@ import { GalleryImage } from '../../util/producto-data';
 })
 export class ProductGallery implements OnDestroy {
   private readonly document = inject(DOCUMENT);
+  private readonly zone = inject(NgZone);
 
   readonly images = input.required<GalleryImage[]>();
   protected readonly activeIndex = signal(0);
   protected readonly lightboxOpen = signal(false);
 
-  /** easyzoom flyout visible */
   protected readonly zoomOpen = signal(false);
   protected readonly zoomReady = signal(false);
-  protected readonly zoomStyle = signal<Record<string, string>>({
-    top: '0px',
-    left: '0px',
-  });
 
   private readonly zoomTarget =
     viewChild<ElementRef<HTMLElement>>('zoomTarget');
+  private readonly zoomImgRef =
+    viewChild<ElementRef<HTMLImageElement>>('zoomImg');
 
   private zoomNaturalW = 0;
   private zoomNaturalH = 0;
+  private ratioX = 0;
+  private ratioY = 0;
+  private excessW = 0;
+  private excessH = 0;
   private loadedLargeSrc: string | null = null;
+  private rafId = 0;
+  private pendingMove: MouseEvent | null = null;
+  private isZoomMeasured = false;
 
   protected select(index: number): void {
     this.hideZoom();
     this.activeIndex.set(index);
+    this.loadedLargeSrc = null;
+    this.zoomNaturalW = 0;
+    this.zoomNaturalH = 0;
+    this.isZoomMeasured = false;
+    this.zoomReady.set(false);
   }
 
   protected activeImage(): GalleryImage {
     return this.images()[this.activeIndex()];
   }
 
-  /** Desktop only — nectar: !body.mobile */
   private canHoverZoom(): boolean {
     return (this.document.defaultView?.innerWidth ?? 0) > 999;
   }
@@ -63,7 +75,18 @@ export class ProductGallery implements OnDestroy {
 
   protected onZoomMove(event: MouseEvent): void {
     if (!this.zoomOpen() || !this.canHoverZoom()) return;
-    this.moveZoom(event);
+    this.pendingMove = event;
+    if (this.rafId) return;
+    const win = this.document.defaultView;
+    if (!win) return;
+    this.zone.runOutsideAngular(() => {
+      this.rafId = win.requestAnimationFrame(() => {
+        this.rafId = 0;
+        const e = this.pendingMove;
+        this.pendingMove = null;
+        if (e && this.zoomOpen()) this.applyZoomMove(e);
+      });
+    });
   }
 
   protected onZoomLeave(): void {
@@ -75,8 +98,10 @@ export class ProductGallery implements OnDestroy {
     this.zoomOpen.set(true);
     this.ensureLargeLoaded(img.largeSrc, () => {
       if (!this.zoomOpen()) return;
-      this.zoomReady.set(true);
-      this.moveZoom(event);
+      this.measureZoom();
+      this.isZoomMeasured = true;
+      this.zone.run(() => this.zoomReady.set(true));
+      this.applyZoomMove(event);
     });
   }
 
@@ -94,43 +119,76 @@ export class ProductGallery implements OnDestroy {
       done();
     };
     el.onerror = () => {
-      this.hideZoom();
+      this.zone.run(() => this.hideZoom());
     };
     el.src = src;
   }
 
-  private moveZoom(event: MouseEvent): void {
+  /**
+   * easyzoom show(): ratios = (zoomSize - flyoutSize) / targetSize.
+   * Si la imagen no es mucho más grande que el display, escala a 2× (lupa usable).
+   */
+  private measureZoom(): void {
     const target = this.zoomTarget()?.nativeElement;
-    if (!target || !this.zoomNaturalW) return;
+    const zoomImg = this.zoomImgRef()?.nativeElement;
+    if (!target || !zoomImg || !this.zoomNaturalW) return;
 
-    const rect = target.getBoundingClientRect();
-    const tw = rect.width;
-    const th = rect.height;
+    const tw = target.clientWidth;
+    const th = target.clientHeight;
     if (tw <= 0 || th <= 0) return;
 
-    // easyzoom: flyout = same size as target; zoom img at natural size
-    const ratioX = (this.zoomNaturalW - tw) / tw;
-    const ratioY = (this.zoomNaturalH - th) / th;
+    let zw = this.zoomNaturalW;
+    let zh = this.zoomNaturalH;
+    const minScale = 2;
+    if (zw < tw * minScale || zh < th * minScale) {
+      const sx = (tw * minScale) / zw;
+      const sy = (th * minScale) / zh;
+      const s = Math.max(sx, sy);
+      zw = Math.round(zw * s);
+      zh = Math.round(zh * s);
+    }
 
-    let mx = event.clientX - rect.left;
-    let my = event.clientY - rect.top;
-    mx = Math.max(0, Math.min(mx, tw));
-    my = Math.max(0, Math.min(my, th));
+    this.excessW = Math.max(0, zw - tw);
+    this.excessH = Math.max(0, zh - th);
+    this.ratioX = tw > 0 ? this.excessW / tw : 0;
+    this.ratioY = th > 0 ? this.excessH / th : 0;
 
-    const left = Math.ceil(mx * ratioX);
-    const top = Math.ceil(my * ratioY);
+    zoomImg.style.width = `${zw}px`;
+    zoomImg.style.height = `${zh}px`;
+    zoomImg.style.maxWidth = 'none';
+    zoomImg.style.maxHeight = 'none';
+  }
 
-    this.zoomStyle.set({
-      top: `${-top}px`,
-      left: `${-left}px`,
-      width: `${this.zoomNaturalW}px`,
-      height: `${this.zoomNaturalH}px`,
-    });
+  private applyZoomMove(event: MouseEvent): void {
+    const target = this.zoomTarget()?.nativeElement;
+    const zoomImg = this.zoomImgRef()?.nativeElement;
+    if (!target || !zoomImg || !this.isZoomMeasured) return;
+
+    const rect = target.getBoundingClientRect();
+    const mx = event.clientX - rect.left;
+    const my = event.clientY - rect.top;
+
+    if (mx < 0 || my < 0 || mx > rect.width || my > rect.height) {
+      this.zone.run(() => this.hideZoom());
+      return;
+    }
+
+    const left = Math.ceil(mx * this.ratioX);
+    const top = Math.ceil(my * this.ratioY);
+
+    zoomImg.style.top = `${-top}px`;
+    zoomImg.style.left = `${-left}px`;
   }
 
   private hideZoom(): void {
     this.zoomOpen.set(false);
     this.zoomReady.set(false);
+    this.isZoomMeasured = false;
+    this.pendingMove = null;
+    if (this.rafId && this.document.defaultView) {
+      this.document.defaultView.cancelAnimationFrame(this.rafId);
+      this.rafId = 0;
+    }
   }
 
   protected openLightbox(index = this.activeIndex()): void {
@@ -177,6 +235,7 @@ export class ProductGallery implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.hideZoom();
     this.document.body.style.overflow = '';
   }
 }

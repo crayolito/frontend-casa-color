@@ -7,9 +7,13 @@ export type UploadFolder =
   | 'products'
   | 'categories'
   | 'catalogs'
+  | 'catalogs_pdfs'
   | 'finishes'
   | 'colors'
-  | 'home';
+  | 'home'
+  | 'color_cards'
+  | 'color_cards_pdfs'
+  | 'branches';
 
 export interface UploadResult {
   url: string;

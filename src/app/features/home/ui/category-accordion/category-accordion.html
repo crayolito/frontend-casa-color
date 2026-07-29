@@ -1,57 +1,84 @@
 <section class="categories" aria-label="Categorías">
+  <!-- Clon: full-width-section DENTRO de .container.main-content (columnas ~423px @1440) -->
   <app-container>
     <div class="categories__grid">
       @for (line of lines(); track line.categoryId; let col = $index) {
-        <div class="categories__column" appReveal>
+        <div class="categories__column">
           <div class="categories__spacer categories__spacer--top" aria-hidden="true"></div>
 
-          <h4 class="categories__title">{{ line.name }}</h4>
+          <h4 class="categories__title" appReveal [delayMs]="0">{{ line.name }}</h4>
 
-          <a
-            class="categories__arrow"
-            [routerLink]="categoryHref(line)"
-            [attr.aria-label]="'Ir a ' + line.name"
-          >
-            <img src="/img/decor/flecha-roja.png" alt="" width="70" height="70" />
-          </a>
-
-          <div class="categories__spacer" aria-hidden="true"></div>
-
-          <a class="categories__logo-link" [routerLink]="categoryHref(line)">
-            <img
-              class="categories__logo"
-              [src]="logoSrc(line)"
-              [alt]="'Logo ' + line.name"
-              width="354"
-              height="354"
-            />
-          </a>
-
-          <div class="categories__spacer" aria-hidden="true"></div>
-
-          @if (plainDescription(line); as desc) {
-            <h6 class="categories__desc">{{ desc }}</h6>
+          @if (categoryHref(line); as href) {
+            <a
+              class="categories__arrow"
+              appReveal
+              [delayMs]="100"
+              [routerLink]="href"
+              [attr.aria-label]="'Ir a ' + line.name"
+            >
+              <img src="/img/decor/flecha-roja.png" alt="" width="70" height="70" />
+            </a>
+          } @else {
+            <span class="categories__arrow" appReveal [delayMs]="100" aria-hidden="true">
+              <img src="/img/decor/flecha-roja.png" alt="" width="70" height="70" />
+            </span>
           }
 
           <div class="categories__spacer" aria-hidden="true"></div>
 
-          <a
-            class="categories__circle-link"
-            [routerLink]="categoryHref(line)"
-            [attr.aria-label]="'Ver ' + line.name"
-          >
-            <img
-              class="categories__circle-img"
-              src="/img/decor/flecha-roja-circulo.png"
-              alt=""
-              width="70"
-              height="70"
-            />
-          </a>
+          @if (categoryHref(line); as href) {
+            <a class="categories__logo-link" appReveal [delayMs]="200" [routerLink]="href">
+              <img
+                class="categories__logo"
+                [src]="logoSrc(line)"
+                [alt]="'Logo ' + line.name"
+                width="354"
+                height="354"
+                appImgFallback="category"
+              />
+            </a>
+          } @else {
+            <div class="categories__logo-link" appReveal [delayMs]="200">
+              <img
+                class="categories__logo"
+                [src]="logoSrc(line)"
+                [alt]="'Logo ' + line.name"
+                width="354"
+                height="354"
+                appImgFallback="category"
+              />
+            </div>
+          }
 
           <div class="categories__spacer" aria-hidden="true"></div>
 
-          <div class="categories__groups">
+          @if (plainDescription(line); as desc) {
+            <h6 class="categories__desc" appReveal [delayMs]="300">{{ desc }}</h6>
+          }
+
+          <div class="categories__spacer" aria-hidden="true"></div>
+
+          @if (categoryHref(line); as href) {
+            <a
+              class="categories__circle-link"
+              appReveal
+              [delayMs]="400"
+              [routerLink]="href"
+              [attr.aria-label]="'Ver ' + line.name"
+            >
+              <img
+                class="categories__circle-img"
+                src="/img/decor/flecha-roja-circulo.png"
+                alt=""
+                width="70"
+                height="70"
+              />
+            </a>
+          }
+
+          <div class="categories__spacer" aria-hidden="true"></div>
+
+          <div class="categories__groups" appReveal [delayMs]="500">
             @for (group of line.catalogs; track group.id; let i = $index) {
               <app-accordion
                 [title]="group.name"
@@ -66,7 +93,7 @@
                     </li>
                   } @empty {
                     <li>
-                      <a [routerLink]="catalogHref(group.slug)">Ver catálogo</a>
+                      <a [routerLink]="['/catalogo', group.slug]">Ver catálogo</a>
                     </li>
                   }
                 </ul>

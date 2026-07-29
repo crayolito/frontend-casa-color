@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { IconBlock } from '../../util/producto-data';
+import { IconBlock } from '../../util/producto-view.model';
 import { SafeHtmlPipe } from '../../../../shared/pipes/safe-html.pipe';
 
 @Component({

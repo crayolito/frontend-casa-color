@@ -6,6 +6,7 @@ import {
   computed,
 } from '@angular/core';
 import { AdminIcon } from '../icons/admin-icon';
+import { AppSelect, SelectOption } from '../../ui/select/select';
 
 export interface AdminMultiSelectOption {
   id: number;
@@ -15,7 +16,7 @@ export interface AdminMultiSelectOption {
 @Component({
   selector: 'app-admin-multi-select',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AdminIcon],
+  imports: [AdminIcon, AppSelect],
   template: `
     <div class="admin-ms">
       <label class="admin-ms__label">{{ label() }}</label>
@@ -36,17 +37,13 @@ export interface AdminMultiSelectOption {
           }
         </div>
       }
-      <select
-        class="admin-ms__select"
+      <app-select
+        [options]="availableOptions()"
         [value]="''"
-        (change)="onAdd($event)"
-        [attr.aria-label]="label()"
-      >
-        <option value="" disabled selected>{{ placeholder() }}</option>
-        @for (opt of available(); track opt.id) {
-          <option [value]="opt.id">{{ opt.label }}</option>
-        }
-      </select>
+        [placeholder]="placeholder()"
+        [ariaLabel]="label()"
+        (valueChange)="onAdd($event)"
+      />
       @if (hint(); as h) {
         <p class="admin-ms__hint">{{ h }}</p>
       }
@@ -109,24 +106,6 @@ export interface AdminMultiSelectOption {
       background: rgba(221, 51, 51, 0.08);
     }
 
-    .admin-ms__select {
-      width: 100%;
-      min-height: var(--admin-input-h, 38px);
-      padding: 0.4rem 0.75rem;
-      border: 1px solid var(--admin-border);
-      border-radius: var(--radius-md);
-      font-family: var(--font-body);
-      font-size: 0.9375rem;
-      color: #333;
-      background: var(--color-white);
-    }
-
-    .admin-ms__select:focus {
-      outline: none;
-      border-color: var(--color-accent);
-      box-shadow: 0 0 0 3px rgba(221, 51, 51, 0.12);
-    }
-
     .admin-ms__hint {
       margin: 0;
       font-size: 0.75rem;
@@ -149,18 +128,18 @@ export class AdminMultiSelect {
     return this.options().filter((o) => ids.has(o.id));
   });
 
-  readonly available = computed(() => {
+  readonly availableOptions = computed((): SelectOption[] => {
     const taken = new Set([...this.value(), ...this.excludeIds()]);
-    return this.options().filter((o) => !taken.has(o.id));
+    return this.options()
+      .filter((o) => !taken.has(o.id))
+      .map((o) => ({ value: o.id, label: o.label }));
   });
 
-  onAdd(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    const id = Number(select.value);
-    if (!id) return;
-    if (this.value().includes(id)) return;
+  onAdd(raw: string | number | null): void {
+    if (raw === null || raw === '') return;
+    const id = Number(raw);
+    if (!id || this.value().includes(id)) return;
     this.valueChange.emit([...this.value(), id]);
-    select.value = '';
   }
 
   remove(id: number): void {

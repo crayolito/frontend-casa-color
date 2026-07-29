@@ -1,15 +1,27 @@
 <div class="color-card__media">
-  <a class="color-card__img-link" [href]="card().pdfHref" target="_self">
+  @if (card().pdfUrl; as pdf) {
+    <a class="color-card__img-link" [href]="pdf" target="_self">
+      <img
+        class="color-card__img"
+        [src]="card().imageUrl || '/img/cartas/colom-3000-web.png'"
+        width="400"
+        height="375"
+        [alt]="card().titlePrefix + card().titleStrong"
+        loading="lazy"
+        decoding="async"
+      />
+    </a>
+  } @else {
     <img
       class="color-card__img"
-      [src]="card().image"
-      [width]="card().imageWidth"
-      [height]="card().imageHeight"
-      alt=""
+      [src]="card().imageUrl || '/img/cartas/colom-3000-web.png'"
+      width="400"
+      height="375"
+      [alt]="card().titlePrefix + card().titleStrong"
       loading="lazy"
       decoding="async"
     />
-  </a>
+  }
 </div>
 
 <div class="color-card__body">
@@ -19,27 +31,28 @@
     >
   </div>
 
-  @if (card().description.length) {
-    <div class="color-card__text">
-      @for (paragraph of card().description; track paragraph) {
-        <p>{{ paragraph }}</p>
-      }
-    </div>
+  @if (card().descriptionHtml) {
+    <div
+      class="color-card__text"
+      [innerHTML]="card().descriptionHtml | safeHtml"
+    ></div>
   }
 
   <div
     class="color-card__spacer"
-    [style.height.px]="card().dividerHeight"
+    [style.height.px]="card().descriptionHtml ? 30 : 70"
     aria-hidden="true"
   ></div>
 
-  <a
-    class="color-card__button"
-    [href]="card().pdfHref"
-    target="_blank"
-    rel="noopener"
-    role="button"
-  >
-    <span>{{ card().buttonLabel }}</span>
-  </a>
+  @if (card().pdfUrl; as pdf) {
+    <a
+      class="color-card__button"
+      [href]="pdf"
+      target="_blank"
+      rel="noopener"
+      role="button"
+    >
+      <span>{{ card().buttonLabel }}</span>
+    </a>
+  }
 </div>

@@ -10,18 +10,22 @@ import { UploadsService, UploadFolder } from '../../../core/uploads/uploads.serv
 import { resolveErrorMessage } from '../../errors/resolve-error-message';
 import { AdminIcon } from '../icons/admin-icon';
 import { AdminButton } from '../admin-button/admin-button';
+import {
+  ImgFallback,
+  ImgFallbackKind,
+} from '../../util/img-fallback/img-fallback';
 
 @Component({
   selector: 'app-image-uploader',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AdminIcon, AdminButton],
+  imports: [AdminIcon, AdminButton, ImgFallback],
   template: `
     <div class="uploader">
       <p class="uploader__label">{{ label() }}</p>
 
       @if (url(); as preview) {
         <div class="uploader__preview">
-          <img [src]="preview" [alt]="label()" />
+          <img [src]="preview" [alt]="label()" [appImgFallback]="fallbackKind()" />
           <div class="uploader__preview-actions">
             <label class="uploader__change">
               <input
@@ -183,6 +187,8 @@ export class ImageUploader {
   readonly folder = input.required<UploadFolder>();
   readonly url = input<string | null>(null);
   readonly publicId = input<string | null>(null);
+  /** Fallback cuando la preview no carga (default product). */
+  readonly fallbackKind = input<ImgFallbackKind>('product');
 
   readonly urlChange = output<string | null>();
   readonly publicIdChange = output<string | null>();

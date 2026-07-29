@@ -1,7 +1,16 @@
-/* Clon: ios_slider + easyzoom (woocommerce.css) + gallery__trigger + photoswipe */
+/* Clon: ios_slider + easyzoom (woocommerce.css + product-single.css) + gallery__trigger */
 
+/*
+  Salient shop_single: width=600 height=638, height:auto.
+  Columna ios_slider 50% (~550px en container 1100). max-width 600px evita
+  estirar en mobile; margin auto centra.
+*/
 :host {
   display: block;
+  width: 100%;
+}
+
+.product-gallery {
   width: 100%;
 }
 
@@ -13,7 +22,6 @@
 /*
   WC woocommerce.css — lupa dibujada con ::before (aro) + ::after (mango).
   Salient: box-shadow + border-radius 50px + background #fff.
-  El emoji del span se oculta (text-indent + clip-path WC).
 */
 .product-gallery__trigger {
   position: absolute;
@@ -88,39 +96,41 @@
   outline-offset: 2px;
 }
 
+/* product-single: .images .product-slider { margin-bottom:10px; overflow:hidden } */
 .product-gallery__slider {
   overflow: hidden;
   position: relative;
+  margin-bottom: 10px;
   background-color: #fff;
 }
 
-/* .easyzoom { display:block; position:relative } */
 .product-gallery__easyzoom {
   display: block;
   position: relative;
   cursor: crosshair;
   background-color: #fff;
+  line-height: 0;
 }
 
 .product-gallery__link {
   display: block;
   line-height: 0;
   text-decoration: none;
+  background-color: #fff;
 }
 
 .product-gallery__img {
+  display: block;
   width: 100%;
+  max-width: 600px; /* shop_single Salient */
+  margin: 0 auto;
   height: auto;
-  margin-bottom: 0;
   box-shadow: none;
   vertical-align: bottom;
+  background-color: #fff;
 }
 
-/* .easyzoom-flyout {
-     background-color:#fff; width:100%; height:100%;
-     opacity:0; overflow:hidden; position:absolute; top:0; left:0; z-index:1000;
-     transition:opacity .25s ease }
-   .easyzoom-flyout:hover { opacity:1 } — en hover del target ya está open */
+/* .easyzoom-flyout { background:#fff; width/height 100%; opacity 0→1; transition .25s } */
 .product-gallery__flyout {
   position: absolute;
   top: 0;
@@ -131,32 +141,37 @@
   overflow: hidden;
   background-color: #fff;
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
   transition: opacity 0.25s ease 0s;
 }
 
-.product-gallery__flyout--ready {
+.product-gallery__flyout--open.product-gallery__flyout--ready {
   opacity: 1;
+  visibility: visible;
 }
 
 /* .easyzoom-flyout img { max-width:none!important; width:auto!important; transition:none } */
 .product-gallery__zoom-img {
   position: absolute;
+  top: 0;
+  left: 0;
   max-width: none !important;
   max-height: none !important;
   width: auto !important;
   height: auto !important;
   transition: none !important;
   pointer-events: none;
+  will-change: top, left;
 }
 
-/* Thumbs — product-single */
+/* Thumbs — product-single: width calc(100%+10px); thumb 25%; img opacity .4 */
 .product-gallery__thumbs {
   display: flex;
   flex-wrap: wrap;
   width: calc(100% + 10px);
   margin-left: -5px;
-  margin-top: 10px;
+  margin-top: 0;
 }
 
 .product-gallery__thumb {
@@ -172,16 +187,21 @@
 .product-gallery__thumb-inner {
   display: block;
   line-height: 0;
+  background-color: #fff;
+  overflow: hidden;
 }
 
 .product-gallery__thumb img {
   width: 100%;
   max-width: none;
   height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
   margin-bottom: 0;
   border: 1px solid transparent;
   padding: 1px;
   opacity: 0.4;
+  background-color: #fff;
   transition:
     opacity 0.2s linear,
     border-color 0.1s ease;
@@ -197,7 +217,6 @@
   outline-offset: 2px;
 }
 
-/* Mobile: sin hover zoom (nectar !mobile) — cursor normal */
 @media (max-width: 999px) {
   .product-gallery__easyzoom {
     cursor: zoom-in;

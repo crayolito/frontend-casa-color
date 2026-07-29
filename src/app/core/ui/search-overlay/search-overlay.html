@@ -41,6 +41,7 @@
               [routerLink]="item.href"
               (click)="close()"
             >
+              <span class="search-overlay__kind">{{ kindLabel(item.kind) }}</span>
               <span class="search-overlay__label">{{ item.label }}</span>
             </a>
           </li>

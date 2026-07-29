@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap');
+@import './fonts.css';
 
 :root {
   --color-accent: #dd3333;
@@ -13,8 +13,10 @@
   --color-text-muted: #666666;
   --color-white: #ffffff;
 
+  /* Salient dynamic-styles gana al responsive: max-width 1425 + padding 90 ≥1000 */
   --container-max: 1425px;
   --container-padding: 90px;
+  --mobile-container-width: 88%;
 
   --header-h-desktop: 131px;
   --header-h-mobile: 74px;
@@ -22,15 +24,63 @@
   --logo-scrolled: 35px;
 
   --font-body: 'Open Sans', Helvetica, sans-serif;
-  /* Tipografía Salient (theme options) — px fijos, no rem */
-  --font-size-body: 16px;
-  --line-height-body: 25px;
-  --font-size-nav: 16px;
-  --line-height-nav: 16px;
+  --font-accent: 'Petit Formal Script', cursive;
+
+  /*
+    Escala tipográfica Salient (theme options) con clamp fluido.
+    Preferidos calibrados entre ~375px (mobile) y ~1300px (desktop Salient).
+  */
+  --font-size-body: 1rem; /* Salient theme: 16px fijo */
+  --line-height-body: 1.5625; /* 25/16 — Salient body line-height:25px */
+  --letter-spacing-body: 0; /* Salient headings/body: letter-spacing:0 */
+
+  --font-size-nav: 1rem;
+  --line-height-nav: 1.25;
   --font-weight-nav: 300;
-  --font-size-nav-sub: 14px;
-  --line-height-nav-sub: 14px;
-  --font-size-copyright: 12px;
+  --font-size-nav-sub: 0.875rem;
+  --line-height-nav-sub: 1.35;
+  --font-size-copyright: 0.75rem; /* 12px — #copyright */
+
+  /* Theme options Salient (salient-dynamic-styles) — no style.css default */
+  /* h1: 32.5 → 50 | h2: 33.75 → 45 | h3: 32 → 40 */
+  --font-size-h1: clamp(2.03125rem, 1.588rem + 1.892vw, 3.125rem);
+  --line-height-h1: 1.44;
+  --font-size-h2: clamp(2.109375rem, 1.824rem + 1.216vw, 2.8125rem);
+  --line-height-h2: 1.33;
+  --font-size-h3: clamp(2rem, 1.797rem + 0.865vw, 2.5rem);
+  --line-height-h3: 1.2;
+  /* h4 theme: 35px/40px weight 300 (≥691); mobile 31.5/36 */
+  --font-size-h4: 2.1875rem; /* 35px */
+  --line-height-h4: 2.5rem; /* 40px */
+  /* h5 theme: 24px/30px weight 300 */
+  --font-size-h5: 1.5rem;
+  --line-height-h5: 1.875rem;
+  /* h6 theme: 18px/24px weight 300, letter-spacing .2px */
+  --font-size-h6: 1.125rem; /* 18px */
+  --line-height-h6: 1.5rem; /* 24px */
+  --letter-spacing-h6: 0.2px;
+
+  /* Display / hero (más agresivo que h1) */
+  --font-size-hero: clamp(2rem, 0.25rem + 6vw, 5.5rem);
+  --line-height-hero: 1.08;
+  --letter-spacing-hero: -0.02em;
+
+  /* Títulos de página tipo search / shop */
+  --font-size-page-title: clamp(1.125rem, 0.5rem + 2.5vw, 2.5rem);
+  --line-height-page-title: 1.25;
+  --letter-spacing-page-title: -0.02em;
+
+  /* Ficha producto Salient — product_title base ≥1301: 45/60; MQs abajo */
+  --font-size-product-title: 2.8125rem; /* 45px */
+  --line-height-product-title: 3.75rem; /* 60px */
+  --font-size-product-price: clamp(1.5rem, 1.3rem + 0.6vw, 1.875rem); /* ~30px */
+  --font-size-product-tab: 1.0625rem; /* 17px */
+  --line-height-product-tab: 1.7;
+  --font-size-related: clamp(1.5rem, 1.25rem + 0.8vw, 1.875rem); /* ~30px */
+  --line-height-related: 1.33;
+  --font-size-breadcrumb: 0.875rem;
+  --font-size-product-meta: 0.875rem;
+
   --radius: 0;
 
   /* Admin UI — detalle sobre la marca (no reemplaza la identidad) */
@@ -51,6 +101,7 @@
   --admin-gap-sm: 0.5rem;
   --admin-gap: 0.75rem;
   --admin-gap-lg: 1.25rem;
+  --admin-content-narrow: 48rem;
 
   --bp-mobile: 690px;
   --bp-tablet: 999px;
@@ -69,12 +120,12 @@ body {
   padding: 0;
 }
 
-/* Clon (salient-dynamic-styles): body 16px/25px en todos los breakpoints */
 body {
   font-family: var(--font-body);
-  font-weight: 400;
+  font-weight: 300; /* Salient theme options — body text weight 300, no 400 */
   font-size: var(--font-size-body);
   line-height: var(--line-height-body);
+  letter-spacing: var(--letter-spacing-body);
   background: var(--bg-base);
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
@@ -105,121 +156,128 @@ h3,
 h4,
 h5,
 h6 {
-  font-weight: 300;
   margin: 0;
 }
 
-/* Valores reales de las theme options del Salient (salient-dynamic-styles.css),
-   que pisan al style.css base del theme. */
+/* Valores Salient theme options — weight 300, letter-spacing 0 */
 h1 {
-  font-size: 32.5px;
-  line-height: 46.8px;
+  font-weight: 300;
+  font-size: var(--font-size-h1);
+  line-height: var(--line-height-h1);
+  letter-spacing: 0;
 }
 
 h2 {
-  font-size: 33.75px;
-  line-height: 45px;
+  font-weight: 300;
+  font-size: var(--font-size-h2);
+  line-height: var(--line-height-h2);
+  letter-spacing: 0;
 }
 
 h3 {
-  font-size: 32px;
-  line-height: 38.4px;
+  font-weight: 300;
+  font-size: var(--font-size-h3);
+  line-height: var(--line-height-h3);
+  letter-spacing: 0;
 }
 
+/*
+  Theme options (salient-dynamic-styles), NO style.css default 18px/600:
+  h4 35px/40px weight 300; h5 24px/30px; h6 18px/24px + letter-spacing .2px
+*/
 h4 {
-  font-size: 31.5px;
-  line-height: 36px;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: var(--font-size-h4);
+  line-height: var(--line-height-h4);
+  letter-spacing: 0;
+  color: #444;
 }
 
 h5 {
-  font-size: 24px;
-  line-height: 30px;
+  font-weight: 300;
+  font-size: var(--font-size-h5);
+  line-height: var(--line-height-h5);
+  letter-spacing: 0;
+  color: #444;
 }
 
 h6 {
-  font-size: 18px;
-  line-height: 24px;
+  font-weight: 300;
+  font-size: var(--font-size-h6);
+  line-height: var(--line-height-h6);
+  letter-spacing: var(--letter-spacing-h6);
+  color: #444;
 }
 
-@media (min-width: 691px) {
-  h1 {
-    font-size: 35px;
-    line-height: 50.4px;
-  }
-
-  h2 {
-    font-size: 36px;
-    line-height: 48px;
-  }
-
-  h4 {
-    font-size: 35px;
-    line-height: 40px;
+@media (max-width: 1300px) and (min-width: 1000px) {
+  :root {
+    --font-size-product-title: 2.390625rem; /* 38.25px */
+    --line-height-product-title: 3.1875rem; /* 51px */
   }
 }
 
-@media (min-width: 1000px) {
-  h1 {
-    font-size: 37.5px;
-    line-height: 54px;
-  }
-
-  h2 {
-    font-size: 38.25px;
-    line-height: 51px;
-  }
-
-  h3 {
-    font-size: 34px;
-    line-height: 40.8px;
+@media (max-width: 999px) and (min-width: 691px) {
+  :root {
+    --font-size-product-title: 2.25rem; /* 36px */
+    --line-height-product-title: 3rem; /* 48px */
   }
 }
 
-@media (min-width: 1300px) {
-  h1 {
-    font-size: 50px;
-    line-height: 72px;
-  }
-
-  h2 {
-    font-size: 45px;
-    line-height: 60px;
-  }
-
-  h3 {
-    font-size: 40px;
-    line-height: 48px;
+@media (max-width: 690px) {
+  :root {
+    --font-size-h4: 1.96875rem; /* 31.5px */
+    --line-height-h4: 2.25rem; /* 36px */
+    --font-size-product-title: 2.109375rem; /* 33.75px */
+    --line-height-product-title: 2.8125rem; /* 45px */
   }
 }
 
-.container {
+/* Formularios admin estrechos centrados (Shopify-like) */
+.admin-content-narrow {
   width: 100%;
-  max-width: var(--container-max);
+  max-width: var(--admin-content-narrow);
   margin-inline: auto;
-  padding-inline: 24px;
 }
 
-@media (min-width: 691px) {
-  .container {
-    padding-inline: 40px;
-  }
+/* Acento cursivo Salient (.nectar-inherit-italic / blockquote title) */
+.font-accent,
+.nectar-inherit-italic {
+  font-family: var(--font-accent);
+  font-weight: 400;
+  font-style: normal;
+}
+
+/*
+  Container Salient (medido en pagina_clonada):
+  ≤999: max-width 88%, padding 0
+  ≥1000: width 100%, max-width 1425px, padding 0 90px
+  (dynamic-styles carga DESPUÉS de responsive → 1425 gana sobre el cap 1100)
+*/
+.container {
+  width: var(--mobile-container-width);
+  max-width: var(--mobile-container-width);
+  margin-inline: auto;
+  padding-inline: 0;
+  box-sizing: border-box;
 }
 
 @media (min-width: 1000px) {
   .container {
+    width: 100%;
+    max-width: var(--container-max);
     padding-inline: var(--container-padding);
   }
 }
 
+/* Salient fade-in puro (img.img-with-animation): solo opacity, sin translateY */
 .reveal {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition: opacity 0.6s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .reveal--visible {
   opacity: 1;
-  transform: none;
 }
 
 .sr-only {

@@ -27,10 +27,11 @@ import {
 import { withLogoFallback } from '../../../shared/util/default-images';
 import { MobileMenu } from '../mobile-menu/mobile-menu';
 import { SearchOverlay } from '../search-overlay/search-overlay';
+import { ImgFallback } from '../../../shared/util/img-fallback/img-fallback';
 
 @Component({
   selector: 'app-header',
-  imports: [SearchOverlay, MobileMenu],
+  imports: [SearchOverlay, MobileMenu, ImgFallback],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })

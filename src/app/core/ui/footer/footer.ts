@@ -3,53 +3,25 @@ import {
   HomeFloating,
   HomeFooter,
 } from '../../../features/home/data/home-content.model';
-import {
-  DEFAULT_IMAGES,
-  withLogoFallback,
-} from '../../../shared/util/default-images';
-
-const DEFAULT_FOOTER: HomeFooter = {
-  logoUrl: DEFAULT_IMAGES.logo,
-  address: [
-    'Polígono Industrial Sur 8',
-    'Avenida Sonella 127',
-    '12200 ONDA',
-    'Castellón · Spain',
-  ],
-  phones: ['964 431 110', '964 444 145', '964 521 387'],
-  legalLinks: [
-    { label: 'Empresa', href: '#' },
-    { label: 'Aviso Legal', href: '#' },
-    { label: 'Política Protección de Datos', href: '#' },
-    { label: 'Contacto', href: '#' },
-  ],
-  social: {
-    whatsapp: { show: false },
-    instagram: { show: false },
-    tiktok: { show: false },
-    facebook: { show: false },
-  },
-  copyright: {
-    text: '© 2026 José Alejandro Sahonero Salas',
-    designBy: 'Crayolito',
-    designByHref: '',
-  },
-};
+import { withLogoFallback } from '../../../shared/util/default-images';
+import { ImgFallback } from '../../../shared/util/img-fallback/img-fallback';
 
 @Component({
   selector: 'app-footer',
+  imports: [ImgFallback],
   templateUrl: './footer.html',
   styleUrl: './footer.css',
 })
 export class Footer {
-  readonly footer = input<HomeFooter | null>(null);
+  /** Contenido del footer desde HomeApi (PublicLayout). Obligatorio. */
+  readonly footer = input.required<HomeFooter>();
   /** Logo del header (dinámico); se usa si el footer no tiene logoUrl. */
   readonly headerLogoUrl = input<string | null>(null);
   /** Reservado: WhatsApp vive en el FAB global, no en el footer. */
   readonly floating = input<HomeFloating | null>(null);
 
   protected data(): HomeFooter {
-    return this.footer() ?? DEFAULT_FOOTER;
+    return this.footer();
   }
 
   protected logoSrc(): string {
@@ -62,6 +34,13 @@ export class Footer {
     return `tel:${phone.replaceAll(' ', '')}`;
   }
 
+  /** Omite entradas vacías del admin (evita columna fantasma en el footer). */
+  protected visibleLegalLinks(): Array<{ label: string; href: string }> {
+    return (this.data().legalLinks ?? []).filter(
+      (l) => !!l.label?.trim() && !!l.href?.trim(),
+    );
+  }
+
   /** Instagram / TikTok / Facebook en la franja negra. WhatsApp → FAB. */
   protected visibleSocial(): Array<{
     key: string;
@@ -70,7 +49,12 @@ export class Footer {
   }> {
     const s = this.data().social;
     const facebook = s.facebook ?? s.twitter;
-    const entries: Array<{ key: string; url: string; label: string; show: boolean }> = [
+    const entries: Array<{
+      key: string;
+      url: string;
+      label: string;
+      show: boolean;
+    }> = [
       {
         key: 'instagram',
         url: s.instagram?.url ?? '',

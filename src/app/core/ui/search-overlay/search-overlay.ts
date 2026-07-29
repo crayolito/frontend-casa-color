@@ -42,20 +42,20 @@ export class SearchOverlay implements OnInit {
       return [] as SearchSuggestion[];
     }
     const fromCats: SearchSuggestion[] = this.categories()
-      .filter((c) => c.name.toLowerCase().includes(q))
+      .filter((c) => c.name.toLowerCase().includes(q) && c.slug?.trim())
       .map((c) => ({
         kind: 'category' as const,
         id: c.categoryId,
         label: c.name,
-        href: '/catalogos',
+        href: `/categoria/${c.slug}`,
       }));
     const fromCatalogs: SearchSuggestion[] = this.catalogs()
-      .filter((c) => c.name.toLowerCase().includes(q))
+      .filter((c) => c.name.toLowerCase().includes(q) && c.slug?.trim())
       .map((c) => ({
         kind: 'catalog' as const,
         id: c.id,
         label: c.name,
-        href: '/catalogos',
+        href: `/catalogo/${c.slug}`,
       }));
     return [...fromCats, ...fromCatalogs].slice(0, 12);
   });
@@ -77,14 +77,13 @@ export class SearchOverlay implements OnInit {
 
   protected onSubmit(event: Event): void {
     event.preventDefault();
-    const first = this.suggestions()[0];
-    if (first) {
-      this.navigateTo(first);
-    }
+    const q = this.query().trim();
+    if (!q) return;
+    this.close();
+    void this.router.navigate(['/search'], { queryParams: { q } });
   }
 
-  protected navigateTo(item: SearchSuggestion): void {
-    this.close();
-    void this.router.navigateByUrl(item.href);
+  protected kindLabel(kind: SearchSuggestion['kind']): string {
+    return kind === 'category' ? 'Categoría' : 'Catálogo';
   }
 }

@@ -8,7 +8,6 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { CategoriesApi } from '../../data/categories.api';
 import { CatalogsApi } from '../../data/catalogs.api';
 import { ProductsApi } from '../../data/products.api';
@@ -17,6 +16,7 @@ import {
   HomeDestination,
   HomeDestinationType,
 } from '../../../home/data/home-content.model';
+import { AppSelect, SelectOption } from '../../../../shared/ui/select/select';
 
 interface PickItem {
   id: number;
@@ -27,35 +27,27 @@ interface PickItem {
 @Component({
   selector: 'app-destination-picker',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule],
+  imports: [AppSelect],
   template: `
     <div class="dest">
       <label class="dest__label" [attr.for]="typeId">Destino del botón</label>
-      <select
-        class="dest__select"
+      <app-select
         [id]="typeId"
-        [ngModel]="type()"
-        (ngModelChange)="onTypeChange($event)"
-      >
-        <option value="">Sin botón / sin destino</option>
-        <option value="category">Categoría</option>
-        <option value="catalog">Catálogo (colección)</option>
-        <option value="product">Producto</option>
-      </select>
+        [options]="typeOptions"
+        [value]="type()"
+        placeholder="Sin botón / sin destino"
+        (valueChange)="onTypeChange($event)"
+      />
 
       @if (type()) {
         <label class="dest__label" [attr.for]="itemId">Elegí uno</label>
-        <select
-          class="dest__select"
+        <app-select
           [id]="itemId"
-          [ngModel]="selectedId()"
-          (ngModelChange)="onItemChange($event)"
-        >
-          <option [ngValue]="null">— Seleccioná —</option>
-          @for (item of items(); track item.id) {
-            <option [ngValue]="item.id">{{ item.name }}</option>
-          }
-        </select>
+          [options]="itemOptions()"
+          [value]="selectedId() ?? ''"
+          placeholder="— Seleccioná —"
+          (valueChange)="onItemChange($event)"
+        />
       }
     </div>
   `,
@@ -71,15 +63,6 @@ interface PickItem {
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: var(--color-text);
-    }
-    .dest__select {
-      width: 100%;
-      min-height: 38px;
-      padding: 0.4rem 0.75rem;
-      border: 1px solid var(--admin-border);
-      border-radius: var(--radius-md);
-      font: inherit;
-      background: var(--color-white);
     }
   `,
 })
@@ -99,6 +82,13 @@ export class DestinationPicker implements OnInit {
 
   protected readonly typeId = `dest-type-${Math.random().toString(36).slice(2, 8)}`;
   protected readonly itemId = `dest-item-${Math.random().toString(36).slice(2, 8)}`;
+
+  protected readonly typeOptions: SelectOption[] = [
+    { value: '', label: 'Sin botón / sin destino' },
+    { value: 'category', label: 'Categoría' },
+    { value: 'catalog', label: 'Catálogo (colección)' },
+    { value: 'product', label: 'Producto' },
+  ];
 
   protected readonly items = computed((): PickItem[] => {
     const t = this.type();
@@ -126,6 +116,11 @@ export class DestinationPicker implements OnInit {
     return [];
   });
 
+  protected readonly itemOptions = computed((): SelectOption[] => [
+    { value: '', label: '— Seleccioná —' },
+    ...this.items().map((i) => ({ value: i.id, label: i.name })),
+  ]);
+
   ngOnInit(): void {
     const v = this.value();
     if (v) {
@@ -143,13 +138,16 @@ export class DestinationPicker implements OnInit {
     });
   }
 
-  protected onTypeChange(next: HomeDestinationType | ''): void {
-    this.type.set(next);
+  protected onTypeChange(next: string | number | null): void {
+    const t = (next ?? '') as HomeDestinationType | '';
+    this.type.set(t);
     this.selectedId.set(null);
     this.valueChange.emit(null);
   }
 
-  protected onItemChange(id: number | null): void {
+  protected onItemChange(raw: string | number | null): void {
+    const id =
+      raw === null || raw === '' ? null : Number(raw);
     this.selectedId.set(id);
     const t = this.type();
     if (!t || id == null) {

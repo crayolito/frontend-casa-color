@@ -17,7 +17,7 @@
   box-shadow: 0 2px 10px rgb(0 0 0 / 0.07), 0 6px 24px rgb(0 0 0 / 0.05);
 }
 
-/* Original: header full-width (data-full-width="true") — container 100% con padding 0 28px */
+/* Original: header full-width — flex logo izq, nav+acciones der */
 .header__inner {
   display: flex;
   align-items: center;
@@ -54,8 +54,6 @@
   padding: 0;
 }
 
-/* Original: cada li ocupa toda la altura del header, así el submenú
-   cuelga del borde inferior del header (top: 100%), no flota en el medio */
 .header__item {
   position: relative;
   display: flex;
@@ -63,13 +61,6 @@
   height: 100%;
 }
 
-/* Original theme options:
-   #top nav > ul > li > a {
-     font-family: Open Sans; text-transform: capitalize;
-     font-size: 16px; line-height: 16px; font-weight: 300;
-   }
-   Padding/margin: 0 7px / margin 0 7px
-*/
 .header__link {
   display: inline-flex;
   align-items: center;
@@ -106,7 +97,6 @@
   cursor: pointer;
 }
 
-/* Submenú simple fiel al .sf-menu ul del original (no megamenú) */
 .header__submenu {
   position: absolute;
   top: 100%;
@@ -139,7 +129,6 @@
   width: 100%;
 }
 
-/* Original (theme options): #top .sf-menu li ul li a — 14px/14px, capitalize, weight 400 */
 .header__submenu-link {
   display: block;
   padding: 6px;
@@ -197,7 +186,6 @@
   outline-offset: 2px;
 }
 
-/* Original Ascend: lupa con separador vertical izquierdo */
 .header__icon-btn--search {
   width: auto;
   height: auto;
@@ -231,8 +219,7 @@
     height: var(--logo-scrolled);
   }
 
-  /* Original: logo ancho auto a la izquierda; nav empujado a la derecha (margin-left: auto),
-     lupa al final con margin-left 22px */
+  /* Logo izq; nav empujado a la derecha (margin-left: auto); lupa al final */
   .header__nav {
     display: block;
     height: 100%;

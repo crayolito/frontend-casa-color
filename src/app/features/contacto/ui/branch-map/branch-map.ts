@@ -13,7 +13,7 @@ import {
   MAP_DEFAULT_CENTER,
   MAP_DEFAULT_ZOOM,
   MAP_FOCUS_ZOOM,
-} from '../../util/contacto-data';
+} from '../../data/contacto.models';
 import { LatLng } from '../../util/geo';
 import { loadGoogleMaps } from '../../util/google-maps-loader';
 
@@ -25,10 +25,10 @@ import { loadGoogleMaps } from '../../util/google-maps-loader';
 })
 export class BranchMap {
   readonly branches = input.required<Branch[]>();
-  readonly selectedId = input<string | null>(null);
+  readonly selectedId = input<number | null>(null);
   /** Ubicación del usuario (si aceptó geolocalización). */
   readonly userLocation = input<LatLng | null>(null);
-  readonly markerClick = output<string>();
+  readonly markerClick = output<number>();
 
   protected readonly ready = signal(false);
   protected readonly loadError = signal(false);
@@ -66,7 +66,6 @@ export class BranchMap {
       })
       .catch(() => this.loadError.set(true));
 
-    // Centrar en el usuario la primera vez que llega la ubicación.
     effect(() => {
       const user = this.userLocation();
       if (!user || !this.ready() || this.didCenterOnUser) {
@@ -80,11 +79,10 @@ export class BranchMap {
       gmap?.setZoom(MAP_FOCUS_ZOOM);
     });
 
-    // Click en lista → focus a esa sucursal.
     effect(() => {
       const id = this.selectedId();
       const list = this.branches();
-      if (!id || !this.ready()) {
+      if (id == null || !this.ready()) {
         return;
       }
       const branch = list.find((b) => b.id === id);
@@ -103,7 +101,7 @@ export class BranchMap {
     return { lat: branch.lat, lng: branch.lng };
   }
 
-  protected onMarkerClick(branchId: string): void {
+  protected onMarkerClick(branchId: number): void {
     this.markerClick.emit(branchId);
   }
 }

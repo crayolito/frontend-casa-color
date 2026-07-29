@@ -1,9 +1,11 @@
 import { Component, input } from '@angular/core';
 import { ProductItem } from './product-item';
 import { withProductFallback } from '../../util/default-images';
+import { ImgFallback } from '../../util/img-fallback/img-fallback';
 
 @Component({
   selector: 'app-product-card',
+  imports: [ImgFallback],
   host: {
     class: 'product-card',
     '[attr.data-columns]': 'columns()',

@@ -8,6 +8,11 @@ import {
 import { PaginatedMeta } from '../../../core/http/api.service';
 import { AdminButton } from '../admin-button/admin-button';
 import { AdminIcon, type AdminIconName } from '../icons/admin-icon';
+import {
+  ImgFallback,
+  type ImgFallbackKind,
+} from '../../util/img-fallback/img-fallback';
+import { DEFAULT_IMAGES } from '../../util/default-images';
 
 export type AdminBadgeTone = 'success' | 'danger' | 'neutral' | 'info';
 
@@ -24,6 +29,8 @@ export interface AdminTableColumn<T> {
   badge?: (row: T) => { label: string; tone: AdminBadgeTone } | null;
   /** Si se define, la celda muestra un thumbnail (prioridad sobre badge/texto). */
   image?: (row: T) => string | null | undefined;
+  /** Kind de fallback cuando la imagen falla o está vacía. Default: product. */
+  imageKind?: ImgFallbackKind;
   /** Truncar texto largo con ellipsis. */
   truncate?: boolean;
   /** Si true, badge/texto se renderiza como botón y emite cellClick. */
@@ -35,7 +42,7 @@ export interface AdminTableColumn<T> {
 @Component({
   selector: 'app-admin-table',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AdminButton, AdminIcon],
+  imports: [AdminButton, AdminIcon, ImgFallback],
   template: `
     <div class="admin-table-wrap" [attr.aria-busy]="loading() && rows().length === 0">
       @if (loading() && rows().length === 0) {
@@ -122,19 +129,14 @@ export interface AdminTableColumn<T> {
                     [class.admin-table__cell--image]="!!col.image"
                   >
                     @if (col.image; as imageFn) {
-                      @if (imageFn(row); as src) {
-                        <img
-                          class="admin-table__thumb"
-                          [src]="src"
-                          alt=""
-                          width="40"
-                          height="40"
-                        />
-                      } @else {
-                        <span class="admin-table__thumb-empty" aria-hidden="true">
-                          <app-admin-icon name="image" [size]="18" />
-                        </span>
-                      }
+                      <img
+                        class="admin-table__thumb"
+                        [src]="thumbSrc(imageFn(row), col.imageKind)"
+                        [appImgFallback]="col.imageKind ?? 'product'"
+                        alt=""
+                        width="40"
+                        height="40"
+                      />
                     } @else {
                       <span class="admin-table__cell-inner">
                         @if (col.click) {
@@ -572,6 +574,16 @@ export class AdminTable<T> {
   readonly cellAction = output<AdminTableCellEvent<T>>();
 
   protected readonly skeletonRows = [1, 2, 3, 4, 5];
+
+  protected thumbSrc(
+    src: string | null | undefined,
+    kind: ImgFallbackKind | undefined,
+  ): string {
+    const trimmed = src?.trim();
+    if (trimmed) return trimmed;
+    const k = kind ?? 'product';
+    return DEFAULT_IMAGES[k === 'logo' ? 'logo' : k === 'category' ? 'category' : k === 'catalog' ? 'catalog' : 'product'];
+  }
 
   protected readonly pageIds = computed(() =>
     this.rows().map((row) => this.trackBy()(row)),

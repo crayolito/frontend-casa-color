@@ -1,0 +1,141 @@
+<div class="admin-content-narrow">
+  <app-admin-page-header
+    title="Fichas técnicas"
+    subtitle="Elegí 3 o 4 categorías con imagen para la página pública"
+  />
+
+  @if (flash(); as msg) {
+    <p class="admin-flash" role="status">{{ msg }}</p>
+  }
+  @if (error(); as err) {
+    <app-admin-error-state
+      [message]="err.text"
+      [correlationId]="err.correlationId ?? null"
+      [showCorrelationId]="err.showCorrelationId"
+      (retry)="load()"
+    />
+  }
+
+  @if (loading()) {
+    <p class="fichas-admin__status">Cargando…</p>
+  } @else {
+    <form class="fichas-admin" [formGroup]="form" (ngSubmit)="save()">
+      <app-admin-form-field
+        label="Título de la página"
+        controlName="heading"
+        [error]="
+          form.controls.heading.touched && form.controls.heading.invalid
+            ? 'Requerido'
+            : null
+        "
+      />
+
+      <app-image-uploader
+        label="Imagen hero"
+        folder="home"
+        fallbackKind="category"
+        [url]="form.controls.heroImageUrl.value || null"
+        (urlChange)="onHeroUploaded($event)"
+      />
+
+      <div class="fichas-admin__cats-head">
+        <h2 class="fichas-admin__cats-title">Categorías ({{ categoryCount() }})</h2>
+        <app-admin-button
+          type="button"
+          variant="secondary"
+          [disabled]="!canAdd()"
+          (clicked)="addCategory()"
+        >
+          <app-admin-icon name="plus" />
+          Agregar
+        </app-admin-button>
+      </div>
+      <p class="fichas-admin__hint">
+        Mínimo 3, máximo 4. Arrastrá para reordenar. Tocá la cabecera para editar.
+      </p>
+
+      <div
+        formArrayName="categories"
+        class="fichas-admin__dnd"
+        cdkDropList
+        (cdkDropListDropped)="dropCategory($event)"
+      >
+        @for (ctrl of categoriesFA.controls; track $index; let i = $index) {
+          <div class="fichas-admin__card" cdkDrag [formGroupName]="i">
+            <div
+              class="fichas-admin__card-head"
+              (click)="toggleCard('f-' + i)"
+              role="button"
+              tabindex="0"
+              (keydown.enter)="toggleCard('f-' + i)"
+            >
+              <span
+                class="fichas-admin__drag"
+                cdkDragHandle
+                aria-label="Arrastrar"
+                (click)="$event.stopPropagation()"
+              >⋮⋮</span>
+              <strong class="fichas-admin__card-title">{{ cardTitle(i) }}</strong>
+              <span class="fichas-admin__chevron" aria-hidden="true">
+                {{ isCardExpanded('f-' + i) ? '▾' : '▸' }}
+              </span>
+              @if (canRemove()) {
+                <app-admin-button
+                  type="button"
+                  variant="ghost"
+                  (clicked)="removeCategory(i)"
+                >
+                  <app-admin-icon name="trash" />
+                </app-admin-button>
+              }
+            </div>
+
+            @if (isCardExpanded('f-' + i)) {
+              <div class="fichas-admin__card-body">
+                <label class="fichas-admin__field">
+                  <span class="fichas-admin__field-label">Categoría del catálogo</span>
+                  <app-select
+                    [options]="categoryOptions(i)"
+                    [value]="ctrl.value.categoryId ? String(ctrl.value.categoryId) : ''"
+                    placeholder="Elegí una categoría"
+                    [ariaLabel]="'Categoría ' + (i + 1)"
+                    (valueChange)="onCategorySelect(i, $event)"
+                  />
+                </label>
+
+                <app-admin-form-field
+                  label="Etiqueta visible"
+                  controlName="label"
+                  [error]="
+                    categoryGroup(i).controls.label.touched &&
+                    categoryGroup(i).controls.label.invalid
+                      ? 'Requerido'
+                      : null
+                  "
+                />
+
+                <app-image-uploader
+                  label="Imagen de la tarjeta"
+                  folder="categories"
+                  fallbackKind="category"
+                  [url]="ctrl.value.imageUrl || null"
+                  (urlChange)="onCategoryImageUploaded(i, $event)"
+                />
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="fichas-admin__actions">
+        <app-admin-button
+          type="submit"
+          variant="primary"
+          [loading]="saving()"
+        >
+          Guardar
+        </app-admin-button>
+      </div>
+    </form>
+  }
+</div>

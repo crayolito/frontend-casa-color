@@ -2,8 +2,8 @@ export interface Category {
   id: number;
   name: string;
   slug: string;
-  shortDescription: string | null;
   description: string | null;
+  description2: string | null;
   imageUrl: string | null;
   createdAt: string;
   updatedAt: string;
@@ -13,8 +13,8 @@ export interface Category {
 export interface CategoryWrite {
   name: string;
   slug?: string;
-  shortDescription?: string;
   description?: string;
+  description2?: string;
   imageUrl?: string;
 }
 
@@ -25,10 +25,13 @@ export interface Catalog {
   slug: string;
   description: string | null;
   imageUrl: string | null;
+  pdfUrl: string | null;
+  pdfButtonLabel: string;
   createdAt: string;
   updatedAt: string;
   extraCategoryIds: number[];
   extraCategories: Array<{ id: number; name: string; slug: string }>;
+  productsCount?: number;
 }
 
 export interface CatalogWrite {
@@ -37,14 +40,18 @@ export interface CatalogWrite {
   slug?: string;
   description?: string;
   imageUrl?: string;
+  pdfUrl?: string | null;
+  pdfButtonLabel?: string;
   extraCategoryIds?: number[];
 }
 
 export interface ProductCatalogRef {
   id: number;
   name: string;
+  slug?: string;
   categoryId: number;
   categoryName: string;
+  categorySlug?: string;
 }
 
 export interface Product {
@@ -123,6 +130,118 @@ export interface ProductWrite {
     isMain?: boolean;
     displayOrder?: number;
   }>;
+}
+
+export interface ColorCard {
+  id: number;
+  imageUrl: string | null;
+  titlePrefix: string;
+  titleStrong: string;
+  descriptionHtml: string | null;
+  buttonLabel: string;
+  pdfUrl: string | null;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ColorCardWrite {
+  imageUrl?: string | null;
+  titlePrefix: string;
+  titleStrong: string;
+  descriptionHtml?: string | null;
+  buttonLabel: string;
+  pdfUrl?: string | null;
+  sortOrder?: number;
+}
+
+export interface FichasTecnicasCategoryConfig {
+  categoryId: number;
+  imageUrl: string | null;
+  label: string;
+}
+
+export interface FichasTecnicasSettings {
+  heroImageUrl: string | null;
+  heading: string;
+  categories: FichasTecnicasCategoryConfig[];
+}
+
+export interface FichasTecnicasProduct {
+  id: number;
+  title: string;
+  slug: string;
+  technicalSheetUrl: string;
+}
+
+export interface FichasTecnicasCatalog {
+  id: number;
+  name: string;
+  slug: string;
+  products: FichasTecnicasProduct[];
+}
+
+export interface FichasTecnicasCategoryPublic {
+  categoryId: number;
+  label: string;
+  imageUrl: string | null;
+  slug: string;
+  name: string;
+  catalogs: FichasTecnicasCatalog[];
+}
+
+export interface FichasTecnicasPublic {
+  heroImageUrl: string | null;
+  heading: string;
+  categories: FichasTecnicasCategoryPublic[];
+}
+
+export interface Branch {
+  id: number;
+  name: string;
+  addressLines: string[];
+  phone: string;
+  email: string;
+  hours: string[];
+  lat: number;
+  lng: number;
+  imageUrl: string | null;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BranchWrite {
+  name: string;
+  addressLines: string[];
+  phone: string;
+  email: string;
+  hours: string[];
+  lat: number;
+  lng: number;
+  imageUrl?: string | null;
+  sortOrder?: number;
+}
+
+export interface ContactoSettings {
+  heroImageUrl: string;
+  centralAddressLines: string[];
+  centralPhone: string;
+  centralWhatsapp: string;
+  centralEmail: string;
+  attentionLabel: string;
+  infoRequestLabel: string;
+}
+
+/** Contenido de una página legal (aviso-legal / politica-datos). */
+export interface LegalPageSettings {
+  title: string;
+  bodyHtml: string;
+}
+
+export interface ContactoPublicPage {
+  settings: ContactoSettings;
+  branches: Branch[];
 }
 
 export interface SiteSetting {

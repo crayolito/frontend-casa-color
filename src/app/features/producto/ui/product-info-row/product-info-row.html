@@ -28,8 +28,11 @@
       </div>
     </div>
 
-    <div class="product-info-row__iwt product-info-row__iwt--compact">
-      <div class="product-info-row__iwt-text product-info-row__iwt-text--flush">
+    <div class="product-info-row__iwt">
+      <div class="product-info-row__iwt-icon">
+        <img [src]="color().icon" alt="" width="35" height="35" />
+      </div>
+      <div class="product-info-row__iwt-text">
         <h4>
           <span [style.color]="color().titleColor">{{ color().title }}</span>
         </h4>

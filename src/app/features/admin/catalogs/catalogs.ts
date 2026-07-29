@@ -37,6 +37,9 @@ import { ImageUploader } from '../../../shared/admin-ui/image-uploader/image-upl
 import { AdminMultiSelect } from '../../../shared/admin-ui/admin-multi-select/admin-multi-select';
 import { AdminErrorState } from '../../../shared/admin-ui/admin-error-state/admin-error-state';
 import { AdminHtmlEditor } from '../../../shared/admin-ui/admin-html-editor/admin-html-editor';
+import { PdfUploader } from '../../../shared/admin-ui/pdf-uploader/pdf-uploader';
+import { AppSelect, SelectOption } from '../../../shared/ui/select/select';
+import { ImgFallback } from '../../../shared/util/img-fallback/img-fallback';
 
 @Component({
   selector: 'app-admin-catalogs',
@@ -52,9 +55,12 @@ import { AdminHtmlEditor } from '../../../shared/admin-ui/admin-html-editor/admi
     AdminFilters,
     AdminIcon,
     ImageUploader,
+    PdfUploader,
     AdminMultiSelect,
     AdminErrorState,
     AdminHtmlEditor,
+    AppSelect,
+    ImgFallback,
   ],
   templateUrl: './catalogs.html',
   styleUrl: './catalogs.css',
@@ -98,6 +104,15 @@ export class AdminCatalogs {
     this.categories().map((c) => ({ id: c.id, label: c.name })),
   );
 
+  readonly categorySelectOptions = computed((): SelectOption[] => [
+    { value: '', label: 'Todas' },
+    ...this.categories().map((c) => ({ value: c.id, label: c.name })),
+  ]);
+
+  readonly categoryFormOptions = computed((): SelectOption[] =>
+    this.categories().map((c) => ({ value: c.id, label: c.name })),
+  );
+
   /** Exposed for template Number() casts. */
   readonly Number = Number;
 
@@ -106,6 +121,8 @@ export class AdminCatalogs {
     name: ['', [Validators.required, Validators.maxLength(150)]],
     description: [''],
     imageUrl: [''],
+    pdfUrl: [''],
+    pdfButtonLabel: ['Descargar PDF', [Validators.maxLength(50)]],
   });
 
   constructor() {
@@ -183,8 +200,8 @@ export class AdminCatalogs {
     this.page.set(1);
   }
 
-  onCategoryChange(value: string): void {
-    this.categoryId.set(value ? Number(value) : null);
+  onCategoryChange(value: string | number | null): void {
+    this.categoryId.set(value !== null && value !== '' ? Number(value) : null);
     this.page.set(1);
   }
 
@@ -211,6 +228,8 @@ export class AdminCatalogs {
       name: '',
       description: '',
       imageUrl: '',
+      pdfUrl: '',
+      pdfButtonLabel: 'Descargar PDF',
     });
     this.modalOpen.set(true);
   }
@@ -223,6 +242,8 @@ export class AdminCatalogs {
       name: row.name,
       description: row.description ?? '',
       imageUrl: row.imageUrl ?? '',
+      pdfUrl: row.pdfUrl ?? '',
+      pdfButtonLabel: row.pdfButtonLabel || 'Descargar PDF',
     });
     this.modalOpen.set(true);
   }
@@ -233,6 +254,10 @@ export class AdminCatalogs {
 
   onImageChange(url: string | null): void {
     this.form.controls.imageUrl.setValue(url ?? '');
+  }
+
+  onPdfChange(url: string | null): void {
+    this.form.controls.pdfUrl.setValue(url ?? '');
   }
 
   onDescriptionChange(html: string): void {
@@ -251,6 +276,8 @@ export class AdminCatalogs {
       name: raw.name.trim(),
       description: raw.description.trim() || undefined,
       imageUrl: raw.imageUrl.trim() || undefined,
+      pdfUrl: raw.pdfUrl.trim() || null,
+      pdfButtonLabel: raw.pdfButtonLabel.trim() || 'Descargar PDF',
       extraCategoryIds: this.extraCategoryIds(),
     };
     this.saving.set(true);

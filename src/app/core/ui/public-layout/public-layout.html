@@ -1,0 +1,21 @@
+<div class="public-layout">
+  <app-header
+    [logo]="logo()"
+    [searchCategories]="searchCategories()"
+    [dynamicNav]="dynamicNav()"
+  />
+
+  <div class="public-layout__main">
+    <router-outlet />
+  </div>
+
+  @if (content(); as c) {
+    <app-footer
+      [footer]="c.footer"
+      [headerLogoUrl]="c.header.imageUrl ?? null"
+      [floating]="c.floating ?? null"
+    />
+  } @else if (loading()) {
+    <div class="public-layout__footer-skeleton" aria-hidden="true"></div>
+  }
+</div>

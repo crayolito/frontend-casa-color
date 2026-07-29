@@ -35,12 +35,10 @@ export const NAV_ITEMS: NavItem[] = [
     label: 'DOCUMENTACIÓN',
     href: '#',
     children: [
-      { label: 'CATÁLOGOS', href: '#' },
       { label: 'CARTAS DE COLOR', href: '/cartas-de-color' },
-      { label: 'FICHAS TÉCNICAS', href: '#' },
+      { label: 'FICHAS TÉCNICAS', href: '/fichas-tecnicas' },
     ],
   },
-  { label: 'EMPRESA', href: '/empresa/' },
   { label: 'CONTACTO', href: '/contacto' },
 ];
 
@@ -52,11 +50,9 @@ export const MOBILE_NAV_ITEMS: MobileNavItem[] = [
   {
     label: 'DOCUMENTACIÓN',
     children: [
-      { label: 'CATÁLOGOS', href: '#' },
       { label: 'CARTAS DE COLOR', href: '/cartas-de-color' },
-      { label: 'FICHAS TÉCNICAS', href: '#' },
+      { label: 'FICHAS TÉCNICAS', href: '/fichas-tecnicas' },
     ],
   },
-  { label: 'EMPRESA', href: '#' },
   { label: 'CONTACTO', href: '/contacto' },
 ];

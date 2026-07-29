@@ -20,7 +20,7 @@ const SAMPLE: HomeContent = {
         imageUrl: '/a.jpg',
         title: 'Hola',
         buttonText: 'Ver',
-        buttonLink: '/catalogos',
+        buttonLink: '/cartas-de-color',
       },
     ],
   },

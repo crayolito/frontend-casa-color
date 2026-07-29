@@ -10,6 +10,8 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 import { UploadsService } from '../../../core/uploads/uploads.service';
 import { resolveErrorMessage } from '../../errors/resolve-error-message';
 import { AdminIcon } from '../icons/admin-icon';
+import { ImgFallback } from '../../util/img-fallback/img-fallback';
+import { withProductFallback } from '../../util/default-images';
 
 export interface GalleryImage {
   url: string;
@@ -21,7 +23,7 @@ export interface GalleryImage {
 @Component({
   selector: 'app-image-gallery',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DragDropModule, AdminIcon],
+  imports: [DragDropModule, AdminIcon, ImgFallback],
   template: `
     <div class="gallery">
       <div class="gallery__head">
@@ -57,7 +59,11 @@ export interface GalleryImage {
         >
           @for (img of images(); track img.publicId; let i = $index) {
             <li class="gallery__item" cdkDrag>
-              <img [src]="img.url" alt="" />
+              <img
+                [src]="withProductFallback(img.url)"
+                alt=""
+                appImgFallback="product"
+              />
               @if (img.isMain) {
                 <span class="gallery__badge">Principal</span>
               }
@@ -223,6 +229,8 @@ export class ImageGallery {
 
   readonly uploading = signal(false);
   readonly error = signal<string | null>(null);
+
+  protected withProductFallback = withProductFallback;
 
   onFilesSelected(event: Event): void {
     const input = event.target as HTMLInputElement;

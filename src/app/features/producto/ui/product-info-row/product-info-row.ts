@@ -1,8 +1,8 @@
 import { Component, input } from '@angular/core';
-import { IconBlock } from '../../util/producto-data';
+import { IconBlock } from '../../util/producto-view.model';
 import { SafeHtmlPipe } from '../../../../shared/pipes/safe-html.pipe';
 
-/** Fila Presentación | Acabados+Color — ancho completo bajo gallery+summary (clon visual). */
+/** Fila Presentación | Acabados+Color — dentro del summary Salient (mitad derecha). */
 @Component({
   selector: 'app-product-info-row',
   imports: [SafeHtmlPipe],

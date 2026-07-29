@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BranchList } from './branch-list';
-import { BranchWithDistance } from '../../util/contacto-data';
+import { BranchWithDistance } from '../../data/contacto.models';
 
 const SAMPLE: BranchWithDistance[] = [
   {
-    id: 'centro',
+    id: 1,
     name: 'Sucursal Centro',
     addressLines: ['Calle Ayacucho 168'],
     phone: '+591 3 333-4101',
@@ -12,10 +12,14 @@ const SAMPLE: BranchWithDistance[] = [
     hours: ['Lun–Vie 08:00–18:00', 'Sáb 08:00–13:00'],
     lat: -17.7833,
     lng: -63.1829,
+    imageUrl: null,
+    sortOrder: 0,
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-01T00:00:00.000Z',
     distanceKm: 1.2,
   },
   {
-    id: 'equipetrol',
+    id: 2,
     name: 'Sucursal Equipetrol',
     addressLines: ['Av. San Martín 450'],
     phone: '+591 3 344-2202',
@@ -23,6 +27,10 @@ const SAMPLE: BranchWithDistance[] = [
     hours: ['Lun–Sáb 09:00–19:00'],
     lat: -17.7407,
     lng: -63.1659,
+    imageUrl: null,
+    sortOrder: 1,
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-01T00:00:00.000Z',
     distanceKm: 3.5,
   },
 ];
@@ -47,7 +55,7 @@ describe('BranchList', () => {
   });
 
   it('should emit select with the branch id on click', () => {
-    const emitted: string[] = [];
+    const emitted: number[] = [];
     fixture.componentInstance.select.subscribe((id) => emitted.push(id));
 
     const compiled = fixture.nativeElement as HTMLElement;
@@ -56,7 +64,7 @@ describe('BranchList', () => {
     ) as NodeListOf<HTMLButtonElement>;
     buttons[1].click();
 
-    expect(emitted).toEqual(['equipetrol']);
+    expect(emitted).toEqual([2]);
   });
 
   it('should show distance when available', () => {
