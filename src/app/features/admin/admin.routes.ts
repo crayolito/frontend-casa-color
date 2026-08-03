@@ -26,6 +26,18 @@ export const ADMIN_ROUTES: Routes = [
           import('./catalogs/catalogs').then((m) => m.AdminCatalogs),
       },
       {
+        path: 'bulk-data',
+        loadComponent: () =>
+          import('./bulk-data/bulk-data').then((m) => m.AdminBulkData),
+      },
+      {
+        path: 'catalogos-page',
+        loadComponent: () =>
+          import('./catalogos-page/catalogos-page').then(
+            (m) => m.AdminCatalogosPage,
+          ),
+      },
+      {
         path: 'color-cards',
         loadComponent: () =>
           import('./color-cards/color-cards').then((m) => m.AdminColorCards),
@@ -54,8 +66,8 @@ export const ADMIN_ROUTES: Routes = [
       },
       {
         path: 'branches',
-        loadComponent: () =>
-          import('./branches/branches').then((m) => m.AdminBranches),
+        pathMatch: 'full',
+        redirectTo: 'contacto',
       },
       {
         path: 'contacto',
@@ -63,6 +75,11 @@ export const ADMIN_ROUTES: Routes = [
           import('./contacto-settings/contacto-settings').then(
             (m) => m.AdminContactoSettings,
           ),
+      },
+      {
+        path: 'empresa',
+        loadComponent: () =>
+          import('./empresa/empresa').then((m) => m.AdminEmpresa),
       },
       {
         path: 'home',

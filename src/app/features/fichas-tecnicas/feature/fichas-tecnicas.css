@@ -1,4 +1,4 @@
-/* Clon Fichas Técnicas 2 — hero + categorías dinámicas */
+/* Clon Fichas Técnicas — hero + columnas vc_col-sm-4 */
 
 :host {
   display: block;
@@ -8,31 +8,78 @@
   background: #ffffff;
 }
 
+/*
+  Original: #page-header-wrap height:700px; data-padding-amt=high → mobile 13% 0
+  Título overlay arriba del hero (no abajo). Color negro (pedido).
+*/
 .fichas__hero {
+  position: relative;
   margin-top: var(--header-h-mobile);
   height: auto;
   padding: 13% 0;
   background-color: #000;
-  background-image: url('/img/slides/linea-deco-imagen-destacada.jpg');
+  background-image: url('/img/img-auxiliar2.jpg');
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
+}
+
+.fichas__hero app-container {
+  display: block;
+  box-sizing: border-box;
+  /* Arriba del hero, no centrado ni abajo */
+  padding-top: 1.5rem;
 }
 
 @media (min-width: 1000px) {
   .fichas__hero {
     margin-top: var(--header-h-desktop);
     height: 700px;
-    padding: 6% 0 20%;
+    padding: 0;
+  }
+
+  .fichas__hero app-container {
+    padding-top: 3rem;
   }
 }
 
 .fichas__title {
-  font-weight: 600;
-  font-size: clamp(1.75rem, 1rem + 2.5vw, 2.75rem);
-  line-height: 1.25;
-  letter-spacing: -0.01em;
   margin: 0 0 8px;
-  color: #0a0000;
+  color: #000;
+  font-family: var(--font-body);
+  font-size: 2.03125rem; /* 32.5px */
+  font-weight: 300;
+  line-height: 1.44;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+@media (min-width: 691px) and (max-width: 999px) {
+  .fichas__title {
+    font-size: 2.1875rem; /* 35px */
+    line-height: 1.44;
+  }
+}
+
+@media (min-width: 1000px) and (max-width: 1299px) {
+  .fichas__title {
+    font-size: 3.1875rem; /* 51px */
+    line-height: 1.2;
+  }
+}
+
+@media (min-width: 1300px) and (max-width: 1499px) {
+  .fichas__title {
+    font-size: 3.375rem; /* 54px */
+    line-height: 1.2;
+  }
+}
+
+@media (min-width: 1500px) {
+  .fichas__title {
+    font-size: 3.75rem; /* 60px */
+    line-height: 1.2;
+  }
 }
 
 .fichas__content {
@@ -77,62 +124,39 @@
   outline-offset: 2px;
 }
 
-.fichas__cards {
+/* Clon: row_col_wrap_12 + vc_col-sm-4 (3 columnas; 4 → 25%) */
+.fichas__grid {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 1.25rem;
-  margin: 1.5rem 0 2rem;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 0;
 }
 
-.fichas__card {
+.fichas__column {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 8rem;
-  max-width: 10rem;
-  padding: 0.75rem;
-  border: 2px solid transparent;
-  background: transparent;
-  cursor: pointer;
-  font: inherit;
-  color: inherit;
-  transition: border-color 0.15s ease;
+  flex: 0 1 100%;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding-inline: 2%;
+  min-width: 0;
 }
 
-.fichas__card:hover,
-.fichas__card:focus-visible {
-  border-color: color-mix(in srgb, var(--color-accent, #dd3333) 40%, transparent);
-}
-
-.fichas__card:focus-visible {
-  outline: 2px solid var(--color-accent, #dd3333);
-  outline-offset: 2px;
-}
-
-.fichas__card--active {
-  border-color: var(--color-accent, #dd3333);
-}
-
-.fichas__card-img {
-  width: 120px;
-  height: 120px;
-  object-fit: contain;
-}
-
-.fichas__card-label {
-  text-align: center;
-  font-weight: 600;
-  font-size: 0.9375rem;
-}
-
-.fichas__detail {
-  max-width: 36rem;
-  margin: 0 auto;
-}
-
-.fichas__detail app-fichas-column {
+.fichas__column app-fichas-column {
   display: block;
   width: 100%;
+}
+
+@media (min-width: 690px) {
+  .fichas__column {
+    flex: 0 1 33.333%;
+    max-width: 33.333%;
+  }
+
+  .fichas__grid--cols-4 .fichas__column {
+    flex: 0 1 25%;
+    max-width: 25%;
+  }
 }

@@ -32,6 +32,13 @@
   color: var(--color-text);
   font-size: inherit;
   line-height: inherit;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 690px) and (max-width: 999px) {
+  .info-block__text {
+    padding-left: 45px;
+  }
 }
 
 .info-block__text strong {

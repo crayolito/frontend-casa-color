@@ -4,7 +4,8 @@ export interface Category {
   slug: string;
   description: string | null;
   description2: string | null;
-  imageUrl: string | null;
+  coverImageUrl: string | null;
+  cardImageUrl: string | null;
   createdAt: string;
   updatedAt: string;
   catalogsCount?: number;
@@ -15,7 +16,8 @@ export interface CategoryWrite {
   slug?: string;
   description?: string;
   description2?: string;
-  imageUrl?: string;
+  coverImageUrl?: string;
+  cardImageUrl?: string;
 }
 
 export interface Catalog {
@@ -231,6 +233,25 @@ export interface ContactoSettings {
   centralEmail: string;
   attentionLabel: string;
   infoRequestLabel: string;
+}
+
+export interface EmpresaHero {
+  imageUrl: string;
+}
+
+export interface EmpresaSection {
+  id: string;
+  title: string;
+  titleColor?: string;
+  descriptionHtml: string;
+  largeImageUrl?: string;
+  sideImageUrl?: string;
+  sortOrder: number;
+}
+
+export interface EmpresaContent {
+  hero: EmpresaHero;
+  sections: EmpresaSection[];
 }
 
 /** Contenido de una página legal (aviso-legal / politica-datos). */

@@ -8,9 +8,7 @@ import {
   effect,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { interval, Subscription } from 'rxjs';
 import {
   HomeBanner,
   HomeSlide,
@@ -30,8 +28,11 @@ export class HeroSlider implements OnInit {
   readonly banner = input.required<HomeBanner>();
   /** Salient home: data-bullets="false". Opt-in si se necesita. */
   readonly showDots = input(false);
-  /** Salient home: data-arrows="false". Opt-in si se necesita. */
-  readonly showArrows = input(false);
+  /**
+   * Clon: data-arrows="false" pero data-overall_style="directional" igual
+   * muestra prev/next. Default true para paridad con el home clonado.
+   */
+  readonly showArrows = input(true);
 
   protected readonly current = signal(0);
   protected readonly paused = signal(false);
@@ -40,7 +41,7 @@ export class HeroSlider implements OnInit {
   /** Offset Y del parallax bg_only (px). */
   protected readonly parallaxY = signal(0);
 
-  private timerSub: Subscription | null = null;
+  private timerId: ReturnType<typeof setInterval> | null = null;
   private captionTimer: ReturnType<typeof setTimeout> | null = null;
   private parallaxRaf = 0;
   private inView = false;
@@ -48,13 +49,21 @@ export class HeroSlider implements OnInit {
   constructor() {
     effect(() => {
       const b = this.banner();
+      const total = b.slides?.length ?? 0;
+      if (this.current() >= total) {
+        this.current.set(0);
+      }
       this.restartTimer(b);
     });
 
     effect(() => {
-      // Re-dispara caption cada vez que cambia el slide activo.
       this.current();
       this.replayCaption();
+    });
+
+    this.destroyRef.onDestroy(() => {
+      this.clearTimer();
+      if (this.captionTimer) clearTimeout(this.captionTimer);
     });
   }
 
@@ -65,6 +74,10 @@ export class HeroSlider implements OnInit {
 
   protected slides(): HomeSlide[] {
     return this.banner().slides ?? [];
+  }
+
+  protected showNav(): boolean {
+    return this.showArrows() && this.slides().length > 1;
   }
 
   protected goTo(index: number): void {
@@ -92,7 +105,8 @@ export class HeroSlider implements OnInit {
   }
 
   protected background(slide: HomeSlide): string {
-    return `url('${slide.imageUrl}')`;
+    const url = slide.imageUrl.replace(/'/g, "\\'");
+    return `url('${url}')`;
   }
 
   protected slideHref(slide: HomeSlide): string | null {
@@ -118,7 +132,6 @@ export class HeroSlider implements OnInit {
     if (this.captionTimer) {
       clearTimeout(this.captionTimer);
     }
-    // Un frame para forzar reflow y re-aplicar la animación CSS.
     this.captionTimer = setTimeout(() => {
       this.captionEnter.set(true);
       this.captionTimer = null;
@@ -159,7 +172,6 @@ export class HeroSlider implements OnInit {
       observer.disconnect();
       window.removeEventListener('scroll', onScroll);
       cancelAnimationFrame(this.parallaxRaf);
-      if (this.captionTimer) clearTimeout(this.captionTimer);
     });
   }
 
@@ -168,7 +180,6 @@ export class HeroSlider implements OnInit {
     const el = this.host.nativeElement;
     const rect = el.getBoundingClientRect();
     const height = rect.height || 1;
-    // 0 cuando el top del hero está en el top del viewport; crece al scrollear.
     const progress = Math.min(1, Math.max(0, -rect.top / height));
     this.parallaxY.set(progress * height * 0.15);
   }
@@ -181,21 +192,28 @@ export class HeroSlider implements OnInit {
     );
   }
 
+  private clearTimer(): void {
+    if (this.timerId != null) {
+      clearInterval(this.timerId);
+      this.timerId = null;
+    }
+  }
+
   private restartTimer(banner: HomeBanner): void {
-    this.timerSub?.unsubscribe();
-    this.timerSub = null;
+    this.clearTimer();
 
     if (this.prefersReducedMotion() || !banner.autoplay) {
       return;
     }
+    if ((banner.slides?.length ?? 0) <= 1) {
+      return;
+    }
 
-    const ms = Math.max(1000, banner.intervalMs || 4000);
-    this.timerSub = interval(ms)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        if (!this.paused() && this.slides().length > 1) {
-          this.next();
-        }
-      });
+    const ms = Math.max(1000, Number(banner.intervalMs) || 4000);
+    this.timerId = setInterval(() => {
+      if (!this.paused()) {
+        this.next();
+      }
+    }, ms);
   }
 }

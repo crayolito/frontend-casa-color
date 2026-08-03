@@ -52,16 +52,51 @@ describe('HeroSlider', () => {
     expect(el.querySelector('.hero__dots')).not.toBeNull();
   });
 
-  it('hides arrows by default (Salient data-arrows=false)', () => {
+  it('hides arrows with a single slide', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('.hero__nav')).toBeNull();
   });
 
-  it('shows arrows when showArrows is true', () => {
-    fixture.componentRef.setInput('showArrows', true);
+  it('shows directional arrows when there are multiple slides', () => {
+    fixture.componentRef.setInput('banner', {
+      ...banner,
+      slides: [
+        banner.slides[0],
+        { ...banner.slides[0], id: '2', title: 'Segundo' },
+      ],
+    });
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelectorAll('.hero__nav').length).toBe(2);
+  });
+
+  it('can hide arrows via showArrows=false even with multiple slides', () => {
+    fixture.componentRef.setInput('showArrows', false);
+    fixture.componentRef.setInput('banner', {
+      ...banner,
+      slides: [
+        banner.slides[0],
+        { ...banner.slides[0], id: '2', title: 'Segundo' },
+      ],
+    });
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.hero__nav')).toBeNull();
+  });
+
+  it('advances slide with next()', () => {
+    fixture.componentRef.setInput('banner', {
+      autoplay: false,
+      intervalMs: 4000,
+      slides: [
+        banner.slides[0],
+        { ...banner.slides[0], id: '2', title: 'Segundo' },
+      ],
+    });
+    fixture.detectChanges();
+    fixture.componentInstance['next']();
+    fixture.detectChanges();
+    expect(fixture.componentInstance['current']()).toBe(1);
   });
 
   it('renders a separate bg layer for parallax', () => {

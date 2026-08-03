@@ -1,11 +1,13 @@
-/* Página Contacto — base del clon + layout mapa/lista (mejora). */
+/* Página Contacto — todo alineado al container (como la info de arriba).
+   Desktop: mapa izq + lista der (~20%) con scroll ~2–3 ítems. */
 
 :host {
   display: block;
 }
 
 .contacto {
-  background: #ffffff;
+  background: var(--color-white);
+  overflow-x: hidden;
 }
 
 .contacto__status {
@@ -34,74 +36,123 @@
   background: rgba(221, 51, 51, 0.08);
 }
 
-/* Original: 3 columnas vc_col-sm-4 (index.html:278-303)
-   padding del container-wrap; en mobile stack. */
+.contacto__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  padding: 2rem 0 3rem;
+  min-width: 0;
+}
+
+@media (min-width: 1000px) {
+  .contacto__body {
+    gap: 2rem;
+    padding: 2.5rem 0 4rem;
+  }
+}
+
 .contacto__info {
+  min-width: 0;
+}
+
+.contacto__info-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 28px;
-  padding: 40px 0 0;
+  gap: 1.75rem;
+  min-width: 0;
 }
 
-@media (min-width: 691px) and (max-width: 999px) {
-  .contacto__info {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+@media (min-width: 690px) {
+  .contacto__info-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
   }
 }
 
-@media (min-width: 1000px) {
-  .contacto__info {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 30px;
-  }
+.contacto__map-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  width: 100%;
+  min-width: 0;
 }
 
-/* Original: divider height 20px (index.html:309) */
-.contacto__divider {
-  height: 20px;
+.contacto__map-section {
+  min-width: 0;
+  width: 100%;
+  line-height: 0;
+  overflow: hidden;
+  background: #e8e8e8;
 }
 
-/* Layout mapa + lista — mejora (no está en el clon).
-   Mobile: stack mapa → lista. Desktop: 2 columnas. */
+.contacto__map-placeholder {
+  width: 100%;
+  height: 280px;
+  background: #e8e8e8;
+}
+
 .contacto__branches {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-  padding-bottom: 40px;
-}
-
-@media (min-width: 1000px) {
-  .contacto__branches {
-    grid-template-columns: 1.4fr 1fr;
-    gap: 32px;
-    align-items: start;
-  }
-}
-
-.contacto__map {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
-}
-
-.contacto__list {
-  min-width: 0;
+  box-sizing: border-box;
 }
 
 .contacto__list-heading {
-  margin: 0 0 8px;
-  font-size: clamp(1.375rem, 1.25rem + 0.4vw, 1.5rem);
+  margin: 0 0 0.35rem;
+  font-family: var(--font-body);
+  font-size: clamp(1.25rem, 1.15rem + 0.35vw, 1.375rem);
   line-height: 1.3;
   font-weight: 300;
   color: #333;
 }
 
 .contacto__geo-hint {
-  margin: 0 0 12px;
-  font-size: 13px;
+  margin: 0 0 0.85rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
   color: var(--color-text-muted);
 }
 
-/* Contenedor del scroll de la lista (el scroll vive en .branch-list). */
 .contacto__list-scroll {
   min-width: 0;
+}
+
+@media (min-width: 1000px) {
+  .contacto__map-row {
+    grid-template-columns: minmax(0, 1fr) minmax(15rem, 22%);
+    gap: 1.5rem;
+    align-items: stretch;
+    height: clamp(22rem, 48vh, 30rem);
+  }
+
+  .contacto__map-section {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .contacto__map-section > app-branch-map {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .contacto__map-placeholder {
+    height: 100%;
+  }
+
+  .contacto__branches {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .contacto__list-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent) transparent;
+  }
 }

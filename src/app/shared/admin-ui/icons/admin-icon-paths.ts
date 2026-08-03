@@ -1,6 +1,6 @@
 /**
  * Path markup de íconos admin (sin wrapper <svg>).
- * Separado del componente para no ensuciar el template con paths largos.
+ * Set cohesivo estilo Lucide: stroke-width 2, caps/joins round.
  *
  * Deuda: SVGs inline siguen en header/search-overlay/mobile-menu/
  * contact-info-block/hero-slider/fichas-toggle y catalogos.css (frontend público).
@@ -28,99 +28,129 @@ export type AdminIconName =
   | 'list'
   | 'check'
   | 'alert'
-  | 'info';
+  | 'info'
+  | 'grip-vertical';
+
+const S =
+  'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
 
 export const ADMIN_ICON_PATHS: Record<AdminIconName, string> = {
   search: `
-    <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5" />
-    <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+    <circle cx="11" cy="11" r="8" ${S} />
+    <path d="m21 21-4.3-4.3" ${S} />
   `,
   plus: `
-    <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+    <path d="M5 12h14" ${S} />
+    <path d="M12 5v14" ${S} />
   `,
   edit: `
-    <path d="M4 20h4l10-10-4-4L4 16v4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-    <path d="M13 7l4 4" stroke="currentColor" stroke-width="1.5" />
+    <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" ${S} />
+    <path d="m15 5 4 4" ${S} />
   `,
   trash: `
-    <path d="M4 7h16M9 7V5h6v2M8 7l1 12h6l1-12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M3 6h18" ${S} />
+    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" ${S} />
+    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" ${S} />
+    <line x1="10" x2="10" y1="11" y2="17" ${S} />
+    <line x1="14" x2="14" y1="11" y2="17" ${S} />
   `,
   logout: `
-    <path d="M10 7V5a2 2 0 012-2h6a2 2 0 012 2v14a2 2 0 01-2 2h-6a2 2 0 01-2-2v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-    <path d="M15 12H4m0 0l3-3m-3 3l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" ${S} />
+    <polyline points="16 17 21 12 16 7" ${S} />
+    <line x1="21" x2="9" y1="12" y2="12" ${S} />
   `,
   categories: `
-    <path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+    <path d="M4 6h16" ${S} />
+    <path d="M4 12h16" ${S} />
+    <path d="M4 18h10" ${S} />
   `,
   catalogs: `
-    <rect x="4" y="4" width="7" height="7" stroke="currentColor" stroke-width="1.5" />
-    <rect x="13" y="4" width="7" height="7" stroke="currentColor" stroke-width="1.5" />
-    <rect x="4" y="13" width="7" height="7" stroke="currentColor" stroke-width="1.5" />
-    <rect x="13" y="13" width="7" height="7" stroke="currentColor" stroke-width="1.5" />
+    <rect width="7" height="7" x="3" y="3" rx="1" ${S} />
+    <rect width="7" height="7" x="14" y="3" rx="1" ${S} />
+    <rect width="7" height="7" x="14" y="14" rx="1" ${S} />
+    <rect width="7" height="7" x="3" y="14" rx="1" ${S} />
   `,
   products: `
-    <path d="M4 8l8-4 8 4v8l-8 4-8-4V8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-    <path d="M12 12v8M4 8l8 4 8-4" stroke="currentColor" stroke-width="1.5" />
+    <path d="m7.5 4.27 9 5.15" ${S} />
+    <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" ${S} />
+    <path d="m3.3 7 8.7 5 8.7-5" ${S} />
+    <path d="M12 22V12" ${S} />
   `,
   settings: `
-    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5" />
-    <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" ${S} />
+    <circle cx="12" cy="12" r="3" ${S} />
   `,
   home: `
-    <path d="M4 11l8-7 8 7v9a1 1 0 01-1 1h-5v-5H10v5H5a1 1 0 01-1-1v-9z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" ${S} />
+    <polyline points="9 22 9 12 15 12 15 22" ${S} />
   `,
   image: `
-    <rect x="3" y="5" width="18" height="14" rx="0" stroke="currentColor" stroke-width="1.5" />
-    <circle cx="9" cy="10" r="1.5" stroke="currentColor" stroke-width="1.5" />
-    <path d="M3 16l5-4 4 3 3-2 6 3" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+    <rect width="18" height="18" x="3" y="3" rx="2" ry="2" ${S} />
+    <circle cx="9" cy="9" r="2" ${S} />
+    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" ${S} />
   `,
   x: `
-    <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+    <path d="M18 6 6 18" ${S} />
+    <path d="m6 6 12 12" ${S} />
   `,
   lock: `
-    <rect x="5" y="11" width="14" height="10" stroke="currentColor" stroke-width="1.5" />
-    <path d="M8 11V8a4 4 0 018 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+    <rect width="18" height="11" x="3" y="11" rx="2" ry="2" ${S} />
+    <path d="M7 11V7a5 5 0 0 1 10 0v4" ${S} />
   `,
   upload: `
-    <path d="M12 16V5m0 0l-4 4m4-4l4 4M4 19h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" ${S} />
+    <polyline points="17 8 12 3 7 8" ${S} />
+    <line x1="12" x2="12" y1="3" y2="15" ${S} />
   `,
   star: `
-    <path d="M12 3l2.5 6.5H21l-5 4 2 6.5L12 16l-6 4 2-6.5-5-4h6.5L12 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+    <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" ${S} />
   `,
   menu: `
-    <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+    <line x1="4" x2="20" y1="12" y2="12" ${S} />
+    <line x1="4" x2="20" y1="6" y2="6" ${S} />
+    <line x1="4" x2="20" y1="18" y2="18" ${S} />
   `,
   eye: `
-    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5" />
+    <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" ${S} />
+    <circle cx="12" cy="12" r="3" ${S} />
   `,
   'eye-off': `
-    <path d="M3 3l18 18M10.5 10.5a3 3 0 004 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-    <path d="M6.5 6.8C4.2 8.3 2.5 11 2.5 12s3.5 7 9.5 7c1.7 0 3.2-.4 4.5-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-    <path d="M14.1 9.1A3 3 0 0012 9c-1.7 0-3 1.3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-    <path d="M17.5 6.5C19 7.8 20.5 10 21.5 12c0 0-1.2 2.5-3.2 4.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+    <path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" ${S} />
+    <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" ${S} />
+    <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" ${S} />
+    <path d="m2 2 20 20" ${S} />
   `,
   'panel-left': `
-    <rect x="3" y="4" width="18" height="16" rx="1" stroke="currentColor" stroke-width="1.5" />
-    <path d="M9 4v16" stroke="currentColor" stroke-width="1.5" />
+    <rect width="18" height="18" x="3" y="3" rx="2" ${S} />
+    <path d="M9 3v18" ${S} />
   `,
   list: `
-    <path d="M8 6h12M8 12h12M8 18h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-    <circle cx="4" cy="6" r="1" fill="currentColor" />
-    <circle cx="4" cy="12" r="1" fill="currentColor" />
-    <circle cx="4" cy="18" r="1" fill="currentColor" />
+    <path d="M3 12h.01" ${S} />
+    <path d="M3 18h.01" ${S} />
+    <path d="M3 6h.01" ${S} />
+    <path d="M8 12h13" ${S} />
+    <path d="M8 18h13" ${S} />
+    <path d="M8 6h13" ${S} />
   `,
   check: `
-    <path d="M5 12l4.5 4.5L19 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M20 6 9 17l-5-5" ${S} />
   `,
   alert: `
-    <path d="M12 4l9 16H3L12 4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-    <path d="M12 10v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-    <circle cx="12" cy="16.5" r="0.75" fill="currentColor" />
+    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" ${S} />
+    <path d="M12 9v4" ${S} />
+    <path d="M12 17h.01" ${S} />
   `,
   info: `
-    <circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.5" />
-    <path d="M12 11v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-    <circle cx="12" cy="8" r="0.9" fill="currentColor" />
+    <circle cx="12" cy="12" r="10" ${S} />
+    <path d="M12 16v-4" ${S} />
+    <path d="M12 8h.01" ${S} />
+  `,
+  'grip-vertical': `
+    <circle cx="9" cy="12" r="1" ${S} />
+    <circle cx="9" cy="5" r="1" ${S} />
+    <circle cx="9" cy="19" r="1" ${S} />
+    <circle cx="15" cy="12" r="1" ${S} />
+    <circle cx="15" cy="5" r="1" ${S} />
+    <circle cx="15" cy="19" r="1" ${S} />
   `,
 };

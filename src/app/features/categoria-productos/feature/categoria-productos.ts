@@ -32,8 +32,8 @@ import {
   resolveErrorMessage,
 } from '../../../shared/errors/resolve-error-message';
 import { AppSelect, SelectOption } from '../../../shared/ui/select/select';
+import { withProductFallback } from '../../../shared/util/default-images';
 
-const FALLBACK_PRODUCT_IMAGE = '/img/productos/envase-colom-industria-375x400.jpg';
 const PAGE_SIZE = 12;
 const SEARCH_DEBOUNCE_MS = 250;
 
@@ -438,11 +438,11 @@ export function applyFilters(
 }
 
 function toProductItem(p: PublicProduct): ProductItem {
-  const main =
+  const main = withProductFallback(
     p.images?.find((i) => i.isMain)?.url ??
-    p.images?.[0]?.url ??
-    p.mainImageUrl ??
-    FALLBACK_PRODUCT_IMAGE;
+      p.images?.[0]?.url ??
+      p.mainImageUrl,
+  );
   return {
     title: p.title,
     href: `/producto/${p.slug}`,

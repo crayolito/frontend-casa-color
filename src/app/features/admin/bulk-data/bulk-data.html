@@ -1,0 +1,153 @@
+<section class="bulk-page">
+  <app-admin-page-header
+    title="Importar / Exportar"
+    breadcrumb="Catálogo"
+    subtitle="Descargá una plantilla por entidad, exportá lo que tenés hoy o subí un Excel para actualizar categorías, catálogos o productos por separado."
+  />
+
+  <div class="bulk-cards" role="list">
+    @for (card of cards; track card.entity) {
+      @let state = cardState(card.entity);
+      <article class="bulk-card" role="listitem" [attr.aria-labelledby]="'bulk-card-' + card.entity">
+        <header class="bulk-card__head">
+          <h2 [id]="'bulk-card-' + card.entity" class="bulk-card__title">
+            {{ card.title }}
+          </h2>
+          <p class="bulk-card__desc">{{ card.description }}</p>
+        </header>
+
+        <div class="bulk-card__actions">
+          <app-admin-button
+            variant="secondary"
+            type="button"
+            [block]="true"
+            [loading]="state.downloadingTemplate"
+            [disabled]="state.downloadingTemplate || state.downloadingExport || state.importing"
+            (clicked)="downloadTemplate(card.entity)"
+          >
+            Importar plantilla
+          </app-admin-button>
+          <app-admin-button
+            variant="secondary"
+            type="button"
+            [block]="true"
+            [loading]="state.downloadingExport"
+            [disabled]="state.downloadingTemplate || state.downloadingExport || state.importing"
+            (clicked)="downloadExport(card.entity)"
+          >
+            Exportar
+          </app-admin-button>
+        </div>
+
+        <div
+          class="bulk-drop"
+          [class.bulk-drop--active]="state.dragOver"
+          [class.bulk-drop--has-file]="!!state.selectedFile"
+          (dragover)="onDragOver(card.entity, $event)"
+          (dragleave)="onDragLeave(card.entity, $event)"
+          (drop)="onDrop(card.entity, $event)"
+        >
+          <label class="bulk-drop__label" [for]="'bulk-file-' + card.entity">
+            <span class="bulk-drop__icon" aria-hidden="true">↑</span>
+            <span class="bulk-drop__text">
+              @if (state.selectedFile; as file) {
+                {{ file.name }}
+              } @else {
+                Arrastrá un .xlsx acá o elegí un archivo
+              }
+            </span>
+            <span class="bulk-drop__hint">Máx. 10 MB · hasta 5000 filas</span>
+          </label>
+          <input
+            class="bulk-drop__input"
+            type="file"
+            [id]="'bulk-file-' + card.entity"
+            accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            [disabled]="state.importing"
+            (change)="onFileSelected(card.entity, $event)"
+          />
+        </div>
+
+        @if (state.deleteCount > 0) {
+          <p class="bulk-card__warn" role="status">
+            Este archivo tiene {{ state.deleteCount }} fila(s) DELETE. Se pedirá confirmación.
+          </p>
+        }
+
+        <div class="bulk-card__import">
+          <app-admin-button
+            variant="primary"
+            type="button"
+            [block]="true"
+            [loading]="state.importing"
+            [disabled]="!state.selectedFile || state.importing || state.scanning"
+            (clicked)="requestImport(card.entity)"
+          >
+            Importar
+          </app-admin-button>
+        </div>
+      </article>
+    }
+  </div>
+
+  @if (result(); as res) {
+    <section class="bulk-result" aria-labelledby="bulk-result-heading">
+      <div class="bulk-result__head">
+        <h2 id="bulk-result-heading" class="bulk-result__title">
+          Resultado
+          @if (lastImportEntity(); as entity) {
+            <span class="bulk-result__entity">— {{ entityLabel(entity) }}</span>
+          }
+        </h2>
+        <app-admin-button
+          variant="secondary"
+          type="button"
+          [disabled]="!hasResult()"
+          (clicked)="downloadReport()"
+        >
+          Descargar reporte
+        </app-admin-button>
+      </div>
+      @if (summaryText(); as summary) {
+        <p class="bulk-result__summary">{{ summary }}</p>
+      }
+      <div class="bulk-table-wrap">
+        <table class="bulk-table">
+          <thead>
+            <tr>
+              <th scope="col">Hoja</th>
+              <th scope="col">Fila</th>
+              <th scope="col">Slug</th>
+              <th scope="col">Comando</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Detalle</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of res.rows; track row.sheet + '-' + row.row) {
+              <tr [class.bulk-table__row--error]="row.status === 'error'">
+                <td>{{ row.sheet }}</td>
+                <td>{{ row.row }}</td>
+                <td>{{ row.slug ?? '—' }}</td>
+                <td>{{ row.command }}</td>
+                <td>{{ statusLabel(row.status) }}</td>
+                <td>{{ rowMessage(row) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+</section>
+
+<app-admin-confirm-dialog
+  [open]="confirmDeleteOpen()"
+  title="Confirmar DELETE"
+  [message]="deleteConfirmMessage()"
+  warning="CASCADE: al borrar una categoría o catálogo también se eliminan sus hijos en la base."
+  confirmLabel="Importar con DELETE"
+  [loading]="pendingImport() ? cardState(pendingImport()!.entity).importing : false"
+  (confirmed)="confirmDeleteImport()"
+  (cancelled)="cancelDeleteConfirm()"
+/>

@@ -15,9 +15,7 @@
   } @else {
     <div
       class="fichas__hero"
-      [style.background-image]="
-        heroImageUrl() ? 'url(' + heroImageUrl() + ')' : null
-      "
+      [style.background-image]="'url(' + heroImageUrl() + ')'"
     >
       <app-container>
         <h1 class="fichas__title">{{ heading() }}</h1>
@@ -32,47 +30,16 @@
           </p>
         } @else {
           <div
-            class="fichas__cards"
-            role="tablist"
+            class="fichas__grid"
+            [class.fichas__grid--cols-4]="categories().length >= 4"
             aria-label="Categorías de fichas técnicas"
           >
             @for (cat of categories(); track cat.categoryId) {
-              <button
-                type="button"
-                class="fichas__card"
-                role="tab"
-                [attr.aria-selected]="selectedId() === cat.categoryId"
-                [class.fichas__card--active]="selectedId() === cat.categoryId"
-                (click)="selectCategory(cat.categoryId)"
-              >
-                @if (cat.imageUrl; as src) {
-                  <img
-                    class="fichas__card-img"
-                    [src]="src"
-                    [alt]=""
-                    width="120"
-                    height="120"
-                    appImgFallback="category"
-                  />
-                } @else {
-                  <img
-                    class="fichas__card-img"
-                    src="/img/img-auxiliar2.jpg"
-                    alt=""
-                    width="120"
-                    height="120"
-                  />
-                }
-                <span class="fichas__card-label">{{ cat.label }}</span>
-              </button>
+              <div class="fichas__column">
+                <app-fichas-column [category]="cat" />
+              </div>
             }
           </div>
-
-          @if (selectedCategory(); as cat) {
-            <div class="fichas__detail" role="tabpanel">
-              <app-fichas-column [category]="cat" />
-            </div>
-          }
         }
       </app-container>
     </div>

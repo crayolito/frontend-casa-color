@@ -10,11 +10,17 @@
     </div>
   } @else if (content(); as c) {
     <div
+      #hero
       class="categoria__hero"
-      [style]="heroStyle(c.imageUrl)"
       role="img"
       [attr.aria-label]="c.name"
-    ></div>
+    >
+      <div
+        class="categoria__hero-bg"
+        [style.background-image]="heroBg(c.coverImageUrl ?? c.cardImageUrl)"
+        [style.transform]="'translate3d(0, ' + parallaxY() + 'px, 0)'"
+      ></div>
+    </div>
 
     <app-container>
       <h5 class="categoria__heading">{{ c.name }}</h5>
@@ -34,16 +40,23 @@
         <p class="categoria__empty">Esta categoría todavía no tiene catálogos.</p>
       } @else {
         <div class="categoria__grid">
-          @for (cat of c.catalogs; track cat.id) {
-            <a class="categoria__card" [routerLink]="['/catalogo', cat.slug]">
-              <img
-                class="categoria__card-img"
-                [src]="catalogImage(cat.imageUrl)"
-                width="480"
-                height="320"
-                [alt]="cat.name"
-                loading="lazy"
-              />
+          @for (cat of c.catalogs; track cat.id; let i = $index) {
+            <a
+              class="categoria__card"
+              [routerLink]="['/catalogo', cat.slug]"
+              appReveal
+              [delayMs]="revealDelay(i)"
+            >
+              <span class="categoria__card-media">
+                <img
+                  class="categoria__card-img"
+                  [src]="catalogImage(cat.imageUrl)"
+                  width="600"
+                  height="400"
+                  [alt]="cat.name"
+                  loading="lazy"
+                />
+              </span>
               <h6 class="categoria__card-title">{{ cat.name }}</h6>
             </a>
           }

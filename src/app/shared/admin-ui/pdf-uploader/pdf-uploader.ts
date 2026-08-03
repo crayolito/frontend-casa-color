@@ -9,12 +9,12 @@ import {
 import { UploadsService, UploadFolder } from '../../../core/uploads/uploads.service';
 import { resolveErrorMessage } from '../../errors/resolve-error-message';
 import { AdminIcon } from '../icons/admin-icon';
-import { AdminButton } from '../admin-button/admin-button';
+import { AdminIconButton } from '../admin-icon-button/admin-icon-button';
 
 @Component({
   selector: 'app-pdf-uploader',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AdminIcon, AdminButton],
+  imports: [AdminIcon, AdminIconButton],
   template: `
     <div class="uploader">
       <p class="uploader__label">{{ label() }}</p>
@@ -41,10 +41,12 @@ import { AdminButton } from '../admin-button/admin-button';
               />
               Cambiar
             </label>
-            <app-admin-button type="button" variant="ghost" (clicked)="clear()">
-              <app-admin-icon name="trash" />
-              Quitar
-            </app-admin-button>
+            <app-admin-icon-button
+              icon="trash"
+              label="Quitar"
+              variant="danger"
+              (clicked)="clear()"
+            />
           </div>
         </div>
       } @else {

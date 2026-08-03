@@ -9,7 +9,7 @@ import {
 import { UploadsService, UploadFolder } from '../../../core/uploads/uploads.service';
 import { resolveErrorMessage } from '../../errors/resolve-error-message';
 import { AdminIcon } from '../icons/admin-icon';
-import { AdminButton } from '../admin-button/admin-button';
+import { AdminIconButton } from '../admin-icon-button/admin-icon-button';
 import {
   ImgFallback,
   ImgFallbackKind,
@@ -18,43 +18,56 @@ import {
 @Component({
   selector: 'app-image-uploader',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AdminIcon, AdminButton, ImgFallback],
+  imports: [AdminIcon, AdminIconButton, ImgFallback],
   template: `
     <div class="uploader">
       <p class="uploader__label">{{ label() }}</p>
+
+      <input
+        #fileInput
+        type="file"
+        accept="image/*"
+        hidden
+        (change)="onFileSelected($event)"
+        [disabled]="uploading()"
+      />
 
       @if (url(); as preview) {
         <div class="uploader__preview">
           <img [src]="preview" [alt]="label()" [appImgFallback]="fallbackKind()" />
           <div class="uploader__preview-actions">
-            <label class="uploader__change">
-              <input
-                type="file"
-                accept="image/*"
-                hidden
-                (change)="onFileSelected($event)"
-                [disabled]="uploading()"
-              />
+            <button
+              type="button"
+              class="uploader__change"
+              [disabled]="uploading()"
+              (click)="fileInput.click()"
+            >
               Cambiar
-            </label>
-            <app-admin-button type="button" variant="ghost" (clicked)="clear()">
-              <app-admin-icon name="trash" />
-              Quitar
-            </app-admin-button>
+            </button>
+            <app-admin-icon-button
+              icon="trash"
+              label="Quitar"
+              variant="danger"
+              (clicked)="clear()"
+            />
           </div>
         </div>
       } @else {
-        <label
+        <div
           class="uploader__drop"
+          role="button"
+          tabindex="0"
           [class.uploader__drop--busy]="uploading()"
+          [class.uploader__drop--active]="dragOver()"
+          [attr.aria-disabled]="uploading()"
+          (click)="!uploading() && fileInput.click()"
+          (keydown.enter)="!uploading() && fileInput.click()"
+          (keydown.space)="$event.preventDefault(); !uploading() && fileInput.click()"
+          (dragenter)="onDragEnter($event)"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
         >
-          <input
-            type="file"
-            accept="image/*"
-            hidden
-            (change)="onFileSelected($event)"
-            [disabled]="uploading()"
-          />
           @if (uploading()) {
             <span class="uploader__spinner" aria-hidden="true"></span>
             <span>Subiendo…</span>
@@ -62,7 +75,7 @@ import {
             <app-admin-icon name="upload" [size]="28" />
             <span>Elegí o arrastrá una imagen</span>
           }
-        </label>
+        </div>
       }
 
       @if (error(); as err) {
@@ -101,12 +114,20 @@ import {
       font-size: 0.875rem;
       font-weight: 600;
       letter-spacing: 0.02em;
-      transition: border-color 0.2s ease, color 0.2s ease;
+      transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
     }
 
-    .uploader__drop:hover:not(.uploader__drop--busy) {
+    .uploader__drop:hover:not(.uploader__drop--busy),
+    .uploader__drop:focus-visible:not(.uploader__drop--busy) {
       border-color: var(--color-accent);
       color: var(--color-accent);
+      outline: none;
+    }
+
+    .uploader__drop--active:not(.uploader__drop--busy) {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+      background: rgba(221, 51, 51, 0.06);
     }
 
     .uploader__drop--busy {
@@ -150,11 +171,17 @@ import {
       cursor: pointer;
       color: var(--color-text);
       background: var(--color-white);
+      font-family: inherit;
     }
 
-    .uploader__change:hover {
+    .uploader__change:hover:not(:disabled) {
       border-color: var(--color-accent);
       color: var(--color-accent);
+    }
+
+    .uploader__change:disabled {
+      opacity: 0.6;
+      cursor: wait;
     }
 
     .uploader__error {
@@ -196,13 +223,61 @@ export class ImageUploader {
 
   readonly uploading = signal(false);
   readonly error = signal<string | null>(null);
+  readonly dragOver = signal(false);
+
+  private dragDepth = 0;
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     input.value = '';
     if (!file) return;
+    this.upload(file);
+  }
 
+  onDragEnter(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    if (this.uploading()) return;
+    this.dragDepth += 1;
+    this.dragOver.set(true);
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'copy';
+    }
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragDepth = Math.max(0, this.dragDepth - 1);
+    if (this.dragDepth === 0) {
+      this.dragOver.set(false);
+    }
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragDepth = 0;
+    this.dragOver.set(false);
+    if (this.uploading()) return;
+    const file = event.dataTransfer?.files?.[0];
+    if (!file) return;
+    this.upload(file);
+  }
+
+  clear(): void {
+    this.urlChange.emit(null);
+    this.publicIdChange.emit(null);
+    this.error.set(null);
+  }
+
+  private upload(file: File): void {
     if (!file.type.startsWith('image/')) {
       this.error.set('Solo se permiten imágenes');
       return;
@@ -226,11 +301,5 @@ export class ImageUploader {
         this.error.set(resolveErrorMessage(err).text);
       },
     });
-  }
-
-  clear(): void {
-    this.urlChange.emit(null);
-    this.publicIdChange.emit(null);
-    this.error.set(null);
   }
 }

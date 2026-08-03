@@ -2,24 +2,9 @@
   [title]="isEdit ? 'Editar producto' : 'Nuevo producto'"
   breadcrumb="Admin / Productos"
 >
-  @if (!formDirty()) {
-    <app-admin-button type="button" variant="secondary" (clicked)="goBack()">
-      Volver
-    </app-admin-button>
-  } @else {
-    <app-admin-button type="button" variant="ghost" (clicked)="askDiscard()">
-      Descartar
-    </app-admin-button>
-    <app-admin-button
-      type="button"
-      variant="primary"
-      [loading]="saving()"
-      [disabled]="loading()"
-      (clicked)="save()"
-    >
-      Guardar
-    </app-admin-button>
-  }
+  <app-admin-button type="button" variant="secondary" (clicked)="goBack()">
+    Volver
+  </app-admin-button>
 </app-admin-page-header>
 
 @if (loading()) {
@@ -41,7 +26,11 @@
     />
   }
 
-  <form class="product-form" [formGroup]="form" (ngSubmit)="save()">
+  <form
+    class="product-form"
+    [formGroup]="form"
+    (ngSubmit)="save()"
+  >
     <div class="product-form__main">
       <section class="product-form__section">
         <h2 class="product-form__heading">Datos básicos</h2>
@@ -72,18 +61,27 @@
         <section class="product-form__section" formArrayName="presentations">
           <div class="product-form__section-head">
             <h2 class="product-form__heading">Presentaciones</h2>
-            <button type="button" class="product-form__icon-add" (click)="addPresentation()" aria-label="Agregar presentación">
-              <app-admin-icon name="plus" [size]="16" />
-            </button>
+            <app-admin-icon-button
+              icon="plus"
+              label="Agregar presentación"
+              [size]="16"
+              (clicked)="addPresentation()"
+            />
           </div>
           <div class="product-form__chips" cdkDropList (cdkDropListDropped)="dropPresentation($event)">
             @for (ctrl of presentations.controls; track $index; let i = $index) {
               <div class="product-form__chip" cdkDrag [formGroupName]="i">
-                <span class="product-form__drag" cdkDragHandle aria-hidden="true">⋮⋮</span>
+                <span class="product-form__drag" cdkDragHandle aria-label="Arrastrar">
+                  <app-admin-icon name="grip-vertical" [size]="14" />
+                </span>
                 <input class="product-form__chip-input" formControlName="value" placeholder="Ej: 1 L" />
-                <button type="button" class="product-form__chip-del" (click)="removePresentation(i)" aria-label="Quitar">
-                  <app-admin-icon name="trash" [size]="14" />
-                </button>
+                <app-admin-icon-button
+                  icon="trash"
+                  label="Quitar"
+                  variant="danger"
+                  [size]="14"
+                  (clicked)="removePresentation(i)"
+                />
               </div>
             }
           </div>
@@ -92,18 +90,27 @@
         <section class="product-form__section" formArrayName="finishes">
           <div class="product-form__section-head">
             <h2 class="product-form__heading">Acabados</h2>
-            <button type="button" class="product-form__icon-add" (click)="addFinish()" aria-label="Agregar acabado">
-              <app-admin-icon name="plus" [size]="16" />
-            </button>
+            <app-admin-icon-button
+              icon="plus"
+              label="Agregar acabado"
+              [size]="16"
+              (clicked)="addFinish()"
+            />
           </div>
           <div class="product-form__chips" cdkDropList (cdkDropListDropped)="dropFinish($event)">
             @for (ctrl of finishes.controls; track $index; let i = $index) {
               <div class="product-form__chip" cdkDrag [formGroupName]="i">
-                <span class="product-form__drag" cdkDragHandle aria-hidden="true">⋮⋮</span>
+                <span class="product-form__drag" cdkDragHandle aria-label="Arrastrar">
+                  <app-admin-icon name="grip-vertical" [size]="14" />
+                </span>
                 <input class="product-form__chip-input" formControlName="name" placeholder="Ej: Mate" />
-                <button type="button" class="product-form__chip-del" (click)="removeFinish(i)" aria-label="Quitar">
-                  <app-admin-icon name="trash" [size]="14" />
-                </button>
+                <app-admin-icon-button
+                  icon="trash"
+                  label="Quitar"
+                  variant="danger"
+                  [size]="14"
+                  (clicked)="removeFinish(i)"
+                />
               </div>
             }
           </div>
@@ -113,15 +120,20 @@
       <section class="product-form__section" formArrayName="sections">
         <div class="product-form__section-head">
           <h2 class="product-form__heading">Secciones</h2>
-          <button type="button" class="product-form__icon-add" (click)="addSection()" aria-label="Agregar sección">
-            <app-admin-icon name="plus" [size]="16" />
-          </button>
+          <app-admin-icon-button
+            icon="plus"
+            label="Agregar sección"
+            [size]="16"
+            (clicked)="addSection()"
+          />
         </div>
         <div class="product-form__sections" cdkDropList (cdkDropListDropped)="dropSection($event)">
           @for (ctrl of sections.controls; track $index; let i = $index) {
             <div class="product-form__section-card" cdkDrag [formGroupName]="i">
               <div class="product-form__section-card-head">
-                <span class="product-form__drag" cdkDragHandle aria-hidden="true">⋮⋮</span>
+                <span class="product-form__drag" cdkDragHandle aria-label="Arrastrar">
+                  <app-admin-icon name="grip-vertical" [size]="14" />
+                </span>
                 <input class="product-form__chip-input" formControlName="title" placeholder="Título de sección" />
                 <input
                   class="product-form__color-swatch"
@@ -129,9 +141,13 @@
                   formControlName="titleColor"
                   aria-label="Color del título"
                 />
-                <button type="button" class="product-form__chip-del" (click)="removeSection(i)" aria-label="Quitar sección">
-                  <app-admin-icon name="trash" [size]="14" />
-                </button>
+                <app-admin-icon-button
+                  icon="trash"
+                  label="Quitar sección"
+                  variant="danger"
+                  [size]="14"
+                  (clicked)="removeSection(i)"
+                />
               </div>
               <div class="product-form__icon-picker" role="listbox" aria-label="Ícono">
                 @for (icon of sectionIcons; track icon.key) {
@@ -177,9 +193,11 @@
             }
           </div>
           @if (!catalogPickerOpen()) {
-            <button type="button" class="product-form__add-catalog" (click)="catalogPickerOpen.set(true)">
-              + Agregar catálogo
-            </button>
+            <app-admin-icon-button
+              icon="plus"
+              label="Agregar catálogo"
+              (clicked)="catalogPickerOpen.set(true)"
+            />
           } @else {
             <div class="product-form__catalog-picker">
               <input
@@ -209,14 +227,19 @@
       <section class="product-form__section" formArrayName="colors">
         <div class="product-form__section-head">
           <h2 class="product-form__heading">Colores</h2>
-          <button type="button" class="product-form__icon-add" (click)="addColor()" aria-label="Agregar color">
-            <app-admin-icon name="plus" [size]="16" />
-          </button>
+          <app-admin-icon-button
+            icon="plus"
+            label="Agregar color"
+            [size]="16"
+            (clicked)="addColor()"
+          />
         </div>
         <div class="product-form__chips product-form__chips--colors" cdkDropList (cdkDropListDropped)="dropColor($event)">
           @for (ctrl of colors.controls; track $index; let i = $index) {
             <div class="product-form__chip product-form__chip--color" cdkDrag [formGroupName]="i">
-              <span class="product-form__drag" cdkDragHandle aria-hidden="true">⋮⋮</span>
+              <span class="product-form__drag" cdkDragHandle aria-label="Arrastrar">
+                <app-admin-icon name="grip-vertical" [size]="14" />
+              </span>
               <input class="product-form__chip-input" formControlName="name" placeholder="Nombre" />
               <input
                 class="product-form__color-swatch"
@@ -230,9 +253,13 @@
                 formControlName="hexCode"
                 placeholder="#000000"
               />
-              <button type="button" class="product-form__chip-del" (click)="removeColor(i)" aria-label="Quitar">
-                <app-admin-icon name="trash" [size]="14" />
-              </button>
+              <app-admin-icon-button
+                icon="trash"
+                label="Quitar"
+                variant="danger"
+                [size]="14"
+                (clicked)="removeColor(i)"
+              />
             </div>
           }
         </div>

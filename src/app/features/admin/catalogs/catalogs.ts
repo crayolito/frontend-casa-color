@@ -32,14 +32,15 @@ import { AdminModal } from '../../../shared/admin-ui/admin-modal/admin-modal';
 import { AdminFormField } from '../../../shared/admin-ui/admin-form-field/admin-form-field';
 import { AdminConfirmDialog } from '../../../shared/admin-ui/admin-confirm-dialog/admin-confirm-dialog';
 import { AdminFilters } from '../../../shared/admin-ui/admin-filters/admin-filters';
-import { AdminIcon } from '../../../shared/admin-ui/icons/admin-icon';
+import { AdminIconButton } from '../../../shared/admin-ui/admin-icon-button/admin-icon-button';
 import { ImageUploader } from '../../../shared/admin-ui/image-uploader/image-uploader';
 import { AdminMultiSelect } from '../../../shared/admin-ui/admin-multi-select/admin-multi-select';
 import { AdminErrorState } from '../../../shared/admin-ui/admin-error-state/admin-error-state';
 import { AdminHtmlEditor } from '../../../shared/admin-ui/admin-html-editor/admin-html-editor';
-import { PdfUploader } from '../../../shared/admin-ui/pdf-uploader/pdf-uploader';
 import { AppSelect, SelectOption } from '../../../shared/ui/select/select';
 import { ImgFallback } from '../../../shared/util/img-fallback/img-fallback';
+import { DEFAULT_IMAGES } from '../../../shared/util/default-images';
+import { AdminToastService } from '../../../shared/admin-ui/admin-toast/admin-toast.service';
 
 @Component({
   selector: 'app-admin-catalogs',
@@ -49,13 +50,12 @@ import { ImgFallback } from '../../../shared/util/img-fallback/img-fallback';
     FormsModule,
     AdminPageHeader,
     AdminButton,
+    AdminIconButton,
     AdminModal,
     AdminFormField,
     AdminConfirmDialog,
     AdminFilters,
-    AdminIcon,
     ImageUploader,
-    PdfUploader,
     AdminMultiSelect,
     AdminErrorState,
     AdminHtmlEditor,
@@ -72,13 +72,13 @@ export class AdminCatalogs {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly toast = inject(AdminToastService);
 
   readonly rows = signal<Catalog[]>([]);
   readonly categories = signal<Category[]>([]);
   readonly meta = signal<PaginatedMeta | null>(null);
   readonly loading = signal(true);
   readonly saving = signal(false);
-  readonly flash = signal<string | null>(null);
   readonly error = signal<ResolvedErrorMessage | null>(null);
   readonly reloadToken = signal(0);
 
@@ -99,6 +99,9 @@ export class AdminCatalogs {
       ? 'No se encontraron catálogos con esos filtros'
       : 'No hay catálogos todavía',
   );
+
+  /** Empty-state banner image (img-auxiliar2) when no catalogs and no filters. */
+  readonly emptyBannerSrc = DEFAULT_IMAGES.category;
 
   readonly categoryOptions = computed(() =>
     this.categories().map((c) => ({ id: c.id, label: c.name })),
@@ -254,10 +257,7 @@ export class AdminCatalogs {
 
   onImageChange(url: string | null): void {
     this.form.controls.imageUrl.setValue(url ?? '');
-  }
-
-  onPdfChange(url: string | null): void {
-    this.form.controls.pdfUrl.setValue(url ?? '');
+    this.form.controls.imageUrl.markAsDirty();
   }
 
   onDescriptionChange(html: string): void {
@@ -290,7 +290,7 @@ export class AdminCatalogs {
       next: () => {
         this.saving.set(false);
         this.modalOpen.set(false);
-        this.flash.set(editing ? 'Catálogo actualizado' : 'Catálogo creado');
+        this.toast.success(editing ? 'Catálogo actualizado' : 'Catálogo creado');
         this.reload();
       },
       error: (err: unknown) => {
@@ -312,7 +312,7 @@ export class AdminCatalogs {
       next: () => {
         this.saving.set(false);
         this.deleteTarget.set(null);
-        this.flash.set('Catálogo eliminado');
+        this.toast.success('Catálogo eliminado');
         this.reload();
       },
       error: (err: unknown) => {

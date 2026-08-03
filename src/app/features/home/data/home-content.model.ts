@@ -189,6 +189,8 @@ export const HOME_PAGE_OPTIONS: Array<{ value: string; label: string; href: stri
   { value: 'contacto', label: 'Contacto', href: '/contacto' },
   { value: 'cartas-de-color', label: 'Cartas de color', href: '/cartas-de-color' },
   { value: 'fichas-tecnicas', label: 'Fichas técnicas', href: '/fichas-tecnicas' },
+  { value: 'catalogos', label: 'Catálogos', href: '/catalogos' },
+  { value: 'empresa', label: 'Empresa', href: '/empresa' },
 ];
 
 /** Arma el href público a partir de un destino tipado. */

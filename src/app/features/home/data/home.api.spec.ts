@@ -28,20 +28,17 @@ const SAMPLE: HomeContent = {
 describe('HomeApi', () => {
   let api: HomeApi;
   let lastGetUrl: string | null = null;
-  let lastGetParams: Record<string, unknown> | undefined;
 
   beforeEach(() => {
     lastGetUrl = null;
-    lastGetParams = undefined;
     TestBed.configureTestingModule({
       providers: [
         HomeApi,
         {
           provide: ApiService,
           useValue: {
-            get: (url: string, params?: Record<string, unknown>) => {
+            get: (url: string) => {
               lastGetUrl = url;
-              lastGetParams = params;
               return of(SAMPLE);
             },
             put: () => of({}),
@@ -52,10 +49,9 @@ describe('HomeApi', () => {
     api = TestBed.inject(HomeApi);
   });
 
-  it('loadHome fills content signal and cache-busts', () => {
+  it('loadHome fetches /public/home and sets content', () => {
     api.loadHome().subscribe();
     expect(lastGetUrl).toBe('/public/home');
-    expect(typeof lastGetParams?.['_ts']).toBe('number');
     expect(api.content()).toEqual(SAMPLE);
   });
 });

@@ -12,7 +12,8 @@ const SAMPLE: CategoryDetail = {
   slug: 'linea-deco',
   description: '<p>Desc 1</p>',
   description2: '<ul><li>Item</li></ul>',
-  imageUrl: '/hero.jpg',
+  coverImageUrl: '/hero.jpg',
+  cardImageUrl: '/card.jpg',
   createdAt: '',
   updatedAt: '',
   catalogs: [
@@ -22,6 +23,13 @@ const SAMPLE: CategoryDetail = {
       slug: 'catalogo-a',
       imageUrl: '/cat.jpg',
       products: [{ id: 1, title: 'Prod', slug: 'prod' }],
+    },
+    {
+      id: 11,
+      name: 'Catálogo B',
+      slug: 'catalogo-b',
+      imageUrl: '/cat-b.jpg',
+      products: [],
     },
   ],
 };
@@ -81,6 +89,48 @@ describe('Categoria', () => {
     const link = el.querySelector('a.categoria__card') as HTMLAnchorElement;
     expect(link.getAttribute('href')).toContain('/catalogo');
     expect(link.getAttribute('href')).toContain('catalogo-a');
+  });
+
+  it('renderiza hero con capa de fondo, heading e intro en dos columnas', async () => {
+    const { fixture } = await setup();
+    const el: HTMLElement = fixture.nativeElement;
+
+    expect(el.querySelector('.categoria__hero')).toBeTruthy();
+    expect(el.querySelector('.categoria__hero-bg')).toBeTruthy();
+    expect(el.querySelector('h5.categoria__heading')?.textContent).toContain(
+      'Línea Deco',
+    );
+
+    const intro = el.querySelector('.categoria__intro');
+    expect(intro).toBeTruthy();
+    expect(intro?.children.length).toBe(2);
+  });
+
+  it('usa coverImageUrl en el hero y cae a cardImageUrl si falta', async () => {
+    const { fixture } = await setup();
+    const el: HTMLElement = fixture.nativeElement;
+    const bg = el.querySelector('.categoria__hero-bg') as HTMLElement;
+    expect(bg.style.backgroundImage).toContain('/hero.jpg');
+
+    fixture.destroy();
+    TestBed.resetTestingModule();
+    const { fixture: fixture2 } = await setup({
+      detail: { ...SAMPLE, coverImageUrl: null },
+    });
+    const bg2 = (fixture2.nativeElement as HTMLElement).querySelector(
+      '.categoria__hero-bg',
+    ) as HTMLElement;
+    expect(bg2.style.backgroundImage).toContain('/card.jpg');
+  });
+
+  it('aplica appReveal a las cards de catálogo', async () => {
+    const { fixture } = await setup();
+    const el: HTMLElement = fixture.nativeElement;
+    const cards = el.querySelectorAll('a.categoria__card');
+    expect(cards.length).toBe(2);
+    cards.forEach((card) => {
+      expect(card.classList.contains('reveal')).toBe(true);
+    });
   });
 
   it('muestra vacío cuando no hay catálogos', async () => {

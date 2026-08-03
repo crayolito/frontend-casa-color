@@ -9,15 +9,20 @@ import {
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
-  combineLatest,
+  CdkDragDrop,
+  DragDropModule,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
+import {
   of,
   switchMap,
   tap,
   catchError,
+  forkJoin,
 } from 'rxjs';
 import { ColorCardsApi } from '../data/color-cards.api';
 import { ColorCard } from '../data/admin.models';
-import { PaginatedMeta } from '../../../core/http/api.service';
+import { CartasPageApi } from '../../cartas-de-color/data/cartas-page.api';
 import {
   ResolvedErrorMessage,
   resolveErrorMessage,
@@ -28,40 +33,47 @@ import { AdminModal } from '../../../shared/admin-ui/admin-modal/admin-modal';
 import { AdminFormField } from '../../../shared/admin-ui/admin-form-field/admin-form-field';
 import { AdminConfirmDialog } from '../../../shared/admin-ui/admin-confirm-dialog/admin-confirm-dialog';
 import { AdminIcon } from '../../../shared/admin-ui/icons/admin-icon';
+import { AdminIconButton } from '../../../shared/admin-ui/admin-icon-button/admin-icon-button';
 import { ImageUploader } from '../../../shared/admin-ui/image-uploader/image-uploader';
-import { ImgFallback } from '../../../shared/util/img-fallback/img-fallback';
-import { PdfUploader } from '../../../shared/admin-ui/pdf-uploader/pdf-uploader';
 import { AdminErrorState } from '../../../shared/admin-ui/admin-error-state/admin-error-state';
+import { AdminToastService } from '../../../shared/admin-ui/admin-toast/admin-toast.service';
+import { AdminHtmlEditor } from '../../../shared/admin-ui/admin-html-editor/admin-html-editor';
+
+const MIN_CARDS = 2;
+const MAX_CARDS = 4;
 
 @Component({
   selector: 'app-admin-color-cards',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
+    DragDropModule,
     AdminPageHeader,
     AdminButton,
+    AdminIconButton,
     AdminModal,
     AdminFormField,
     AdminConfirmDialog,
     AdminIcon,
     ImageUploader,
-    PdfUploader,
     AdminErrorState,
-    ImgFallback,
+    AdminHtmlEditor,
   ],
   templateUrl: './color-cards.html',
   styleUrl: './color-cards.css',
 })
 export class AdminColorCards {
   private readonly api = inject(ColorCardsApi);
+  private readonly pageApi = inject(CartasPageApi);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly toast = inject(AdminToastService);
 
   readonly rows = signal<ColorCard[]>([]);
-  readonly meta = signal<PaginatedMeta | null>(null);
+  readonly heroImageUrl = signal<string | null>(null);
   readonly loading = signal(true);
   readonly saving = signal(false);
-  readonly flash = signal<string | null>(null);
+  readonly savingHero = signal(false);
   readonly error = signal<ResolvedErrorMessage | null>(null);
   readonly reloadToken = signal(0);
 
@@ -72,9 +84,13 @@ export class AdminColorCards {
     const target = this.deleteTarget();
     return target ? `¿Eliminar «${this.cardTitle(target)}»?` : '';
   });
-  readonly page = signal(1);
 
-  readonly emptyMessage = computed(() => 'No hay cartas de color todavía');
+  readonly cardCount = computed(() => this.rows().length);
+  readonly canAdd = computed(() => this.cardCount() < MAX_CARDS);
+  readonly canRemove = computed(() => this.cardCount() > MIN_CARDS);
+  readonly countLabel = computed(
+    () => `${this.cardCount()} de ${MAX_CARDS} cartas (mín. ${MIN_CARDS})`,
+  );
 
   readonly form = this.fb.nonNullable.group({
     titlePrefix: ['', [Validators.required, Validators.maxLength(100)]],
@@ -83,21 +99,22 @@ export class AdminColorCards {
     buttonLabel: ['', [Validators.required, Validators.maxLength(80)]],
     imageUrl: [''],
     pdfUrl: [''],
-    sortOrder: [0, [Validators.required, Validators.min(0)]],
   });
 
   constructor() {
-    combineLatest([
-      toObservable(this.page),
-      toObservable(this.reloadToken),
-    ])
+    toObservable(this.reloadToken)
       .pipe(
         tap(() => {
           this.loading.set(true);
           this.error.set(null);
         }),
-        switchMap(([page]) =>
-          this.api.list(page, 20).pipe(
+        switchMap(() =>
+          forkJoin({
+            cards: this.api.list(1, MAX_CARDS),
+            page: this.pageApi.getPublic().pipe(
+              catchError(() => of({ heroImageUrl: null as string | null })),
+            ),
+          }).pipe(
             catchError((err: unknown) => {
               this.error.set(resolveErrorMessage(err));
               return of(null);
@@ -110,8 +127,10 @@ export class AdminColorCards {
         next: (res) => {
           this.loading.set(false);
           if (!res) return;
-          this.rows.set(res.data);
-          this.meta.set(res.meta);
+          this.rows.set(
+            [...res.cards.data].sort((a, b) => a.sortOrder - b.sortOrder),
+          );
+          this.heroImageUrl.set(res.page.heroImageUrl);
         },
       });
   }
@@ -124,7 +143,30 @@ export class AdminColorCards {
     this.reload();
   }
 
+  onHeroChange(url: string | null): void {
+    this.heroImageUrl.set(url);
+    this.savingHero.set(true);
+    this.pageApi.upsert({ heroImageUrl: url }).subscribe({
+      next: (saved) => {
+        this.savingHero.set(false);
+        this.heroImageUrl.set(saved.heroImageUrl);
+        this.toast.success(
+          url ? 'Imagen principal actualizada' : 'Imagen principal quitada',
+        );
+      },
+      error: (err: unknown) => {
+        this.savingHero.set(false);
+        this.error.set(resolveErrorMessage(err));
+        this.reload();
+      },
+    });
+  }
+
   openCreate(): void {
+    if (!this.canAdd()) {
+      this.toast.error(`Máximo ${MAX_CARDS} cartas de color.`);
+      return;
+    }
     this.editing.set(null);
     this.form.reset({
       titlePrefix: '',
@@ -133,7 +175,6 @@ export class AdminColorCards {
       buttonLabel: 'Descargar carta',
       imageUrl: '',
       pdfUrl: '',
-      sortOrder: 0,
     });
     this.modalOpen.set(true);
   }
@@ -147,7 +188,6 @@ export class AdminColorCards {
       buttonLabel: row.buttonLabel,
       imageUrl: row.imageUrl ?? '',
       pdfUrl: row.pdfUrl ?? '',
-      sortOrder: row.sortOrder,
     });
     this.modalOpen.set(true);
   }
@@ -158,14 +198,40 @@ export class AdminColorCards {
 
   onImageChange(url: string | null): void {
     this.form.controls.imageUrl.setValue(url ?? '');
+    this.form.controls.imageUrl.markAsDirty();
   }
 
-  onPdfChange(url: string | null): void {
-    this.form.controls.pdfUrl.setValue(url ?? '');
+  onDescriptionChange(html: string): void {
+    this.form.controls.descriptionHtml.setValue(html);
+    this.form.controls.descriptionHtml.markAsDirty();
   }
 
   cardTitle(row: ColorCard): string {
     return `${row.titlePrefix}${row.titleStrong}`.trim();
+  }
+
+  drop(event: CdkDragDrop<ColorCard[]>): void {
+    if (event.previousIndex === event.currentIndex) return;
+    const next = [...this.rows()];
+    moveItemInArray(next, event.previousIndex, event.currentIndex);
+    this.rows.set(next);
+
+    const updates = next.map((card, index) =>
+      this.api.update(card.id, { sortOrder: index }),
+    );
+    this.saving.set(true);
+    forkJoin(updates).subscribe({
+      next: (saved) => {
+        this.saving.set(false);
+        this.rows.set(saved);
+        this.toast.success('Orden actualizado');
+      },
+      error: (err: unknown) => {
+        this.saving.set(false);
+        this.error.set(resolveErrorMessage(err));
+        this.reload();
+      },
+    });
   }
 
   save(): void {
@@ -174,6 +240,7 @@ export class AdminColorCards {
       return;
     }
     const raw = this.form.getRawValue();
+    const editing = this.editing();
     const body = {
       titlePrefix: raw.titlePrefix.trim(),
       titleStrong: raw.titleStrong.trim(),
@@ -181,10 +248,9 @@ export class AdminColorCards {
       buttonLabel: raw.buttonLabel.trim(),
       imageUrl: raw.imageUrl.trim() || null,
       pdfUrl: raw.pdfUrl.trim() || null,
-      sortOrder: Number(raw.sortOrder) || 0,
+      ...(editing ? {} : { sortOrder: this.rows().length }),
     };
     this.saving.set(true);
-    const editing = this.editing();
     const req = editing
       ? this.api.update(editing.id, body)
       : this.api.create(body);
@@ -193,7 +259,7 @@ export class AdminColorCards {
       next: () => {
         this.saving.set(false);
         this.modalOpen.set(false);
-        this.flash.set(editing ? 'Carta actualizada' : 'Carta creada');
+        this.toast.success(editing ? 'Carta actualizada' : 'Carta creada');
         this.reload();
       },
       error: (err: unknown) => {
@@ -204,6 +270,10 @@ export class AdminColorCards {
   }
 
   askDelete(row: ColorCard): void {
+    if (!this.canRemove()) {
+      this.toast.error(`Mínimo ${MIN_CARDS} cartas de color.`);
+      return;
+    }
     this.deleteTarget.set(row);
   }
 
@@ -215,7 +285,7 @@ export class AdminColorCards {
       next: () => {
         this.saving.set(false);
         this.deleteTarget.set(null);
-        this.flash.set('Carta eliminada');
+        this.toast.success('Carta eliminada');
         this.reload();
       },
       error: (err: unknown) => {
@@ -223,9 +293,5 @@ export class AdminColorCards {
         this.error.set(resolveErrorMessage(err));
       },
     });
-  }
-
-  onPageChange(page: number): void {
-    this.page.set(page);
   }
 }

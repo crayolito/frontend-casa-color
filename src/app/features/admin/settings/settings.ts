@@ -1,10 +1,13 @@
 import {
   Component,
   ChangeDetectionStrategy,
+  DestroyRef,
+  OnInit,
+  computed,
   inject,
   signal,
-  OnInit,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SiteSettingsApi } from '../data/site-settings.api';
 import { isAppError } from '../../../shared/util/api-errors';
@@ -14,10 +17,12 @@ import {
   resolveErrorMessage,
 } from '../../../shared/errors/resolve-error-message';
 import { AdminPageHeader } from '../../../shared/admin-ui/admin-page-header/admin-page-header';
-import { AdminButton } from '../../../shared/admin-ui/admin-button/admin-button';
+import { AdminIconButton } from '../../../shared/admin-ui/admin-icon-button/admin-icon-button';
 import { AdminConfirmDialog } from '../../../shared/admin-ui/admin-confirm-dialog/admin-confirm-dialog';
 import { AdminTabs, AdminTab } from '../../../shared/admin-ui/admin-tabs/admin-tabs';
 import { AdminErrorState } from '../../../shared/admin-ui/admin-error-state/admin-error-state';
+import { AdminFormContext } from '../../../shared/admin-ui/admin-form-context/admin-form-context';
+import { AdminToastService } from '../../../shared/admin-ui/admin-toast/admin-toast.service';
 
 const KNOWN_KEYS = ['empresa', 'ubicaciones'] as const;
 
@@ -27,7 +32,7 @@ const KNOWN_KEYS = ['empresa', 'ubicaciones'] as const;
   imports: [
     ReactiveFormsModule,
     AdminPageHeader,
-    AdminButton,
+    AdminIconButton,
     AdminConfirmDialog,
     AdminTabs,
     AdminErrorState,
@@ -38,6 +43,9 @@ const KNOWN_KEYS = ['empresa', 'ubicaciones'] as const;
 export class AdminSettings implements OnInit {
   private readonly api = inject(SiteSettingsApi);
   private readonly fb = inject(FormBuilder);
+  private readonly toast = inject(AdminToastService);
+  private readonly formCtx = inject(AdminFormContext);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly tabs: AdminTab[] = KNOWN_KEYS.map((key) => ({
     id: key,
@@ -47,18 +55,40 @@ export class AdminSettings implements OnInit {
   readonly selectedKey = signal<string>('empresa');
   readonly loading = signal(false);
   readonly saving = signal(false);
-  readonly flash = signal<string | null>(null);
   readonly error = signal<ResolvedErrorMessage | null>(null);
   readonly updatedAt = signal<string | null>(null);
   readonly deleteOpen = signal(false);
+
+  private readonly _dirtyTick = signal(0);
 
   readonly form = this.fb.nonNullable.group({
     key: ['empresa', [Validators.required]],
     valueJson: ['{\n  \n}', [Validators.required]],
   });
 
+  readonly formDirty = computed(() => {
+    this._dirtyTick();
+    return this.form.dirty;
+  });
+
   ngOnInit(): void {
+    this.formCtx.register(
+      {
+        dirty: this.formDirty,
+        saving: this.saving,
+        save: () => this.save(),
+        discard: () => this.discardChanges(),
+      },
+      this.destroyRef,
+    );
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this._dirtyTick.update((n) => n + 1));
     this.loadKey('empresa');
+  }
+
+  discardChanges(): void {
+    this.loadKey(this.selectedKey());
   }
 
   selectKey(key: string): void {
@@ -70,7 +100,6 @@ export class AdminSettings implements OnInit {
   loadKey(key: string): void {
     this.loading.set(true);
     this.error.set(null);
-    this.flash.set(null);
     this.api.get(key).subscribe({
       next: (res) => {
         this.loading.set(false);
@@ -79,6 +108,8 @@ export class AdminSettings implements OnInit {
           key: res.key,
           valueJson: JSON.stringify(res.value, null, 2),
         });
+        this.form.markAsPristine();
+        this._dirtyTick.update((n) => n + 1);
       },
       error: (err: unknown) => {
         this.loading.set(false);
@@ -88,7 +119,9 @@ export class AdminSettings implements OnInit {
             key,
             valueJson: '{\n  \n}',
           });
-          this.flash.set(`La sección «${key}» aún no existe. Guardá para crearla.`);
+          this.form.markAsPristine();
+          this._dirtyTick.update((n) => n + 1);
+          this.toast.info(`La sección «${key}» aún no existe. Guardá para crearla.`);
           return;
         }
         this.error.set(resolveErrorMessage(err));
@@ -121,8 +154,10 @@ export class AdminSettings implements OnInit {
       next: (res) => {
         this.saving.set(false);
         this.updatedAt.set(res.updatedAt);
-        this.flash.set('Guardado correctamente');
+        this.toast.success('Guardado correctamente');
         this.selectedKey.set(res.key);
+        this.form.markAsPristine();
+        this._dirtyTick.update((n) => n + 1);
       },
       error: (err: unknown) => {
         this.saving.set(false);
@@ -145,9 +180,11 @@ export class AdminSettings implements OnInit {
       next: () => {
         this.saving.set(false);
         this.deleteOpen.set(false);
-        this.flash.set('Eliminado correctamente');
+        this.toast.success('Eliminado correctamente');
         this.form.patchValue({ valueJson: '{\n  \n}' });
         this.updatedAt.set(null);
+        this.form.markAsPristine();
+        this._dirtyTick.update((n) => n + 1);
       },
       error: (err: unknown) => {
         this.saving.set(false);

@@ -39,9 +39,8 @@ const TONE_ICON: Record<AdminToastTone, AdminIconName> = {
           (mouseenter)="onEnter(toast)"
           (mouseleave)="onLeave(toast)"
         >
-          <span class="admin-toast__rail" aria-hidden="true"></span>
           <span class="admin-toast__icon" aria-hidden="true">
-            <app-admin-icon [name]="iconFor(toast.tone)" [size]="16" />
+            <app-admin-icon [name]="iconFor(toast.tone)" [size]="15" />
           </span>
           <p class="admin-toast__msg">{{ toast.message }}</p>
           <button
@@ -50,7 +49,7 @@ const TONE_ICON: Record<AdminToastTone, AdminIconName> = {
             aria-label="Cerrar"
             (click)="toastSvc.dismiss(toast.id)"
           >
-            <app-admin-icon name="x" [size]="13" />
+            ×
           </button>
           <div class="admin-toast__track" aria-hidden="true">
             <div
@@ -75,154 +74,133 @@ const TONE_ICON: Record<AdminToastTone, AdminIconName> = {
       display: flex;
       flex-direction: column-reverse;
       gap: 0.5rem;
-      width: min(380px, calc(100vw - 2rem));
+      width: min(22rem, calc(100vw - 2rem));
       pointer-events: none;
     }
 
     @media (min-width: 1000px) {
       .admin-toast-host {
         right: 2rem;
-        bottom: 1.75rem;
+        bottom: 1.5rem;
       }
     }
 
-    /* Tono solo como ACENTO, no como fondo. La tarjeta es blanca como el modal. */
+    /* Misma familia que modal/tabla admin: blanco, borde fino, sombra del sistema. */
     .admin-toast {
-      --toast-accent: var(--color-extra-3);
-      --toast-accent-soft: rgba(129, 215, 66, 0.14);
+      --toast-fg: var(--color-text);
       pointer-events: auto;
       position: relative;
       display: grid;
       grid-template-columns: auto 1fr auto;
-      align-items: start;
+      align-items: center;
       gap: 0.625rem;
-      padding: 0.75rem 0.75rem 0.875rem 0.625rem;
+      padding: 0.8125rem 0.75rem 0.9375rem;
       background: var(--color-white);
       border: 1px solid var(--admin-border);
       border-radius: var(--radius-md);
-      box-shadow:
-        0 4px 12px rgba(0, 0, 0, 0.06),
-        0 12px 32px rgba(0, 0, 0, 0.08);
+      box-shadow: var(--admin-card-shadow);
       overflow: hidden;
-      animation: admin-toast-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      animation: admin-toast-in 0.2s ease-out;
     }
 
     .admin-toast[data-tone='success'] {
-      --toast-accent: #2d6a0e;
-      --toast-accent-soft: rgba(129, 215, 66, 0.18);
+      --toast-fg: #3d3d3d;
     }
 
     .admin-toast[data-tone='error'] {
-      --toast-accent: var(--color-accent);
-      --toast-accent-soft: rgba(221, 51, 51, 0.1);
+      --toast-fg: var(--color-accent);
     }
 
     .admin-toast[data-tone='info'] {
-      --toast-accent: #0a6a82;
-      --toast-accent-soft: rgba(42, 196, 234, 0.14);
+      --toast-fg: var(--color-text);
     }
 
     .admin-toast--paused {
-      box-shadow:
-        0 4px 12px rgba(0, 0, 0, 0.06),
-        0 12px 32px rgba(0, 0, 0, 0.08),
-        0 0 0 1px var(--toast-accent);
+      box-shadow: var(--admin-card-shadow-hover);
     }
 
-    /* Rail fino: identificador del tono, no ruido cromático */
-    .admin-toast__rail {
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 3px;
-      background: var(--toast-accent);
-      border-radius: var(--radius-md) 0 0 var(--radius-md);
-    }
-
-    /* Chip del icono: el único bloque con color, da jerarquía visual */
     .admin-toast__icon {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 28px;
-      height: 28px;
-      margin-top: 0.0625rem;
-      border-radius: 50%;
-      background: var(--toast-accent-soft);
-      color: var(--toast-accent);
+      color: var(--toast-fg);
       flex-shrink: 0;
+      opacity: 0.85;
+    }
+
+    .admin-toast[data-tone='error'] .admin-toast__icon {
+      opacity: 1;
     }
 
     .admin-toast__msg {
       margin: 0;
-      align-self: center;
       min-width: 0;
+      font-family: var(--font-body);
       font-size: 0.875rem;
-      font-weight: 500;
+      font-weight: 400;
       line-height: 1.4;
-      color: var(--color-text);
+      letter-spacing: 0;
+      color: #333;
     }
 
     .admin-toast__close {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 24px;
-      height: 24px;
-      margin-top: 0.125rem;
+      width: 28px;
+      height: 28px;
       border: 0;
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-md);
       background: transparent;
+      font-size: 1.25rem;
+      line-height: 1;
       color: var(--color-text-muted);
-      opacity: 0.55;
       cursor: pointer;
-      transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+      padding: 0;
     }
 
     .admin-toast__close:hover {
-      opacity: 1;
-      color: var(--toast-accent);
-      background: var(--toast-accent-soft);
+      color: var(--color-accent);
+      background: rgba(221, 51, 51, 0.06);
     }
 
     .admin-toast__close:focus-visible {
       outline: 2px solid var(--color-extra-1);
       outline-offset: 2px;
-      opacity: 1;
     }
 
-    /* Barra de progreso sutil: avisa el tiempo restante sin gritar */
     .admin-toast__track {
       position: absolute;
       left: 0;
       right: 0;
       bottom: 0;
-      height: 2px;
-      background: var(--admin-border);
-      opacity: 0.7;
+      height: 1px;
+      background: transparent;
     }
 
     .admin-toast__bar {
       height: 100%;
       width: 100%;
       transform-origin: left center;
-      background: var(--toast-accent);
-      opacity: 0.55;
+      background: var(--admin-border);
+    }
+
+    .admin-toast[data-tone='error'] .admin-toast__bar {
+      background: rgba(221, 51, 51, 0.35);
     }
 
     .admin-toast--paused .admin-toast__bar {
-      opacity: 0.25;
+      opacity: 0.4;
     }
 
     @keyframes admin-toast-in {
       from {
         opacity: 0;
-        transform: translateY(10px) scale(0.98);
+        transform: translateY(6px);
       }
       to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateY(0);
       }
     }
 
@@ -328,4 +306,3 @@ export class AdminToastHost implements OnDestroy {
     this.timers.delete(id);
   }
 }
-

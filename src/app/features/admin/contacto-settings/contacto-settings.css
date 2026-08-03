@@ -1,21 +1,7 @@
-.admin-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--admin-gap, 0.75rem);
-  width: 100%;
-}
-
 .admin-form__hint {
   margin: -0.35rem 0 0;
   font-size: 0.8125rem;
   color: var(--color-text-muted);
-}
-
-.admin-form__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
 }
 
 .admin-contacto__status {
@@ -23,4 +9,62 @@
   text-align: center;
   color: var(--color-text-muted);
   font-size: 0.9375rem;
+}
+
+/* Grid 2 columnas: settings | sucursales (desktop) — stack en mobile. */
+.admin-contacto__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.admin-contacto__main {
+  display: block;
+  min-width: 0;
+}
+
+.admin-contacto__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  box-shadow: var(--admin-card-shadow);
+}
+
+.admin-contacto__heading {
+  margin: 0 0 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.admin-contacto__meta {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.admin-contacto__aside {
+  display: block;
+  min-width: 0;
+}
+
+.admin-contacto__branches-placeholder {
+  width: 100%;
+  height: 320px;
+  background: #f1f1f1;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-lg);
+}
+
+@media (max-width: 999px) {
+  .admin-contacto__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

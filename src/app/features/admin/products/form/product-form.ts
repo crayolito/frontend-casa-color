@@ -1,6 +1,7 @@
 import {
   Component,
   ChangeDetectionStrategy,
+  DestroyRef,
   inject,
   input,
   signal,
@@ -33,6 +34,7 @@ import { AdminPageHeader } from '../../../../shared/admin-ui/admin-page-header/a
 import { AdminButton } from '../../../../shared/admin-ui/admin-button/admin-button';
 import { AdminFormField } from '../../../../shared/admin-ui/admin-form-field/admin-form-field';
 import { AdminIcon } from '../../../../shared/admin-ui/icons/admin-icon';
+import { AdminIconButton } from '../../../../shared/admin-ui/admin-icon-button/admin-icon-button';
 import { AdminSwitch } from '../../../../shared/admin-ui/admin-switch/admin-switch';
 import { AdminHtmlEditor } from '../../../../shared/admin-ui/admin-html-editor/admin-html-editor';
 import {
@@ -41,6 +43,8 @@ import {
 } from '../../../../shared/admin-ui/image-gallery/image-gallery';
 import { AdminConfirmDialog } from '../../../../shared/admin-ui/admin-confirm-dialog/admin-confirm-dialog';
 import { AdminErrorState } from '../../../../shared/admin-ui/admin-error-state/admin-error-state';
+import { AdminFormContext } from '../../../../shared/admin-ui/admin-form-context/admin-form-context';
+import { AdminToastService } from '../../../../shared/admin-ui/admin-toast/admin-toast.service';
 
 @Component({
   selector: 'app-admin-product-form',
@@ -52,6 +56,7 @@ import { AdminErrorState } from '../../../../shared/admin-ui/admin-error-state/a
     AdminButton,
     AdminFormField,
     AdminIcon,
+    AdminIconButton,
     AdminSwitch,
     AdminHtmlEditor,
     ImageGallery,
@@ -68,6 +73,9 @@ export class AdminProductForm implements OnInit {
   private readonly productsApi = inject(ProductsApi);
   private readonly catalogsApi = inject(CatalogsApi);
   private readonly router = inject(Router);
+  private readonly toast = inject(AdminToastService);
+  private readonly formCtx = inject(AdminFormContext);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly catalogs = signal<Catalog[]>([]);
   readonly selectedCatalogIds = signal<number[]>([]);
@@ -143,6 +151,16 @@ export class AdminProductForm implements OnInit {
   }
 
   ngOnInit(): void {
+    this.formCtx.register(
+      {
+        dirty: this.formDirty,
+        saving: this.saving,
+        save: () => this.save(),
+        discard: () => this.askDiscard(),
+      },
+      this.destroyRef,
+    );
+
     this.form.valueChanges.subscribe(() => {
       this._dirtyTick.update((n) => n + 1);
     });
@@ -453,11 +471,14 @@ export class AdminProductForm implements OnInit {
     req.subscribe({
       next: () => {
         this.saving.set(false);
+        this.toast.success(editId ? 'Producto actualizado' : 'Producto creado');
         void this.router.navigateByUrl('/admin/products');
       },
       error: (err: unknown) => {
         this.saving.set(false);
-        this.error.set(resolveErrorMessage(err));
+        const resolved = resolveErrorMessage(err);
+        this.error.set(resolved);
+        this.toast.error(resolved.text);
       },
     });
   }

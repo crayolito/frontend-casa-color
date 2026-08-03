@@ -1,27 +1,30 @@
-<div class="admin-content-narrow">
-  <app-admin-page-header
-    title="Fichas técnicas"
-    subtitle="Elegí 3 o 4 categorías con imagen para la página pública"
+<app-admin-page-header
+  title="Fichas técnicas"
+  subtitle="Elegí 3 o 4 categorías"
+/>
+
+@if (error(); as err) {
+  <app-admin-error-state
+    [message]="err.text"
+    [correlationId]="err.correlationId ?? null"
+    [showCorrelationId]="err.showCorrelationId"
+    (retry)="load()"
   />
+}
 
-  @if (flash(); as msg) {
-    <p class="admin-flash" role="status">{{ msg }}</p>
-  }
-  @if (error(); as err) {
-    <app-admin-error-state
-      [message]="err.text"
-      [correlationId]="err.correlationId ?? null"
-      [showCorrelationId]="err.showCorrelationId"
-      (retry)="load()"
-    />
-  }
+@if (loading()) {
+  <p class="fichas-admin__status">Cargando…</p>
+} @else {
+  <form
+    class="admin-form-narrow fichas-admin"
+    [formGroup]="form"
+    (ngSubmit)="save()"
+  >
+    <section class="admin-form-narrow__section">
+      <h2 class="admin-form-narrow__heading">Cabecera</h2>
 
-  @if (loading()) {
-    <p class="fichas-admin__status">Cargando…</p>
-  } @else {
-    <form class="fichas-admin" [formGroup]="form" (ngSubmit)="save()">
       <app-admin-form-field
-        label="Título de la página"
+        label="Título"
         controlName="heading"
         [error]="
           form.controls.heading.touched && form.controls.heading.invalid
@@ -31,27 +34,29 @@
       />
 
       <app-image-uploader
-        label="Imagen hero"
+        label="Imagen de cabecera"
         folder="home"
         fallbackKind="category"
         [url]="form.controls.heroImageUrl.value || null"
         (urlChange)="onHeroUploaded($event)"
       />
+    </section>
 
-      <div class="fichas-admin__cats-head">
-        <h2 class="fichas-admin__cats-title">Categorías ({{ categoryCount() }})</h2>
-        <app-admin-button
-          type="button"
-          variant="secondary"
+    <section class="admin-form-narrow__section">
+      <div class="admin-form-narrow__section-head">
+        <h2 class="admin-form-narrow__heading">
+          Categorías ({{ categoryCount() }})
+        </h2>
+        <app-admin-icon-button
+          icon="plus"
+          label="Agregar categoría"
           [disabled]="!canAdd()"
           (clicked)="addCategory()"
-        >
-          <app-admin-icon name="plus" />
-          Agregar
-        </app-admin-button>
+        />
       </div>
       <p class="fichas-admin__hint">
-        Mínimo 3, máximo 4. Arrastrá para reordenar. Tocá la cabecera para editar.
+        Mínimo 3, máximo 4. Arrastrá para reordenar. Solo elegí la categoría: el
+        nombre y la imagen salen del catálogo.
       </p>
 
       <div
@@ -61,81 +66,73 @@
         (cdkDropListDropped)="dropCategory($event)"
       >
         @for (ctrl of categoriesFA.controls; track $index; let i = $index) {
-          <div class="fichas-admin__card" cdkDrag [formGroupName]="i">
-            <div
-              class="fichas-admin__card-head"
-              (click)="toggleCard('f-' + i)"
-              role="button"
-              tabindex="0"
-              (keydown.enter)="toggleCard('f-' + i)"
-            >
+          <div class="fichas-admin__card" cdkDrag>
+            <div class="fichas-admin__card-head fichas-admin__card-head--static">
               <span
                 class="fichas-admin__drag"
                 cdkDragHandle
                 aria-label="Arrastrar"
-                (click)="$event.stopPropagation()"
-              >⋮⋮</span>
-              <strong class="fichas-admin__card-title">{{ cardTitle(i) }}</strong>
-              <span class="fichas-admin__chevron" aria-hidden="true">
-                {{ isCardExpanded('f-' + i) ? '▾' : '▸' }}
+              >
+                <app-admin-icon name="grip-vertical" [size]="16" />
               </span>
-              @if (canRemove()) {
-                <app-admin-button
-                  type="button"
-                  variant="ghost"
-                  (clicked)="removeCategory(i)"
-                >
-                  <app-admin-icon name="trash" />
-                </app-admin-button>
-              }
-            </div>
-
-            @if (isCardExpanded('f-' + i)) {
-              <div class="fichas-admin__card-body">
-                <label class="fichas-admin__field">
-                  <span class="fichas-admin__field-label">Categoría del catálogo</span>
-                  <app-select
-                    [options]="categoryOptions(i)"
-                    [value]="ctrl.value.categoryId ? String(ctrl.value.categoryId) : ''"
-                    placeholder="Elegí una categoría"
-                    [ariaLabel]="'Categoría ' + (i + 1)"
-                    (valueChange)="onCategorySelect(i, $event)"
+              <strong class="fichas-admin__card-title">{{ cardTitle(i) }}</strong>
+              <div class="fichas-admin__card-actions">
+                <app-admin-icon-button
+                  icon="edit"
+                  label="Editar"
+                  (clicked)="openEditCategory(i)"
+                />
+                @if (canRemove()) {
+                  <app-admin-icon-button
+                    icon="trash"
+                    label="Eliminar"
+                    variant="danger"
+                    (clicked)="removeCategory(i)"
                   />
-                </label>
-
-                <app-admin-form-field
-                  label="Etiqueta visible"
-                  controlName="label"
-                  [error]="
-                    categoryGroup(i).controls.label.touched &&
-                    categoryGroup(i).controls.label.invalid
-                      ? 'Requerido'
-                      : null
-                  "
-                />
-
-                <app-image-uploader
-                  label="Imagen de la tarjeta"
-                  folder="categories"
-                  fallbackKind="category"
-                  [url]="ctrl.value.imageUrl || null"
-                  (urlChange)="onCategoryImageUploaded(i, $event)"
-                />
+                }
               </div>
-            }
+            </div>
           </div>
         }
       </div>
+    </section>
+  </form>
+}
 
-      <div class="fichas-admin__actions">
+@if (categoryModalOpen() && categoryEditIndex() !== null) {
+  @let ci = categoryEditIndex()!;
+  <app-admin-modal
+    [open]="true"
+    [title]="categoryModalTitle()"
+    (closed)="closeCategoryModal()"
+  >
+    <div class="fichas-admin__modal-form">
+      <label class="fichas-admin__field">
+        <span class="fichas-admin__field-label">Categoría</span>
+        <app-select
+          [options]="categoryOptions(ci)"
+          [value]="
+            categoryGroup(ci).value.categoryId
+              ? String(categoryGroup(ci).value.categoryId)
+              : ''
+          "
+          placeholder="Elegí una categoría"
+          [searchable]="true"
+          [expandInline]="true"
+          [ariaLabel]="'Categoría ' + (ci + 1)"
+          (valueChange)="onCategorySelect(ci, $event)"
+        />
+      </label>
+
+      <div class="fichas-admin__modal-actions">
         <app-admin-button
-          type="submit"
+          type="button"
           variant="primary"
-          [loading]="saving()"
+          (clicked)="closeCategoryModal()"
         >
-          Guardar
+          Listo
         </app-admin-button>
       </div>
-    </form>
-  }
-</div>
+    </div>
+  </app-admin-modal>
+}

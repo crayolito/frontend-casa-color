@@ -83,8 +83,19 @@ describe('AdminHome', () => {
     fixture.detectChanges();
     const comp = fixture.componentInstance;
     for (let i = 0; i < 6; i++) {
-      comp.addCategoryItem();
+      comp.openAddCategory();
     }
     expect(comp.categoryItems.length).toBe(4);
+  });
+
+  it('opens slide modal on add', () => {
+    const fixture = TestBed.createComponent(AdminHome);
+    fixture.detectChanges();
+    const comp = fixture.componentInstance;
+    const before = comp.slides.length;
+    comp.openAddSlide();
+    expect(comp.slides.length).toBe(before + 1);
+    expect(comp.slideModalOpen()).toBe(true);
+    expect(comp.slideEditIndex()).toBe(before);
   });
 });

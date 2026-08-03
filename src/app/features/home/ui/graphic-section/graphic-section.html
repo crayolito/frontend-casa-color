@@ -1,7 +1,5 @@
-@if (imageUrl()) {
-  <section
-    class="graphic"
-    aria-hidden="true"
-    [style.background-image]="'url(\'' + imageUrl() + '\')'"
-  ></section>
-}
+<section
+  class="graphic"
+  aria-hidden="true"
+  [style.background-image]="'url(\'' + src() + '\')'"
+></section>

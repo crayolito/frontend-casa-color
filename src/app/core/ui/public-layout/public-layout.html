@@ -10,6 +10,9 @@
   </div>
 
   @if (content(); as c) {
+    @if (showGraphic()) {
+      <app-graphic-section [imageUrl]="c.footer.topImageUrl" />
+    }
     <app-footer
       [footer]="c.footer"
       [headerLogoUrl]="c.header.imageUrl ?? null"

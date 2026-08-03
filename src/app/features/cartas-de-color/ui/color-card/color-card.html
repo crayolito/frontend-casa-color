@@ -1,25 +1,27 @@
 <div class="color-card__media">
   @if (card().pdfUrl; as pdf) {
-    <a class="color-card__img-link" [href]="pdf" target="_self">
+    <a class="color-card__img-link" [href]="pdf" target="_blank" rel="noopener noreferrer">
       <img
         class="color-card__img"
-        [src]="card().imageUrl || '/img/cartas/colom-3000-web.png'"
+        [src]="imageSrc(card().imageUrl)"
         width="400"
         height="375"
         [alt]="card().titlePrefix + card().titleStrong"
         loading="lazy"
         decoding="async"
+        appImgFallback="product"
       />
     </a>
   } @else {
     <img
       class="color-card__img"
-      [src]="card().imageUrl || '/img/cartas/colom-3000-web.png'"
+      [src]="imageSrc(card().imageUrl)"
       width="400"
       height="375"
       [alt]="card().titlePrefix + card().titleStrong"
       loading="lazy"
       decoding="async"
+      appImgFallback="product"
     />
   }
 </div>
@@ -49,7 +51,7 @@
       class="color-card__button"
       [href]="pdf"
       target="_blank"
-      rel="noopener"
+      rel="noopener noreferrer"
       role="button"
     >
       <span>{{ card().buttonLabel }}</span>

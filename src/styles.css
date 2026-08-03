@@ -1,4 +1,6 @@
 @import './fonts.css';
+@import './app/shared/admin-ui/admin-entity-card/admin-entity-card.css';
+@import './app/shared/admin-ui/admin-form-layout.css';
 
 :root {
   --color-accent: #dd3333;
@@ -25,6 +27,12 @@
 
   --font-body: 'Open Sans', Helvetica, sans-serif;
   --font-accent: 'Petit Formal Script', cursive;
+
+  /* Aspect ratios de cards (cover en wrapper — no estirar) */
+  --aspect-card-catalog: 3 / 2;
+  /* WooCommerce thumbnail 375×400 — clon text_on_hover */
+  --aspect-card-product: 375 / 400;
+  --aspect-card-admin-entity: 16 / 10;
 
   /*
     Escala tipográfica Salient (theme options) con clamp fluido.

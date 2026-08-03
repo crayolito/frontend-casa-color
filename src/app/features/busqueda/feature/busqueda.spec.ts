@@ -30,7 +30,7 @@ function makeProduct(
       },
     ],
     description: null,
-    mainImageUrl: '/img/productos/envase-colom-industria-375x400.jpg',
+    mainImageUrl: '/img/img-auxiliar.jpg',
     technicalSheetUrl: null,
     isActive: true,
     displayOrder: 0,

@@ -9,7 +9,6 @@ import { HeroSlider } from '../ui/hero-slider/hero-slider';
 import { DecorDivider } from '../ui/decor-divider/decor-divider';
 import { FindProduct } from '../ui/find-product/find-product';
 import { CategoryAccordion } from '../ui/category-accordion/category-accordion';
-import { GraphicSection } from '../ui/graphic-section/graphic-section';
 import { Reveal } from '../../../shared/util/reveal/reveal';
 
 @Component({
@@ -19,7 +18,6 @@ import { Reveal } from '../../../shared/util/reveal/reveal';
     DecorDivider,
     FindProduct,
     CategoryAccordion,
-    GraphicSection,
     Reveal,
   ],
   templateUrl: './home.html',

@@ -34,6 +34,8 @@ import { AppSelect, SelectOption } from '../../ui/select/select';
           [formControlName]="controlName()"
           [options]="options()"
           [placeholder]="placeholder()"
+          [searchable]="searchable()"
+          [expandInline]="expandInline()"
         />
       } @else {
         <input
@@ -111,4 +113,6 @@ export class AdminFormField {
   readonly rows = input(4);
   readonly options = input<SelectOption[]>([]);
   readonly placeholder = input('Seleccioná…');
+  readonly searchable = input(false);
+  readonly expandInline = input(false);
 }

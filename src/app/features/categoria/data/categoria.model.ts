@@ -18,7 +18,8 @@ export interface CategoryDetail {
   slug: string;
   description: string | null;
   description2: string | null;
-  imageUrl: string | null;
+  coverImageUrl: string | null;
+  cardImageUrl: string | null;
   createdAt: string;
   updatedAt: string;
   catalogsCount?: number;

@@ -47,6 +47,7 @@ export interface AdminTab {
     .admin-tabs__list {
       display: flex;
       flex-wrap: wrap;
+      justify-content: center;
       gap: 0.25rem;
       border-bottom: 1px solid var(--admin-border);
       margin-bottom: var(--admin-gap, 0.75rem);

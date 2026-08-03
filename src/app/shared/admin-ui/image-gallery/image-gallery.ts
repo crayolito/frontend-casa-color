@@ -10,6 +10,7 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 import { UploadsService } from '../../../core/uploads/uploads.service';
 import { resolveErrorMessage } from '../../errors/resolve-error-message';
 import { AdminIcon } from '../icons/admin-icon';
+import { AdminIconButton } from '../admin-icon-button/admin-icon-button';
 import { ImgFallback } from '../../util/img-fallback/img-fallback';
 import { withProductFallback } from '../../util/default-images';
 
@@ -23,7 +24,7 @@ export interface GalleryImage {
 @Component({
   selector: 'app-image-gallery',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DragDropModule, AdminIcon, ImgFallback],
+  imports: [DragDropModule, AdminIcon, AdminIconButton, ImgFallback],
   template: `
     <div class="gallery">
       <div class="gallery__head">
@@ -69,23 +70,18 @@ export interface GalleryImage {
               }
               <div class="gallery__actions">
                 @if (!img.isMain) {
-                  <button
-                    type="button"
-                    class="gallery__btn"
-                    aria-label="Marcar como principal"
-                    (click)="setMain(i)"
-                  >
-                    <app-admin-icon name="star" />
-                  </button>
+                  <app-admin-icon-button
+                    icon="star"
+                    label="Marcar como principal"
+                    (clicked)="setMain(i)"
+                  />
                 }
-                <button
-                  type="button"
-                  class="gallery__btn gallery__btn--danger"
-                  aria-label="Eliminar imagen"
-                  (click)="remove(i)"
-                >
-                  <app-admin-icon name="trash" />
-                </button>
+                <app-admin-icon-button
+                  icon="trash"
+                  label="Eliminar imagen"
+                  variant="danger"
+                  (clicked)="remove(i)"
+                />
               </div>
             </li>
           }
@@ -188,28 +184,8 @@ export interface GalleryImage {
     .gallery__actions {
       display: flex;
       justify-content: flex-end;
-      gap: 0.25rem;
+      gap: 0.15rem;
       padding: 0.35rem;
-    }
-
-    .gallery__btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      border: 0;
-      background: transparent;
-      color: var(--color-text);
-      cursor: pointer;
-    }
-
-    .gallery__btn:hover {
-      color: var(--color-accent);
-    }
-
-    .gallery__btn--danger:hover {
-      color: #b82b2b;
     }
 
     .gallery__error {

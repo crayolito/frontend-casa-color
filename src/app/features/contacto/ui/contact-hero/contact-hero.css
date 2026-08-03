@@ -11,7 +11,7 @@
 .contact-hero {
   margin-top: var(--header-h-mobile);
   height: auto;
-  padding: 13% 0;
+  padding: 10% 0;
   background-color: #000;
   background-size: cover;
   background-position: bottom center;
@@ -21,7 +21,7 @@
 @media (min-width: 1000px) {
   .contact-hero {
     margin-top: var(--header-h-desktop);
-    height: 700px;
+    height: 380px;
     padding: 0;
   }
 }

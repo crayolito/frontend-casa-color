@@ -3,14 +3,10 @@
   subtitle="Catálogos asociados a una o más categorías"
 >
   <app-admin-button type="button" variant="primary" (clicked)="openCreate()">
-    <app-admin-icon name="plus" />
     Nuevo catálogo
   </app-admin-button>
 </app-admin-page-header>
 
-@if (flash(); as msg) {
-  <p class="admin-flash" role="status">{{ msg }}</p>
-}
 @if (error(); as err) {
   <app-admin-error-state
     [message]="err.text"
@@ -49,6 +45,24 @@
 
 @if (loading()) {
   <p class="admin-entity-grid__status">Cargando…</p>
+} @else if (rows().length === 0 && !hasActiveFilters()) {
+  <div class="admin-empty-banner">
+    <img
+      class="admin-empty-banner__img"
+      [src]="emptyBannerSrc"
+      alt=""
+      width="960"
+      height="360"
+    />
+    <div class="admin-empty-banner__body">
+      <p class="admin-empty-banner__text">
+        Todavía no cargaste ningún catálogo. Creá el primero.
+      </p>
+      <app-admin-button type="button" variant="primary" (clicked)="openCreate()">
+        Nuevo catálogo
+      </app-admin-button>
+    </div>
+  </div>
 } @else if (rows().length === 0) {
   <p class="admin-entity-grid__status">{{ emptyMessage() }}</p>
 } @else {
@@ -73,13 +87,17 @@
           <p class="admin-entity-card__desc">{{ formatCategories(row) }}</p>
         </div>
         <div class="admin-entity-card__actions">
-          <app-admin-button type="button" variant="secondary" (clicked)="openEdit(row)">
-            Editar
-          </app-admin-button>
-          <app-admin-button type="button" variant="ghost" (clicked)="askDelete(row)">
-            <app-admin-icon name="trash" />
-            Eliminar
-          </app-admin-button>
+          <app-admin-icon-button
+            icon="edit"
+            label="Editar"
+            (clicked)="openEdit(row)"
+          />
+          <app-admin-icon-button
+            icon="trash"
+            label="Eliminar"
+            variant="danger"
+            (clicked)="askDelete(row)"
+          />
         </div>
       </article>
     }
@@ -154,19 +172,20 @@
       (urlChange)="onImageChange($event)"
     />
 
-    <app-pdf-uploader
-      label="PDF del catálogo"
-      folder="catalogs_pdfs"
-      [url]="form.controls.pdfUrl.value || null"
-      (urlChange)="onPdfChange($event)"
+    <app-admin-form-field
+      label="PDF (URL)"
+      controlName="pdfUrl"
+      type="url"
     />
+    <p class="admin-form__hint">
+      Link externo. Se abre en una pestaña nueva. El botón solo se muestra si hay URL.
+    </p>
 
     <app-admin-form-field
       label="Texto del botón PDF"
       controlName="pdfButtonLabel"
       [error]="form.controls.pdfButtonLabel.touched && form.controls.pdfButtonLabel.invalid ? 'Máx. 50 caracteres' : null"
     />
-    <p class="admin-form__hint">Se muestra en la web pública solo si hay PDF cargado.</p>
 
     <div class="admin-form__actions">
       <app-admin-button type="button" variant="secondary" (clicked)="closeModal()">

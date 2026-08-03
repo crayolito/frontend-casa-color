@@ -37,23 +37,24 @@ export class AdminSidebar {
         { label: 'Productos', path: '/admin/products', icon: 'products' },
         { label: 'Categorías', path: '/admin/categories', icon: 'categories' },
         { label: 'Catálogos', path: '/admin/catalogs', icon: 'catalogs' },
+        {
+          label: 'Importar / Exportar',
+          path: '/admin/bulk-data',
+          icon: 'upload',
+        },
       ],
     },
     {
-      label: 'Documentación',
-      items: [
-        { label: 'Cartas de color', path: '/admin/color-cards', icon: 'image' },
-        { label: 'Fichas técnicas', path: '/admin/fichas-tecnicas', icon: 'list' },
-      ],
-    },
-    {
-      label: 'Configuración',
+      label: 'Páginas',
       items: [
         { label: 'Inicio', path: '/admin/home', icon: 'home' },
-        { label: 'Sucursales', path: '/admin/branches', icon: 'home' },
-        { label: 'Contacto (página)', path: '/admin/contacto', icon: 'settings' },
+        { label: 'Empresa', path: '/admin/empresa', icon: 'info' },
+        { label: 'Contacto', path: '/admin/contacto', icon: 'settings' },
+        { label: 'Catálogos', path: '/admin/catalogos-page', icon: 'image' },
+        { label: 'Cartas de color', path: '/admin/color-cards', icon: 'image' },
+        { label: 'Fichas técnicas', path: '/admin/fichas-tecnicas', icon: 'list' },
         {
-          label: 'Páginas legales',
+          label: 'Legales',
           path: '/admin/paginas-legales',
           icon: 'list',
         },

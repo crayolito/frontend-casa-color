@@ -1,27 +1,52 @@
 <div class="fichas-column">
+  <div class="fichas-column__spacer" aria-hidden="true"></div>
+
+  <div class="fichas-column__logo-wrap">
+    <img
+      class="fichas-column__logo"
+      [src]="logoSrc()"
+      [alt]="category().label"
+      width="200"
+      height="200"
+      loading="lazy"
+      decoding="async"
+      appImgFallback="category"
+    />
+  </div>
+
+  <div class="fichas-column__spacer" aria-hidden="true"></div>
+
   <div class="fichas-column__toggles">
-    @if (category().catalogs.length === 0) {
-      <p class="fichas-column__empty">Sin fichas técnicas en esta categoría.</p>
+    @if (!hasCatalogs()) {
+      <p class="fichas-column__empty">
+        Sin fichas técnicas en esta categoría.
+      </p>
     } @else {
-      @for (catalog of category().catalogs; track catalog.id; let i = $index) {
+      @for (catalog of catalogs(); track catalog.id; let i = $index) {
         <app-fichas-toggle
           [title]="catalog.name"
           [variant]="variantFor(i)"
           [panelId]="'ficha-' + category().categoryId + '-' + catalog.id"
         >
-          <p class="fichas-column__links">
-            @for (product of catalog.products; track product.id; let last = $last) {
-              <a
-                [href]="product.technicalSheetUrl"
-                target="_blank"
-                rel="noopener noreferrer"
-                >{{ product.title }}</a
-              >
-              @if (!last) {
-                <br />
+          @if (catalog.products.length > 0) {
+            <p class="fichas-column__links">
+              @for (product of catalog.products; track product.id; let last = $last) {
+                <a
+                  [href]="product.technicalSheetUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >{{ product.title }}</a
+                >
+                @if (!last) {
+                  <br />
+                }
               }
-            }
-          </p>
+            </p>
+          } @else {
+            <p class="fichas-column__empty fichas-column__empty--panel">
+              Sin fichas técnicas en este catálogo.
+            </p>
+          }
         </app-fichas-toggle>
       }
     }

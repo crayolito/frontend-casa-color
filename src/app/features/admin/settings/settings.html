@@ -4,9 +4,6 @@
     subtitle="Datos de la empresa, contacto y ubicaciones"
   />
 
-  @if (flash(); as msg) {
-    <p class="admin-flash" role="status">{{ msg }}</p>
-  }
   @if (error(); as err) {
     <app-admin-error-state
       [message]="err.text"
@@ -43,12 +40,12 @@
         }
 
         <div class="settings__actions">
-          <app-admin-button type="button" variant="danger" (clicked)="askDelete()">
-            Eliminar
-          </app-admin-button>
-          <app-admin-button type="submit" variant="primary" [loading]="saving()">
-            Guardar
-          </app-admin-button>
+          <app-admin-icon-button
+            icon="trash"
+            label="Eliminar"
+            variant="danger"
+            (clicked)="askDelete()"
+          />
         </div>
       </form>
     </app-admin-tabs>

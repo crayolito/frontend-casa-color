@@ -9,13 +9,13 @@ function makePayload(
   overrides?: Partial<FichasTecnicasPublic>,
 ): FichasTecnicasPublic {
   return {
-    heroImageUrl: '/img/slides/linea-deco-imagen-destacada.jpg',
+    heroImageUrl: '/img/img-auxiliar2.jpg',
     heading: 'Fichas Técnicas',
     categories: [
       {
         categoryId: 1,
         label: 'Línea Deco',
-        imageUrl: '/img/logos/logo-linea-deco.jpg',
+        imageUrl: '/img/img-auxiliar.jpg',
         slug: 'deco',
         name: 'Deco',
         catalogs: [
@@ -43,7 +43,7 @@ function makePayload(
       {
         categoryId: 2,
         label: 'Línea Tecno',
-        imageUrl: '/img/logos/logo-linea-tecno.jpg',
+        imageUrl: '/img/img-auxiliar.jpg',
         slug: 'tecno',
         name: 'Tecno',
         catalogs: [
@@ -65,7 +65,7 @@ function makePayload(
       {
         categoryId: 3,
         label: 'Línea Art',
-        imageUrl: '/img/logos/logo-linea-art.jpg',
+        imageUrl: '/img/img-auxiliar.jpg',
         slug: 'art',
         name: 'Art',
         catalogs: [],
@@ -125,13 +125,19 @@ describe('FichasTecnicas', () => {
     );
   });
 
-  it('renders category cards and catalogs of the selected category', async () => {
+  it('renders all category columns with logos and catalogs', async () => {
     const fixture = await setup();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelectorAll('.fichas__card').length).toBe(3);
-    expect(compiled.querySelectorAll('app-fichas-toggle').length).toBe(1);
+    expect(compiled.querySelectorAll('.fichas__column').length).toBe(3);
+    expect(compiled.querySelectorAll('app-fichas-column').length).toBe(3);
+    expect(compiled.querySelectorAll('.fichas-column__logo').length).toBe(3);
+    expect(compiled.querySelectorAll('app-fichas-toggle').length).toBe(2);
+
+    const firstColumn = compiled.querySelector(
+      '.fichas__column',
+    ) as HTMLElement;
     const links = Array.from(
-      compiled.querySelectorAll('.fichas-column__links a'),
+      firstColumn.querySelectorAll('.fichas-column__links a'),
     ) as HTMLAnchorElement[];
     expect(links.map((a) => a.textContent?.trim())).toEqual([
       'EMI-25',
@@ -139,23 +145,55 @@ describe('FichasTecnicas', () => {
     ]);
     expect(links[0].getAttribute('href')).toBe('/fichas/emi-25.pdf');
     expect(links[0].getAttribute('target')).toBe('_blank');
+
+    const columns = compiled.querySelectorAll('.fichas__column');
+    const emptyCol = columns[2] as HTMLElement;
+    expect(emptyCol.querySelector('.fichas-column__empty')?.textContent).toContain(
+      'Sin fichas técnicas en esta categoría',
+    );
+    expect(emptyCol.querySelectorAll('app-fichas-toggle').length).toBe(0);
   });
 
-  it('switches catalogs when clicking another category card', async () => {
-    const fixture = await setup();
+  it('shows catalog toggles even when they have no PDF products', async () => {
+    const fixture = await setup({
+      payload: makePayload({
+        categories: [
+          {
+            categoryId: 1,
+            label: 'Línea Deco',
+            imageUrl: '/img/img-auxiliar.jpg',
+            slug: 'deco',
+            name: 'Deco',
+            catalogs: [
+              {
+                id: 10,
+                name: 'PINTURA MATE',
+                slug: 'mate',
+                products: [],
+              },
+              {
+                id: 11,
+                name: 'ESMALTES',
+                slug: 'esmaltes',
+                products: [
+                  {
+                    id: 100,
+                    title: 'EMI-25',
+                    slug: 'emi-25',
+                    technicalSheetUrl: '/fichas/emi-25.pdf',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      }),
+    });
     const compiled = fixture.nativeElement as HTMLElement;
-    const cards = compiled.querySelectorAll(
-      '.fichas__card',
-    ) as NodeListOf<HTMLButtonElement>;
-    cards[1].click();
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    const links = Array.from(
-      compiled.querySelectorAll('.fichas-column__links a'),
-    ) as HTMLAnchorElement[];
-    expect(links.map((a) => a.textContent?.trim())).toEqual(['Shop primer']);
+    const toggles = compiled.querySelectorAll('app-fichas-toggle');
+    expect(toggles.length).toBe(2);
+    expect(toggles[0].textContent).toContain('PINTURA MATE');
+    expect(toggles[1].textContent).toContain('ESMALTES');
   });
 
   it('shows empty state when API returns no categories', async () => {
@@ -181,6 +219,6 @@ describe('FichasTecnicas', () => {
     fixture.detectChanges();
 
     expect(getPublicSpy).toHaveBeenCalledTimes(2);
-    expect(compiled.querySelectorAll('.fichas__card').length).toBe(3);
+    expect(compiled.querySelectorAll('.fichas__column').length).toBe(3);
   });
 });

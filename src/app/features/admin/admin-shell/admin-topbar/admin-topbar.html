@@ -19,11 +19,36 @@
   </div>
 
   <div class="admin-topbar__right">
-    <button type="button" class="admin-topbar__search" (click)="openSearch()">
-      <app-admin-icon name="search" [size]="16" />
-      <span>Buscar…</span>
-      <kbd class="admin-topbar__kbd">Ctrl K</kbd>
-    </button>
+    @if (formCtx.dirty()) {
+      <div class="admin-topbar__dirty" role="status" aria-live="polite">
+        <span class="admin-topbar__dirty-label">Sin guardar</span>
+        <div class="admin-topbar__dirty-actions">
+          <app-admin-button
+            variant="ghost"
+            type="button"
+            (clicked)="formCtx.requestDiscard()"
+          >
+            Descartar
+          </app-admin-button>
+          <app-admin-button
+            variant="primary"
+            type="button"
+            [loading]="formCtx.saving()"
+            (clicked)="formCtx.requestSave()"
+          >
+            Guardar
+          </app-admin-button>
+        </div>
+      </div>
+    } @else {
+      <div class="admin-topbar__search-slot">
+        <button type="button" class="admin-topbar__search" (click)="openSearch()">
+          <app-admin-icon name="search" [size]="18" />
+          <span>Buscar…</span>
+          <kbd class="admin-topbar__kbd">Ctrl K</kbd>
+        </button>
+      </div>
+    }
     <app-admin-button variant="ghost" type="button" (clicked)="logout()">
       <app-admin-icon name="logout" />
       <span class="admin-topbar__logout-label">Salir</span>
@@ -40,21 +65,69 @@
         <input
           class="admin-cmd__input"
           type="search"
-          placeholder="Ir a…"
+          placeholder="Productos, catálogos, categorías o ir a…"
           [value]="searchQuery()"
           (input)="searchQuery.set($any($event.target).value)"
           autofocus
         />
+        @if (searchLoading()) {
+          <span class="admin-cmd__loading" aria-live="polite">Buscando…</span>
+        }
       </div>
       <ul class="admin-cmd__list" role="listbox">
-        @for (cmd of filteredCommands(); track cmd.path) {
-          <li>
-            <button type="button" class="admin-cmd__item" (click)="goTo(cmd.path)">
-              <span>{{ cmd.label }}</span>
-              <span class="admin-cmd__hint">{{ cmd.hint }}</span>
-            </button>
-          </li>
-        } @empty {
+        @if (filteredCommands().length > 0) {
+          <li class="admin-cmd__group" aria-hidden="true">Comandos</li>
+          @for (cmd of filteredCommands(); track cmd.path) {
+            <li>
+              <button type="button" class="admin-cmd__item" (click)="goTo(cmd.path)">
+                <span>{{ cmd.label }}</span>
+                <span class="admin-cmd__hint">{{ cmd.hint }}</span>
+              </button>
+            </li>
+          }
+        }
+
+        @if (hasServerQuery()) {
+          @if (serverResults().products.length > 0) {
+            <li class="admin-cmd__group" aria-hidden="true">Productos</li>
+            @for (item of serverResults().products; track item.id) {
+              <li>
+                <button type="button" class="admin-cmd__item" (click)="goToProduct(item.id)">
+                  <span>{{ item.title }}</span>
+                  <span class="admin-cmd__hint">
+                    {{ item.isActive ? 'Editar' : 'Inactivo · Editar' }}
+                  </span>
+                </button>
+              </li>
+            }
+          }
+
+          @if (serverResults().catalogs.length > 0) {
+            <li class="admin-cmd__group" aria-hidden="true">Catálogos</li>
+            @for (item of serverResults().catalogs; track item.id) {
+              <li>
+                <button type="button" class="admin-cmd__item" (click)="goToCatalog(item.slug)">
+                  <span>{{ item.name }}</span>
+                  <span class="admin-cmd__hint">Listado</span>
+                </button>
+              </li>
+            }
+          }
+
+          @if (serverResults().categories.length > 0) {
+            <li class="admin-cmd__group" aria-hidden="true">Categorías</li>
+            @for (item of serverResults().categories; track item.id) {
+              <li>
+                <button type="button" class="admin-cmd__item" (click)="goToCategory(item.slug)">
+                  <span>{{ item.name }}</span>
+                  <span class="admin-cmd__hint">Listado</span>
+                </button>
+              </li>
+            }
+          }
+        }
+
+        @if (!hasAnyResults() && !searchLoading()) {
           <li class="admin-cmd__empty">Sin resultados</li>
         }
       </ul>

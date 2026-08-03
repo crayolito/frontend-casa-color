@@ -3,6 +3,7 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { LegalPageApi } from '../../paginas-legales/data/legal-page.api';
 import { LegalPageSettings } from '../../paginas-legales/data/legal-page.model';
+import { AdminToastService } from '../../../shared/admin-ui/admin-toast/admin-toast.service';
 import { AdminPaginasLegales } from './paginas-legales';
 
 const AVISO: LegalPageSettings = {
@@ -18,6 +19,7 @@ const POLITICA: LegalPageSettings = {
 describe('AdminPaginasLegales', () => {
   let getSpy: ReturnType<typeof vi.fn>;
   let upsertSpy: ReturnType<typeof vi.fn>;
+  let toast: AdminToastService;
 
   async function setup(opts?: {
     getError?: { status: number; code: string; message: string };
@@ -51,6 +53,7 @@ describe('AdminPaginasLegales', () => {
     }).compileComponents();
 
     const fixture = TestBed.createComponent(AdminPaginasLegales);
+    toast = TestBed.inject(AdminToastService);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -70,7 +73,7 @@ describe('AdminPaginasLegales', () => {
     expect(component.updatedAt()).toBe('2026-07-29T00:00:00.000Z');
   });
 
-  it('should soft-handle 404 and show flash to create', async () => {
+  it('should soft-handle 404 and show toast to create', async () => {
     const fixture = await setup({
       getError: {
         status: 404,
@@ -81,7 +84,9 @@ describe('AdminPaginasLegales', () => {
     const component = fixture.componentInstance;
 
     expect(component.error()).toBeNull();
-    expect(component.flash()).toContain('aún no existe');
+    expect(toast.toasts().some((t) => t.message.includes('aún no existe'))).toBe(
+      true,
+    );
     expect(component.form.controls.title.value).toBe('Aviso Legal');
     expect(component.form.controls.bodyHtml.value).toBe('');
   });
@@ -102,7 +107,9 @@ describe('AdminPaginasLegales', () => {
       title: 'Aviso Legal actualizado',
       bodyHtml: '<h2>Nuevo</h2><p>Texto</p>',
     });
-    expect(component.flash()).toBe('Guardado correctamente');
+    expect(
+      toast.toasts().some((t) => t.message === 'Guardado correctamente'),
+    ).toBe(true);
     expect(component.updatedAt()).toBe('2026-07-29T12:00:00.000Z');
   });
 

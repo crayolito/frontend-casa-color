@@ -48,21 +48,23 @@
   <div class="footer__copyright">
     <div class="container footer__copyright-inner">
       <p>
-        {{ data().copyright.text }}<br />
-        Design by
-        @if (data().copyright.designByHref) {
-          <a
-            [href]="data().copyright.designByHref"
-            target="_blank"
-            rel="noopener"
-          >
-            {{ data().copyright.designBy }}
-          </a>
-        } @else {
-          <span>{{ data().copyright.designBy }}</span>
+        {{ data().copyright.text }}
+        @if (data().copyright.designBy) {
+          <br />
+          Design by
+          @if (data().copyright.designByHref) {
+            <a
+              [href]="data().copyright.designByHref"
+              target="_blank"
+              rel="noopener"
+            >
+              {{ data().copyright.designBy }}
+            </a>
+          } @else {
+            <span>{{ data().copyright.designBy }}</span>
+          }
         }
       </p>
-
       @if (visibleSocial().length > 0) {
         <ul class="footer__social" aria-label="Redes sociales">
           @for (net of visibleSocial(); track net.key) {

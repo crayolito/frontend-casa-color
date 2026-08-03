@@ -149,34 +149,61 @@
   pointer-events: none;
 }
 
+/* Clon: nectar directional — chevrons grandes, fondo transparente, bordes */
 .hero__nav {
-  pointer-events: auto;
+  position: absolute;
+  top: 50%;
+  z-index: 3;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 72px;
+  width: 80px;
+  height: 50px;
+  margin-top: -25px;
+  padding: 0;
   border: 0;
   border-radius: 0;
   background: transparent;
   color: var(--color-white);
   cursor: pointer;
-  transition: color 0.3s ease, background-color 0.3s ease;
+  filter: drop-shadow(0 1px 4px rgb(0 0 0 / 0.45));
+  transition: color 0.3s cubic-bezier(0.645, 0.045, 0.355, 1),
+    transform 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+.hero__nav--prev {
+  left: 0;
+}
+
+.hero__nav--next {
+  right: 0;
+}
+
+.hero__nav-icon {
+  display: block;
+  font-size: 3.75rem;
+  line-height: 1;
+  font-weight: 200;
+}
+
+.hero__nav--prev:hover .hero__nav-icon,
+.hero__nav--prev:focus-visible .hero__nav-icon {
+  transform: translateX(-6px);
+}
+
+.hero__nav--next:hover .hero__nav-icon,
+.hero__nav--next:focus-visible .hero__nav-icon {
+  transform: translateX(6px);
 }
 
 .hero__nav:hover,
 .hero__nav:focus-visible {
   color: var(--color-accent);
-  background: rgb(0 0 0 / 0.2);
 }
 
 .hero__nav:focus-visible {
   outline: 2px solid var(--color-extra-1);
   outline-offset: 2px;
-}
-
-.hero__nav svg {
-  display: block;
 }
 
 .hero__down-arrow {
@@ -290,13 +317,12 @@
   }
 
   .hero__nav {
-    width: 64px;
-    height: 96px;
+    width: 80px;
+    height: 50px;
   }
 
-  .hero__nav svg {
-    width: 44px;
-    height: 44px;
+  .hero__nav-icon {
+    font-size: 3.75rem;
   }
 }
 

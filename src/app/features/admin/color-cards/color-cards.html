@@ -1,16 +1,17 @@
 <app-admin-page-header
   title="Cartas de color"
-  subtitle="Cartas descargables de la sección Documentación"
+  subtitle="Entre 2 y 4 cartas"
 >
-  <app-admin-button type="button" variant="primary" (clicked)="openCreate()">
-    <app-admin-icon name="plus" />
+  <app-admin-button
+    type="button"
+    variant="primary"
+    [disabled]="!canAdd()"
+    (clicked)="openCreate()"
+  >
     Nueva carta
   </app-admin-button>
 </app-admin-page-header>
 
-@if (flash(); as msg) {
-  <p class="admin-flash" role="status">{{ msg }}</p>
-}
 @if (error(); as err) {
   <app-admin-error-state
     [message]="err.text"
@@ -21,62 +22,69 @@
 }
 
 @if (loading()) {
-  <p class="admin-entity-grid__status">Cargando…</p>
-} @else if (rows().length === 0) {
-  <p class="admin-entity-grid__status">{{ emptyMessage() }}</p>
+  <p class="color-cards-admin__status">Cargando…</p>
 } @else {
-  <div class="admin-entity-grid">
-    @for (row of rows(); track row.id) {
-      <article class="admin-entity-card">
-        <div class="admin-entity-card__media">
-          <img
-            [src]="row.imageUrl || '/img/img-auxiliar.jpg'"
-            [alt]="cardTitle(row)"
-            width="320"
-            height="200"
-            appImgFallback="product"
-          />
-        </div>
-        <div class="admin-entity-card__body">
-          <h3 class="admin-entity-card__title">{{ cardTitle(row) }}</h3>
-          <p class="admin-entity-card__count">Orden {{ row.sortOrder }}</p>
-          <p class="admin-entity-card__desc">{{ row.buttonLabel }}</p>
-        </div>
-        <div class="admin-entity-card__actions">
-          <app-admin-button type="button" variant="secondary" (clicked)="openEdit(row)">
-            Editar
-          </app-admin-button>
-          <app-admin-button type="button" variant="ghost" (clicked)="askDelete(row)">
-            <app-admin-icon name="trash" />
-            Eliminar
-          </app-admin-button>
-        </div>
-      </article>
-    }
-  </div>
+  <section class="color-cards-admin__hero">
+    <app-image-uploader
+      label="Imagen principal"
+      folder="home"
+      fallbackKind="banner"
+      [url]="heroImageUrl()"
+      (urlChange)="onHeroChange($event)"
+    />
+  </section>
 
-  @if (meta(); as m) {
-    @if (m.totalPages > 1) {
-      <nav class="admin-entity-pager" aria-label="Paginación">
-        <app-admin-button
-          type="button"
-          variant="secondary"
-          [disabled]="m.page <= 1"
-          (clicked)="onPageChange(m.page - 1)"
-        >
-          Anterior
-        </app-admin-button>
-        <span class="admin-entity-pager__label">Página {{ m.page }} de {{ m.totalPages }}</span>
-        <app-admin-button
-          type="button"
-          variant="secondary"
-          [disabled]="m.page >= m.totalPages"
-          (clicked)="onPageChange(m.page + 1)"
-        >
-          Siguiente
-        </app-admin-button>
-      </nav>
-    }
+  <p class="color-cards-admin__count">{{ countLabel() }}</p>
+
+  @if (rows().length === 0) {
+    <p class="color-cards-admin__status">
+      No hay cartas todavía. Agregá al menos 2 para publicar la página.
+    </p>
+  } @else {
+    <div
+      class="color-cards-admin__list"
+      cdkDropList
+      (cdkDropListDropped)="drop($event)"
+    >
+      @for (row of rows(); track row.id) {
+        <div class="color-cards-admin__card" cdkDrag>
+          <div class="color-cards-admin__card-head">
+            <span
+              class="color-cards-admin__drag"
+              cdkDragHandle
+              aria-label="Arrastrar"
+            >
+              <app-admin-icon name="grip-vertical" [size]="16" />
+            </span>
+            <div class="color-cards-admin__card-info">
+              <strong class="color-cards-admin__card-title">
+                {{ cardTitle(row) }}
+              </strong>
+              <p class="color-cards-admin__meta">
+                Botón: {{ row.buttonLabel }}
+                @if (row.pdfUrl) {
+                  · PDF configurado
+                }
+              </p>
+            </div>
+            <div class="color-cards-admin__card-actions">
+              <app-admin-icon-button
+                icon="edit"
+                label="Editar"
+                (clicked)="openEdit(row)"
+              />
+              <app-admin-icon-button
+                icon="trash"
+                label="Eliminar"
+                variant="danger"
+                [disabled]="!canRemove()"
+                (clicked)="askDelete(row)"
+              />
+            </div>
+          </div>
+        </div>
+      }
+    </div>
   }
 }
 
@@ -99,15 +107,11 @@
     />
     <p class="admin-form__hint">Ej.: prefijo «COLOM» + destacado « 3000».</p>
 
-    <app-admin-form-field
-      label="Descripción (HTML)"
-      controlName="descriptionHtml"
-      type="textarea"
-      [rows]="6"
+    <app-admin-html-editor
+      label="Descripción"
+      [html]="form.controls.descriptionHtml.value"
+      (htmlChange)="onDescriptionChange($event)"
     />
-    <p class="admin-form__hint">
-      Podés pegar HTML básico (&lt;p&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;a&gt;). Se sanitiza al mostrar.
-    </p>
 
     <app-admin-form-field
       label="Texto del botón"
@@ -122,20 +126,14 @@
       (urlChange)="onImageChange($event)"
     />
 
-    <app-pdf-uploader
-      label="PDF de la carta"
-      folder="color_cards_pdfs"
-      [url]="form.controls.pdfUrl.value || null"
-      (urlChange)="onPdfChange($event)"
-    />
-
     <app-admin-form-field
-      label="Orden"
-      controlName="sortOrder"
-      type="number"
-      [error]="form.controls.sortOrder.touched && form.controls.sortOrder.invalid ? 'Número ≥ 0' : null"
+      label="PDF (URL)"
+      controlName="pdfUrl"
+      type="url"
     />
-    <p class="admin-form__hint">Menor número aparece primero en la página pública.</p>
+    <p class="admin-form__hint">
+      Link externo. Se abre en una pestaña nueva.
+    </p>
 
     <div class="admin-form__actions">
       <app-admin-button type="button" variant="secondary" (clicked)="closeModal()">

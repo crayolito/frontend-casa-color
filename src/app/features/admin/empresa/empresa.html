@@ -1,0 +1,156 @@
+<app-admin-page-header
+  title="Empresa"
+  subtitle="Imagen superior y secciones"
+/>
+
+@if (error(); as err) {
+  <app-admin-error-state
+    [message]="err.text"
+    [correlationId]="err.correlationId ?? null"
+    [showCorrelationId]="err.showCorrelationId"
+    (retry)="load()"
+  />
+}
+
+@if (loading()) {
+  <p class="empresa-admin__status">Cargando…</p>
+} @else {
+  <form
+    class="admin-form-narrow empresa-admin"
+    [formGroup]="form"
+    (ngSubmit)="save()"
+  >
+    <section class="admin-form-narrow__section">
+      <h2 class="admin-form-narrow__heading">Imagen superior</h2>
+
+      <app-image-uploader
+        label="Imagen principal"
+        folder="home"
+        fallbackKind="banner"
+        [url]="form.controls.heroImageUrl.value || null"
+        (urlChange)="onHeroUploaded($event)"
+      />
+      <p class="empresa-admin__hint">
+        Va ARRIBA a todo el ancho (hero ~700px), como la imagen grande de la
+        página clonada. Si no cargás imagen, se usa el auxiliar de banner.
+      </p>
+    </section>
+
+    <section class="admin-form-narrow__section">
+      <div class="admin-form-narrow__section-head">
+        <h2 class="admin-form-narrow__heading">
+          Secciones ({{ sectionCount() }}/{{ maxSections }})
+        </h2>
+        <app-admin-icon-button
+          icon="plus"
+          label="Agregar sección"
+          [disabled]="!canAdd()"
+          (clicked)="openAddSection()"
+        />
+      </div>
+      <p class="empresa-admin__hint">
+        Mínimo {{ minSections }}, máximo {{ maxSections }}. Arrastrá para
+        reordenar. Editá en el modal. En la página pública: logo a la
+        izquierda (uno solo) y títulos/textos apilados a la derecha.
+      </p>
+
+      <div
+        formArrayName="sections"
+        class="empresa-admin__dnd"
+        cdkDropList
+        (cdkDropListDropped)="dropSection($event)"
+      >
+        @for (ctrl of sectionsFA.controls; track ctrl.value.id; let i = $index) {
+          <div class="empresa-admin__card" cdkDrag>
+            <div class="empresa-admin__card-head empresa-admin__card-head--static">
+              <span
+                class="empresa-admin__drag"
+                cdkDragHandle
+                aria-label="Arrastrar"
+              >
+                <app-admin-icon name="grip-vertical" [size]="16" />
+              </span>
+              <strong class="empresa-admin__card-title">{{ cardTitle(i) }}</strong>
+              <div class="empresa-admin__card-actions">
+                <app-admin-icon-button
+                  icon="edit"
+                  label="Editar"
+                  (clicked)="openEditSection(i)"
+                />
+                @if (canRemove()) {
+                  <app-admin-icon-button
+                    icon="trash"
+                    label="Eliminar"
+                    variant="danger"
+                    (clicked)="removeSection(i)"
+                  />
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  </form>
+}
+
+@if (sectionModalOpen() && sectionEditIndex() !== null) {
+  @let si = sectionEditIndex()!;
+  <app-admin-modal
+    [open]="true"
+    [wide]="true"
+    [title]="sectionModalTitle()"
+    (closed)="closeSectionModal()"
+  >
+    <div class="empresa-admin__modal-form" [formGroup]="sectionGroup(si)">
+      <app-admin-form-field
+        label="Título"
+        controlName="title"
+        [error]="
+          sectionGroup(si).controls.title.touched &&
+          sectionGroup(si).controls.title.invalid
+            ? 'Requerido'
+            : null
+        "
+      />
+
+      <label class="empresa-admin__field">
+        <span class="empresa-admin__field-label">Color del título</span>
+        <input
+          class="empresa-admin__color"
+          type="color"
+          formControlName="titleColor"
+          [attr.aria-label]="'Color del título sección ' + (si + 1)"
+        />
+      </label>
+
+      <app-admin-html-editor
+        label="Descripción"
+        [html]="sectionGroup(si).value.descriptionHtml || ''"
+        (htmlChange)="onDescriptionChange(si, $event)"
+      />
+
+      <app-image-uploader
+        label="Logo lateral (izquierda del texto)"
+        folder="home"
+        fallbackKind="category"
+        [url]="sectionGroup(si).value.sideImageUrl || null"
+        (urlChange)="onSideImageUploaded(si, $event)"
+      />
+      <p class="empresa-admin__hint">
+        Opcional. NO es el hero: va a la IZQUIERDA del texto (~200px). Si
+        varias secciones tienen logo, se usa el primero que tenga imagen.
+      </p>
+
+      <div class="empresa-admin__modal-actions">
+        <app-admin-button
+          type="button"
+          variant="primary"
+          (clicked)="closeSectionModal()"
+        >
+          Listo
+        </app-admin-button>
+      </div>
+    </div>
+  </app-admin-modal>
+}

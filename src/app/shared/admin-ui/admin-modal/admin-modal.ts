@@ -4,7 +4,10 @@ import {
   input,
   output,
   effect,
+  inject,
+  DestroyRef,
 } from '@angular/core';
+import { AdminScrollLockService } from '../admin-scroll-lock.service';
 
 @Component({
   selector: 'app-admin-modal',
@@ -65,10 +68,12 @@ import {
     .admin-modal__panel {
       position: relative;
       z-index: 1;
+      display: flex;
+      flex-direction: column;
       width: 100%;
       max-width: 560px;
       max-height: 90vh;
-      overflow: auto;
+      overflow: hidden;
       background: var(--color-white);
       border-radius: var(--radius-lg);
       border: 1px solid var(--admin-border);
@@ -80,6 +85,7 @@ import {
     }
 
     .admin-modal__header {
+      flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -114,11 +120,20 @@ import {
     }
 
     .admin-modal__body {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
       padding: 1.5rem;
+      -webkit-overflow-scrolling: touch;
     }
   `,
 })
 export class AdminModal {
+  private readonly scrollLock = inject(AdminScrollLockService);
+  private readonly destroyRef = inject(DestroyRef);
+  private holdingLock = false;
+
   readonly open = input(false);
   readonly title = input.required<string>();
   /** Modal más ancho (formularios con editor HTML, etc.). */
@@ -129,10 +144,21 @@ export class AdminModal {
 
   constructor() {
     effect(() => {
-      if (typeof document === 'undefined') {
-        return;
+      const isOpen = this.open();
+      if (isOpen && !this.holdingLock) {
+        this.scrollLock.acquire();
+        this.holdingLock = true;
+      } else if (!isOpen && this.holdingLock) {
+        this.scrollLock.release();
+        this.holdingLock = false;
       }
-      document.body.style.overflow = this.open() ? 'hidden' : '';
+    });
+
+    this.destroyRef.onDestroy(() => {
+      if (this.holdingLock) {
+        this.scrollLock.release();
+        this.holdingLock = false;
+      }
     });
   }
 }

@@ -41,7 +41,7 @@ export class Footer {
     );
   }
 
-  /** Instagram / TikTok / Facebook en la franja negra. WhatsApp → FAB. */
+  /** Instagram / TikTok / Facebook en la barra copyright. WhatsApp → FAB. */
   protected visibleSocial(): Array<{
     key: string;
     url: string;

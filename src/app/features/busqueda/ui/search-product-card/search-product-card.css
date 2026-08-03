@@ -30,7 +30,7 @@
 
 .search-product-card__media {
   display: block;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: var(--aspect-card-product, 3 / 4);
   overflow: hidden;
   margin-bottom: 10px;
   background: #f4f4f4;

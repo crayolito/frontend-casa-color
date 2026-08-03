@@ -15,22 +15,19 @@ export interface MobileNavItem {
   children?: { label: string; href: string }[];
 }
 
+/** Fallback si `home.nav` llega vacío. Preferir siempre el setting en DB. */
 export const NAV_ITEMS: NavItem[] = [
   {
-    label: 'DECORACIÓN',
+    label: 'PRODUCTOS',
     href: '#',
-    children: [{ label: 'LÍNEA DECO', href: '#' }],
+    children: [
+      { label: 'PINTURAS INTERIORES', href: '/categoria/pinturas-interiores' },
+      { label: 'PINTURAS EXTERIORES', href: '/categoria/pinturas-exteriores' },
+      { label: 'ESMALTES', href: '/categoria/esmaltes' },
+      { label: 'MADERAS', href: '/categoria/maderas' },
+    ],
   },
-  {
-    label: 'INDUSTRIA',
-    href: '#',
-    children: [{ label: 'LÍNEA TECNO', href: '#' }],
-  },
-  {
-    label: 'ARTE',
-    href: '#',
-    children: [{ label: 'EN DESARROLLO', href: '#' }],
-  },
+  { label: 'CATÁLOGOS', href: '/catalogos' },
   {
     label: 'DOCUMENTACIÓN',
     href: '#',
@@ -39,14 +36,22 @@ export const NAV_ITEMS: NavItem[] = [
       { label: 'FICHAS TÉCNICAS', href: '/fichas-tecnicas' },
     ],
   },
+  { label: 'EMPRESA', href: '/empresa' },
   { label: 'CONTACTO', href: '/contacto' },
 ];
 
 /** Jerarquía del off-canvas mobile (misma estructura que NAV_ITEMS). */
 export const MOBILE_NAV_ITEMS: MobileNavItem[] = [
-  { label: 'DECORACIÓN', children: [{ label: 'LÍNEA DECO', href: '#' }] },
-  { label: 'INDUSTRIA', children: [{ label: 'LÍNEA TECNO', href: '#' }] },
-  { label: 'ARTE', children: [{ label: 'EN DESARROLLO', href: '#' }] },
+  {
+    label: 'PRODUCTOS',
+    children: [
+      { label: 'PINTURAS INTERIORES', href: '/categoria/pinturas-interiores' },
+      { label: 'PINTURAS EXTERIORES', href: '/categoria/pinturas-exteriores' },
+      { label: 'ESMALTES', href: '/categoria/esmaltes' },
+      { label: 'MADERAS', href: '/categoria/maderas' },
+    ],
+  },
+  { label: 'CATÁLOGOS', href: '/catalogos' },
   {
     label: 'DOCUMENTACIÓN',
     children: [
@@ -54,5 +59,6 @@ export const MOBILE_NAV_ITEMS: MobileNavItem[] = [
       { label: 'FICHAS TÉCNICAS', href: '/fichas-tecnicas' },
     ],
   },
+  { label: 'EMPRESA', href: '/empresa' },
   { label: 'CONTACTO', href: '/contacto' },
 ];

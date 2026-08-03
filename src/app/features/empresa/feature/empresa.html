@@ -1,0 +1,46 @@
+<main class="empresa">
+  @if (loading()) {
+    <div class="empresa__skeleton" aria-busy="true" aria-live="polite">
+      <p class="empresa__skeleton-text">Cargando…</p>
+    </div>
+  } @else if (error(); as err) {
+    <div class="empresa__error" role="alert">
+      <p>{{ err.text }}</p>
+      <button type="button" class="empresa__retry" (click)="load()">
+        Reintentar
+      </button>
+    </div>
+  } @else if (content(); as c) {
+    <app-empresa-hero [hero]="c.hero" />
+
+    <div class="empresa__body">
+      <div class="empresa__row">
+        <aside class="empresa__side">
+          @if (sideLogoUrl(c); as logo) {
+            <img
+              class="empresa__side-img"
+              [src]="logo"
+              alt=""
+              loading="lazy"
+              appImgFallback="category"
+            />
+          }
+        </aside>
+
+        <div class="empresa__main">
+          @for (section of c.sections; track section.id; let i = $index; let last = $last) {
+            <app-empresa-section
+              [section]="section"
+              appReveal
+              [delayMs]="i * 100"
+            />
+            @if (!last) {
+              <div class="empresa__section-gap" aria-hidden="true"></div>
+            }
+          }
+        </div>
+      </div>
+      <div class="empresa__footer-space" aria-hidden="true"></div>
+    </div>
+  }
+</main>

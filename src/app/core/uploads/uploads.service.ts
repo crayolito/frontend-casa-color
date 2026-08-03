@@ -8,6 +8,7 @@ export type UploadFolder =
   | 'categories'
   | 'catalogs'
   | 'catalogs_pdfs'
+  | 'catalogos_page'
   | 'finishes'
   | 'colors'
   | 'home'

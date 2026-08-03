@@ -36,7 +36,6 @@ import {
 } from '../../../../shared/admin-ui/admin-table/admin-table';
 import { AdminConfirmDialog } from '../../../../shared/admin-ui/admin-confirm-dialog/admin-confirm-dialog';
 import { AdminFilters } from '../../../../shared/admin-ui/admin-filters/admin-filters';
-import { AdminIcon } from '../../../../shared/admin-ui/icons/admin-icon';
 import { AdminButton } from '../../../../shared/admin-ui/admin-button/admin-button';
 import { AdminModal } from '../../../../shared/admin-ui/admin-modal/admin-modal';
 import { AdminToastService } from '../../../../shared/admin-ui/admin-toast/admin-toast.service';
@@ -55,7 +54,6 @@ const PAGE_SIZE = 16;
     AdminTable,
     AdminConfirmDialog,
     AdminFilters,
-    AdminIcon,
     AdminButton,
     AdminModal,
     AdminErrorState,

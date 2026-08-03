@@ -30,13 +30,28 @@
   outline-offset: 2px;
 }
 
+/*
+  Clonada: #page-header-wrap 700px; data-padding-amt=high → mobile padding 13% 0
+  + parallax capa .page-header-bg-image (Salient).
+*/
 .categoria__hero {
+  position: relative;
   margin-top: var(--header-h-mobile);
   height: auto;
   padding: 13% 0;
   background-color: #000;
+  overflow: hidden;
+}
+
+.categoria__hero-bg {
+  position: absolute;
+  /* Extra altura para que el translate no deje huecos */
+  inset: -8% 0;
+  background-color: #000;
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
+  will-change: transform;
 }
 
 @media (min-width: 1000px) {
@@ -47,14 +62,26 @@
   }
 }
 
+/* h5 theme Salient: 24px/30px weight 300 */
 .categoria__heading {
   margin: 40px 0 20px;
+  font-family: var(--font-body);
+  font-size: var(--font-size-h5);
+  line-height: var(--line-height-h5);
+  font-weight: 300;
+  color: #444;
 }
 
+/* Body Salient: #676767 / weight 300 / lh 25px — 2 cols desde 691px */
 .categoria__intro {
   display: grid;
   gap: 0 2%;
   margin-bottom: 30px;
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  font-weight: 300;
+  line-height: 25px;
+  color: #676767;
 }
 
 .categoria__intro > div {
@@ -87,6 +114,8 @@
   display: block;
   margin-bottom: 2%;
   text-decoration: none;
+  overflow: hidden;
+  color: inherit;
 }
 
 .categoria__card:hover,
@@ -99,20 +128,41 @@
   outline-offset: 2px;
 }
 
+.categoria__card-media {
+  display: block;
+  overflow: hidden;
+  background: #f3f3f3;
+}
+
 .categoria__card-img {
   display: block;
   width: 100%;
-  aspect-ratio: 3 / 2;
+  height: 100%;
+  aspect-ratio: var(--aspect-card-catalog, 3 / 2);
   object-fit: cover;
+  object-position: center;
   border-radius: 0;
   box-shadow: none;
+  background: #f3f3f3;
+  transition: opacity 0.35s cubic-bezier(0.65, 0, 0.35, 1),
+    transform 0.35s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
+/* Hover sutil tipo Salient hover-wrap */
+.categoria__card:hover .categoria__card-img,
+.categoria__card:focus-visible .categoria__card-img {
+  opacity: 0.92;
+  transform: scale(1.02);
+}
+
+/* h6 theme: 18px/24px weight 300, letter-spacing .2px */
 .categoria__card-title {
   margin: 10px 0 0;
-  font-size: 14px;
-  line-height: 24px;
-  font-weight: 600;
+  font-family: var(--font-body);
+  font-size: var(--font-size-h6);
+  line-height: var(--line-height-h6);
+  letter-spacing: var(--letter-spacing-h6);
+  font-weight: 300;
   color: #444;
   text-align: center;
 }
@@ -124,5 +174,17 @@
 
   .categoria__card {
     margin-bottom: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .categoria__card-img {
+    transition: none;
+  }
+
+  .categoria__card:hover .categoria__card-img,
+  .categoria__card:focus-visible .categoria__card-img {
+    opacity: 1;
+    transform: none;
   }
 }

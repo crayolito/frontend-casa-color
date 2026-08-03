@@ -16,6 +16,8 @@ describe('error catalog', () => {
       'Ese slug ya está en uso. Probá con otro.',
     );
     expect(messageForCode('PRODUCT_NOT_FOUND')).toBe('Producto no encontrado');
+    expect(messageForCode('BULK_FILE_INVALID')).toContain('Excel');
+    expect(messageForCode('BULK_COMMAND_DISABLED')).toContain('DELETE');
     expect(ERROR_MESSAGES['INTERNAL_ERROR']).toContain('Algo salió mal');
   });
 

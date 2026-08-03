@@ -1,0 +1,25 @@
+/**
+ * Media compartido de entity-cards admin (catalogs, categories, color-cards, branches).
+ * Importar en el CSS de cada feature: @import '../../../../shared/admin-ui/admin-entity-card/admin-entity-card.css';
+ */
+.admin-entity-card__media {
+  aspect-ratio: var(--aspect-card-admin-entity, 16 / 10);
+  background: #f3f3f3;
+  overflow: hidden;
+}
+
+.admin-entity-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.admin-entity-card__placeholder {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}

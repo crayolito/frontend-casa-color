@@ -1,10 +1,13 @@
 import {
   Component,
   ChangeDetectionStrategy,
+  DestroyRef,
   OnInit,
+  computed,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormArray,
   FormBuilder,
@@ -17,7 +20,7 @@ import {
   DragDropModule,
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { forkJoin } from 'rxjs';
+import { forkJoin, merge } from 'rxjs';
 import { HomeApi } from '../../home/data/home.api';
 import {
   HomeContent,
@@ -28,18 +31,18 @@ import {
 } from '../../home/data/home-content.model';
 import { CategoriesApi } from '../data/categories.api';
 import { Category } from '../data/admin.models';
-import {
-  ResolvedErrorMessage,
-  resolveErrorMessage,
-} from '../../../shared/errors/resolve-error-message';
+import { resolveErrorMessage } from '../../../shared/errors/resolve-error-message';
 import { AdminPageHeader } from '../../../shared/admin-ui/admin-page-header/admin-page-header';
 import { AdminButton } from '../../../shared/admin-ui/admin-button/admin-button';
 import { AdminTabs, AdminTab } from '../../../shared/admin-ui/admin-tabs/admin-tabs';
 import { AdminFormField } from '../../../shared/admin-ui/admin-form-field/admin-form-field';
-import { AdminErrorState } from '../../../shared/admin-ui/admin-error-state/admin-error-state';
 import { AdminToastService } from '../../../shared/admin-ui/admin-toast/admin-toast.service';
+import { AdminFormContext } from '../../../shared/admin-ui/admin-form-context/admin-form-context';
+import { AdminModal } from '../../../shared/admin-ui/admin-modal/admin-modal';
 import { ImageUploader } from '../../../shared/admin-ui/image-uploader/image-uploader';
 import { AdminIcon } from '../../../shared/admin-ui/icons/admin-icon';
+import { AdminIconButton } from '../../../shared/admin-ui/admin-icon-button/admin-icon-button';
+import { AdminSwitch } from '../../../shared/admin-ui/admin-switch/admin-switch';
 import { DestinationPicker } from './destination-picker/destination-picker';
 import { NavDestinationPicker } from './nav-destination-picker/nav-destination-picker';
 import { SelectOption } from '../../../shared/ui/select/select';
@@ -69,9 +72,11 @@ const SCHEME_OPTIONS: SelectOption[] = [
     AdminButton,
     AdminTabs,
     AdminFormField,
-    AdminErrorState,
+    AdminModal,
     ImageUploader,
     AdminIcon,
+    AdminIconButton,
+    AdminSwitch,
     DestinationPicker,
     NavDestinationPicker,
   ],
@@ -83,6 +88,8 @@ export class AdminHome implements OnInit {
   private readonly categoriesApi = inject(CategoriesApi);
   private readonly fb = inject(FormBuilder);
   private readonly toast = inject(AdminToastService);
+  private readonly formCtx = inject(AdminFormContext);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly maxCategories = MAX_HOME_CATEGORIES;
   readonly minSlides = MIN_SLIDES;
@@ -106,17 +113,21 @@ export class AdminHome implements OnInit {
   readonly selectedTab = signal('header');
   readonly loading = signal(true);
   readonly saving = signal(false);
-  readonly error = signal<ResolvedErrorMessage | null>(null);
   readonly allCategories = signal<Category[]>([]);
   readonly content = signal<HomeContent | null>(null);
 
   readonly slideDestinations = signal<Array<HomeDestination | null>>([]);
-
-  /** Destinos del menú (itemIndex → dest; 'i-j' para subitem). */
   readonly navDestinations = signal<Record<string, HomeNavDestination | null>>({});
 
-  /** Tarjetas expandibles en admin (slides / categorías / nav). Prefijo: s-|c-|n- */
+  /** Acordeón solo en menú (nav). */
   readonly expandedCards = signal<Set<string>>(new Set());
+
+  readonly slideModalOpen = signal(false);
+  readonly slideEditIndex = signal<number | null>(null);
+  readonly categoryModalOpen = signal(false);
+  readonly categoryEditIndex = signal<number | null>(null);
+
+  private readonly _dirtyTick = signal(0);
 
   readonly headerForm = this.fb.nonNullable.group({
     imageUrl: [''],
@@ -163,6 +174,20 @@ export class AdminHome implements OnInit {
 
   readonly navItems = this.fb.array<FormGroup>([]);
 
+  readonly formDirty = computed(() => {
+    this._dirtyTick();
+    return (
+      this.headerForm.dirty ||
+      this.bannerForm.dirty ||
+      this.findProductForm.dirty ||
+      this.categoriesForm.dirty ||
+      this.footerForm.dirty ||
+      this.socialForm.dirty ||
+      this.whatsappForm.dirty ||
+      this.navItems.dirty
+    );
+  });
+
   get slides(): FormArray<FormGroup> {
     return this.bannerForm.controls.slides;
   }
@@ -171,7 +196,43 @@ export class AdminHome implements OnInit {
     return this.categoriesForm.controls.items;
   }
 
+  slideModalTitle(): string {
+    const idx = this.slideEditIndex();
+    if (idx === null) return 'Slide';
+    const title = String(this.slides.at(idx).controls['title'].value ?? '').trim();
+    return title || `Slide ${idx + 1}`;
+  }
+
+  categoryModalTitle(): string {
+    const idx = this.categoryEditIndex();
+    if (idx === null) return 'Categoría';
+    return this.categoryName(this.categoryItems.at(idx).controls['categoryId'].value);
+  }
+
   ngOnInit(): void {
+    this.formCtx.register(
+      {
+        dirty: this.formDirty,
+        saving: this.saving,
+        save: () => this.save(),
+        discard: () => this.discardChanges(),
+      },
+      this.destroyRef,
+    );
+
+    merge(
+      this.headerForm.valueChanges,
+      this.bannerForm.valueChanges,
+      this.findProductForm.valueChanges,
+      this.categoriesForm.valueChanges,
+      this.footerForm.valueChanges,
+      this.socialForm.valueChanges,
+      this.whatsappForm.valueChanges,
+      this.navItems.valueChanges,
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this._dirtyTick.update((n) => n + 1));
+
     this.categoriesApi.list(1, 100).subscribe({
       next: (res) => this.allCategories.set(res.data),
     });
@@ -184,7 +245,6 @@ export class AdminHome implements OnInit {
 
   load(): void {
     this.loading.set(true);
-    this.error.set(null);
     this.homeApi.loadHome().subscribe({
       next: (data) => {
         this.content.set(data);
@@ -193,9 +253,16 @@ export class AdminHome implements OnInit {
       },
       error: (err: unknown) => {
         this.loading.set(false);
-        this.error.set(resolveErrorMessage(err));
+        this.content.set(null);
+        this.toast.error(resolveErrorMessage(err).text);
       },
     });
+  }
+
+  discardChanges(): void {
+    this.closeSlideModal();
+    this.closeCategoryModal();
+    this.load();
   }
 
   isCardExpanded(key: string): boolean {
@@ -212,15 +279,27 @@ export class AdminHome implements OnInit {
     });
   }
 
-  addSlide(): void {
+  openAddSlide(): void {
     if (this.slides.length >= MAX_SLIDES) {
       this.toast.error(`Máximo ${MAX_SLIDES} slides`);
       return;
     }
     this.slides.push(this.createSlideGroup());
     this.slideDestinations.update((list) => [...list, null]);
-    const idx = this.slides.length - 1;
-    this.expandedCards.update((set) => new Set(set).add(`s-${idx}`));
+    this.bannerForm.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
+    this.slideEditIndex.set(this.slides.length - 1);
+    this.slideModalOpen.set(true);
+  }
+
+  openEditSlide(index: number): void {
+    this.slideEditIndex.set(index);
+    this.slideModalOpen.set(true);
+  }
+
+  closeSlideModal(): void {
+    this.slideModalOpen.set(false);
+    this.slideEditIndex.set(null);
   }
 
   removeSlide(index: number): void {
@@ -228,8 +307,11 @@ export class AdminHome implements OnInit {
       this.toast.error(`Mínimo ${MIN_SLIDES} slide`);
       return;
     }
+    if (this.slideEditIndex() === index) this.closeSlideModal();
     this.slides.removeAt(index);
     this.slideDestinations.update((list) => list.filter((_, i) => i !== index));
+    this.bannerForm.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
   }
 
   dropSlide(event: CdkDragDrop<FormGroup[]>): void {
@@ -239,10 +321,15 @@ export class AdminHome implements OnInit {
       moveItemInArray(next, event.previousIndex, event.currentIndex);
       return next;
     });
+    this.bannerForm.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
   }
 
   setSlideImage(index: number, url: string | null): void {
     this.slides.at(index).patchValue({ imageUrl: url ?? '' });
+    this.slides.at(index).markAsDirty();
+    this.bannerForm.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
   }
 
   setSlideDestination(index: number, dest: HomeDestination | null): void {
@@ -251,9 +338,11 @@ export class AdminHome implements OnInit {
       next[index] = dest;
       return next;
     });
+    this.bannerForm.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
   }
 
-  addCategoryItem(): void {
+  openAddCategory(): void {
     if (this.categoryItems.length >= MAX_HOME_CATEGORIES) {
       this.toast.error(`Máximo ${MAX_HOME_CATEGORIES} categorías en el home`);
       return;
@@ -262,12 +351,27 @@ export class AdminHome implements OnInit {
     this.categoryItems.push(
       this.createCategoryItemGroup(first?.id ?? 1, this.categoryItems.length),
     );
-    const idx = this.categoryItems.length - 1;
-    this.expandedCards.update((set) => new Set(set).add(`c-${idx}`));
+    this.categoriesForm.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
+    this.categoryEditIndex.set(this.categoryItems.length - 1);
+    this.categoryModalOpen.set(true);
+  }
+
+  openEditCategory(index: number): void {
+    this.categoryEditIndex.set(index);
+    this.categoryModalOpen.set(true);
+  }
+
+  closeCategoryModal(): void {
+    this.categoryModalOpen.set(false);
+    this.categoryEditIndex.set(null);
   }
 
   removeCategoryItem(index: number): void {
+    if (this.categoryEditIndex() === index) this.closeCategoryModal();
     this.categoryItems.removeAt(index);
+    this.categoriesForm.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
   }
 
   dropCategory(event: CdkDragDrop<FormGroup[]>): void {
@@ -279,34 +383,38 @@ export class AdminHome implements OnInit {
     this.categoryItems.controls.forEach((c, i) =>
       c.patchValue({ displayOrder: i }),
     );
-  }
-
-  setCategoryImage(index: number, url: string | null): void {
-    this.categoryItems.at(index).patchValue({ imageUrl: url ?? '' });
+    this.categoriesForm.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
   }
 
   setHeaderImage(url: string | null): void {
     this.headerForm.patchValue({ imageUrl: url ?? '' });
+    this.headerForm.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
   }
 
   setFindProductDecorImage(url: string | null): void {
     this.findProductForm.patchValue({ decorImageUrl: url ?? '' });
+    this.findProductForm.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
   }
 
   setFooterTopImage(url: string | null): void {
     this.footerForm.patchValue({ topImageUrl: url ?? '' });
+    this.footerForm.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
   }
 
   setFooterLogo(url: string | null): void {
     this.footerForm.patchValue({ logoUrl: url ?? '' });
+    this.footerForm.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
   }
 
   categoryName(categoryId: unknown): string {
     const id = Number(categoryId);
     return this.allCategories().find((c) => c.id === id)?.name ?? `Categoría #${id}`;
   }
-
-  // --- Nav menu ---
 
   navChildren(itemIndex: number): FormArray<FormGroup> {
     return this.navItems.at(itemIndex).get('children') as FormArray<FormGroup>;
@@ -316,6 +424,8 @@ export class AdminHome implements OnInit {
     this.navItems.push(this.createNavItemGroup());
     const idx = this.navItems.length - 1;
     this.expandedCards.update((set) => new Set(set).add(`n-${idx}`));
+    this.navItems.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
   }
 
   removeNavItem(index: number): void {
@@ -328,14 +438,20 @@ export class AdminHome implements OnInit {
       }
       return next;
     });
+    this.navItems.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
   }
 
   dropNavItem(event: CdkDragDrop<FormGroup[]>): void {
     moveItemInArray(this.navItems.controls, event.previousIndex, event.currentIndex);
+    this.navItems.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
   }
 
   addNavChild(itemIndex: number): void {
     this.navChildren(itemIndex).push(this.createNavSubItemGroup());
+    this.navItems.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
   }
 
   removeNavChild(itemIndex: number, childIndex: number): void {
@@ -345,112 +461,113 @@ export class AdminHome implements OnInit {
       delete next[`${itemIndex}-${childIndex}`];
       return next;
     });
+    this.navItems.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
   }
 
   setNavDestination(key: string, dest: HomeNavDestination | null): void {
     this.navDestinations.update((map) => ({ ...map, [key]: dest }));
+    this.navItems.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
   }
 
   navDest(key: string): HomeNavDestination | null {
     return this.navDestinations()[key] ?? null;
   }
 
-  saveCurrent(): void {
-    const tab = this.selectedTab();
-    if (tab === 'footer') {
-      const v = this.whatsappForm.getRawValue();
-      if (v.enabled && !/^\d{6,15}$/.test(v.phone.trim())) {
-        this.toast.error('El teléfono debe ser solo dígitos (6-15) con código de país');
-        return;
-      }
-      this.saveMany([
-        { section: 'footer', body: this.buildFooterPayload() },
-        {
-          section: 'floating',
-          body: {
-            whatsapp: {
-              enabled: v.enabled,
-              phone: v.phone.trim(),
-              message: v.message.trim(),
-            },
+  save(): void {
+    const wa = this.whatsappForm.getRawValue();
+    if (wa.enabled && !/^\d{6,15}$/.test(wa.phone.trim())) {
+      this.toast.error('El teléfono debe ser solo dígitos (6-15) con código de país');
+      return;
+    }
+    if (this.slides.length < MIN_SLIDES) {
+      this.toast.error(`Agregá al menos ${MIN_SLIDES} slide con imagen`);
+      return;
+    }
+    if (this.slides.length > MAX_SLIDES) {
+      this.toast.error(`Máximo ${MAX_SLIDES} slides`);
+      return;
+    }
+    const invalidSlide = this.slides.controls.some(
+      (c) => !String(c.value.imageUrl ?? '').trim(),
+    );
+    if (invalidSlide) {
+      this.toast.error('Cada slide necesita una imagen');
+      return;
+    }
+    const intervalMs = Math.round(Number(this.bannerForm.getRawValue().intervalMs));
+    if (!Number.isFinite(intervalMs) || intervalMs < 1000 || intervalMs > 60_000) {
+      this.toast.error('El intervalo debe ser entre 1000 y 60000 ms');
+      return;
+    }
+    if (this.categoryItems.length > MAX_HOME_CATEGORIES) {
+      this.toast.error(`Máximo ${MAX_HOME_CATEGORIES} categorías en el home`);
+      return;
+    }
+
+    const header = this.headerForm.getRawValue();
+    const banner = this.bannerForm.getRawValue();
+    const dests = this.slideDestinations();
+    const find = this.findProductForm.getRawValue();
+    const existingFind = this.content()?.findProduct;
+    const cats = this.categoriesForm.getRawValue();
+
+    this.saveMany([
+      {
+        section: 'header',
+        body: { imageUrl: header.imageUrl.trim() || undefined, link: '/' },
+      },
+      { section: 'nav', body: { items: this.buildNavPayload() } },
+      {
+        section: 'banner',
+        body: {
+          autoplay: Boolean(banner.autoplay),
+          intervalMs,
+          slides: banner.slides.map((s, i) => ({
+            id: String(s['id']),
+            imageUrl: String(s['imageUrl'] ?? '').trim(),
+            title: String(s['title'] ?? '').trim() || undefined,
+            buttonText: String(s['buttonText'] ?? '').trim() || undefined,
+            buttonDestination: dests[i] ?? undefined,
+            textPosition: s['textPosition'] || 'top',
+            scheme: s['scheme'] || 'dark',
+          })),
+        },
+      },
+      {
+        section: 'find-product',
+        body: {
+          title: find.title || existingFind?.title || 'Encuentra un producto',
+          imageUrl: existingFind?.imageUrl,
+          decorImageUrl: find.decorImageUrl.trim() || undefined,
+          buttonText: existingFind?.buttonText,
+          buttonDestination: existingFind?.buttonDestination,
+        },
+      },
+      {
+        section: 'categories',
+        body: {
+          title: cats.title,
+          items: cats.items.map((item, index) => ({
+            categoryId: Number(item['categoryId']),
+            displayOrder: index,
+            description: item['description'] || undefined,
+          })),
+        },
+      },
+      { section: 'footer', body: this.buildFooterPayload() },
+      {
+        section: 'floating',
+        body: {
+          whatsapp: {
+            enabled: wa.enabled,
+            phone: wa.phone.trim(),
+            message: wa.message.trim(),
           },
         },
-      ]);
-      return;
-    }
-    if (tab === 'header') {
-      const v = this.headerForm.getRawValue();
-      this.saveSection('header', {
-        imageUrl: v.imageUrl.trim() || undefined,
-        link: '/',
-      });
-      return;
-    }
-    if (tab === 'nav') {
-      this.saveSection('nav', { items: this.buildNavPayload() });
-      return;
-    }
-    if (tab === 'banner') {
-      if (this.slides.length < MIN_SLIDES) {
-        this.toast.error(`Agregá al menos ${MIN_SLIDES} slide con imagen`);
-        return;
-      }
-      if (this.slides.length > MAX_SLIDES) {
-        this.toast.error(`Máximo ${MAX_SLIDES} slides`);
-        return;
-      }
-      const invalid = this.slides.controls.some(
-        (c) => !String(c.value.imageUrl ?? '').trim(),
-      );
-      if (invalid) {
-        this.toast.error('Cada slide necesita una imagen');
-        return;
-      }
-      const v = this.bannerForm.getRawValue();
-      const dests = this.slideDestinations();
-      this.saveSection('banner', {
-        autoplay: v.autoplay,
-        intervalMs: Number(v.intervalMs),
-        slides: v.slides.map((s, i) => ({
-          id: s['id'],
-          imageUrl: s['imageUrl'],
-          title: s['title'] || undefined,
-          buttonText: s['buttonText'] || undefined,
-          buttonDestination: dests[i] ?? undefined,
-          textPosition: s['textPosition'] || 'top',
-          scheme: s['scheme'] || 'dark',
-        })),
-      });
-      return;
-    }
-    if (tab === 'decor') {
-      const v = this.findProductForm.getRawValue();
-      const existing = this.content()?.findProduct;
-      this.saveSection('find-product', {
-        title: v.title || existing?.title || 'Encuentra un producto',
-        imageUrl: existing?.imageUrl,
-        decorImageUrl: v.decorImageUrl.trim() || undefined,
-        buttonText: existing?.buttonText,
-        buttonDestination: existing?.buttonDestination,
-      });
-      return;
-    }
-    if (tab === 'categories') {
-      if (this.categoryItems.length > MAX_HOME_CATEGORIES) {
-        this.toast.error(`Máximo ${MAX_HOME_CATEGORIES} categorías en el home`);
-        return;
-      }
-      const v = this.categoriesForm.getRawValue();
-      this.saveSection('categories', {
-        title: v.title,
-        items: v.items.map((item, index) => ({
-          categoryId: Number(item['categoryId']),
-          displayOrder: index,
-          description: item['description'] || undefined,
-          imageUrl: item['imageUrl'] || undefined,
-        })),
-      });
-    }
+      },
+    ]);
   }
 
   private buildNavPayload(): HomeNavItem[] {
@@ -497,27 +614,23 @@ export class AdminHome implements OnInit {
     };
   }
 
-  private saveSection(section: HomeSection, body: Record<string, unknown>): void {
-    this.saveMany([{ section, body }]);
-  }
-
   private saveMany(
     items: Array<{ section: HomeSection; body: Record<string, unknown> }>,
   ): void {
     this.saving.set(true);
-    this.error.set(null);
     forkJoin(
       items.map((item) => this.homeApi.upsertSection(item.section, item.body)),
     ).subscribe({
       next: () => {
         this.saving.set(false);
-        this.toast.success('Sección guardada');
+        this.toast.success('Guardado correctamente');
+        this.closeSlideModal();
+        this.closeCategoryModal();
         this.load();
       },
       error: (err: unknown) => {
         this.saving.set(false);
-        this.error.set(resolveErrorMessage(err));
-        this.toast.error('No se pudo guardar');
+        this.toast.error(resolveErrorMessage(err).text);
       },
     });
   }
@@ -555,7 +668,6 @@ export class AdminHome implements OnInit {
           item.categoryId,
           item.displayOrder,
           item.description ?? '',
-          item.imageUrl ?? '',
         ),
       );
     }
@@ -599,6 +711,16 @@ export class AdminHome implements OnInit {
     }
     this.navDestinations.set(navMap);
     this.expandedCards.set(new Set());
+
+    this.headerForm.markAsPristine();
+    this.bannerForm.markAsPristine();
+    this.findProductForm.markAsPristine();
+    this.categoriesForm.markAsPristine();
+    this.footerForm.markAsPristine();
+    this.socialForm.markAsPristine();
+    this.whatsappForm.markAsPristine();
+    this.navItems.markAsPristine();
+    this._dirtyTick.update((n) => n + 1);
   }
 
   private createSlideGroup(slide?: {
@@ -623,13 +745,11 @@ export class AdminHome implements OnInit {
     categoryId: number,
     displayOrder: number,
     description = '',
-    imageUrl = '',
   ): FormGroup {
     return this.fb.nonNullable.group({
       categoryId: [categoryId, Validators.required],
       displayOrder: [displayOrder],
       description: [description],
-      imageUrl: [imageUrl],
     });
   }
 

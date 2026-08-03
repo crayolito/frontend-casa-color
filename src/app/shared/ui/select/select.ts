@@ -19,6 +19,10 @@ export interface SelectOption {
   disabled?: boolean;
 }
 
+/** ~3 filas visibles; el resto hace scroll. */
+const LIST_MAX_HEIGHT = '8.25rem';
+const SEARCH_THRESHOLD = 4;
+
 @Component({
   selector: 'app-select',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,6 +38,7 @@ export interface SelectOption {
       class="app-select"
       [class.app-select--open]="open()"
       [class.app-select--disabled]="isDisabled()"
+      [class.app-select--inline]="expandInline()"
     >
       <button
         #trigger
@@ -66,32 +71,50 @@ export interface SelectOption {
       </button>
 
       @if (open()) {
-        <ul
-          class="app-select__list"
-          role="listbox"
-          [id]="listboxId"
-          [attr.aria-activedescendant]="activeOptionId()"
-          (keydown)="onListKeydown($event)"
-        >
-          @for (opt of options(); track opt.value; let i = $index) {
-            <li
-              role="option"
-              class="app-select__option"
-              [id]="optionId(i)"
-              [class.app-select__option--selected]="isSelected(opt)"
-              [class.app-select__option--active]="activeIndex() === i"
-              [class.app-select__option--disabled]="opt.disabled"
-              [attr.aria-selected]="isSelected(opt)"
-              [attr.aria-disabled]="opt.disabled || null"
-              (click)="selectOption(opt)"
-              (mouseenter)="activeIndex.set(i)"
-            >
-              {{ opt.label }}
-            </li>
-          } @empty {
-            <li class="app-select__empty" role="presentation">Sin opciones</li>
+        <div class="app-select__dropdown" role="presentation">
+          @if (showSearch()) {
+            <div class="app-select__search">
+              <input
+                #searchInput
+                type="search"
+                class="app-select__search-input"
+                [value]="searchQuery()"
+                placeholder="Buscar…"
+                autocomplete="off"
+                [attr.aria-label]="'Buscar en opciones'"
+                (input)="onSearchInput($event)"
+                (keydown)="onListKeydown($event)"
+                (click)="$event.stopPropagation()"
+              />
+            </div>
           }
-        </ul>
+          <ul
+            class="app-select__list"
+            role="listbox"
+            [id]="listboxId"
+            [attr.aria-activedescendant]="activeOptionId()"
+            (keydown)="onListKeydown($event)"
+          >
+            @for (opt of filteredOptions(); track opt.value; let i = $index) {
+              <li
+                role="option"
+                class="app-select__option"
+                [id]="optionId(i)"
+                [class.app-select__option--selected]="isSelected(opt)"
+                [class.app-select__option--active]="activeIndex() === i"
+                [class.app-select__option--disabled]="opt.disabled"
+                [attr.aria-selected]="isSelected(opt)"
+                [attr.aria-disabled]="opt.disabled || null"
+                (click)="selectOption(opt)"
+                (mouseenter)="activeIndex.set(i)"
+              >
+                {{ opt.label }}
+              </li>
+            } @empty {
+              <li class="app-select__empty" role="presentation">Sin opciones</li>
+            }
+          </ul>
+        </div>
       }
     </div>
   `,
@@ -168,21 +191,56 @@ export interface SelectOption {
       transform: rotate(180deg);
     }
 
-    .app-select__list {
+    .app-select__dropdown {
       position: absolute;
       z-index: 50;
       top: calc(100% + 4px);
       left: 0;
       right: 0;
-      margin: 0;
-      padding: 0.35rem;
-      list-style: none;
-      max-height: 300px;
-      overflow-y: auto;
       background: var(--color-white, #fff);
       border: 1px solid var(--admin-border, #d9d9d9);
       border-radius: var(--radius-md, 6px);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      overflow: hidden;
+    }
+
+    /* Dentro de modals: crece en el flujo, no flota encima del panel. */
+    .app-select--inline .app-select__dropdown {
+      position: static;
+      margin-top: 0.35rem;
+      z-index: auto;
+      box-shadow: none;
+    }
+
+    .app-select__search {
+      padding: 0.35rem 0.35rem 0;
+    }
+
+    .app-select__search-input {
+      width: 100%;
+      min-height: 2.25rem;
+      padding: 0.35rem 0.75rem;
+      border: 1px solid var(--admin-border, #d9d9d9);
+      border-radius: 4px;
+      font-family: var(--font-body, inherit);
+      font-size: 0.875rem;
+      color: #333;
+      background: #fafafa;
+    }
+
+    .app-select__search-input:focus {
+      outline: none;
+      border-color: var(--color-accent, #dd3333);
+      box-shadow: 0 0 0 2px rgba(221, 51, 51, 0.12);
+      background: var(--color-white, #fff);
+    }
+
+    .app-select__list {
+      margin: 0;
+      padding: 0.35rem;
+      list-style: none;
+      max-height: ${LIST_MAX_HEIGHT};
+      overflow-y: auto;
     }
 
     .app-select__option {
@@ -230,20 +288,38 @@ export class AppSelect implements ControlValueAccessor {
   readonly disabled = input(false);
   readonly id = input<string | undefined>(undefined);
   readonly ariaLabel = input<string | undefined>(undefined);
+  /** Forzá búsqueda aunque haya pocas opciones. */
+  readonly searchable = input(false);
+  /** Despliega search+lista en el flujo (modals) en vez de overlay absoluto. */
+  readonly expandInline = input(false);
 
   readonly valueChange = output<string | number | null>();
 
   readonly open = signal(false);
   readonly activeIndex = signal(0);
+  readonly searchQuery = signal('');
   private readonly internalValue = signal<string | number | null>(null);
   private readonly cvaDisabled = signal(false);
 
   private readonly triggerRef =
     viewChild<ElementRef<HTMLButtonElement>>('trigger');
+  private readonly searchInputRef =
+    viewChild<ElementRef<HTMLInputElement>>('searchInput');
 
   readonly listboxId = `app-select-list-${Math.random().toString(36).slice(2, 9)}`;
 
   readonly isDisabled = computed(() => this.disabled() || this.cvaDisabled());
+
+  readonly showSearch = computed(
+    () => this.searchable() || this.options().length >= SEARCH_THRESHOLD,
+  );
+
+  readonly filteredOptions = computed(() => {
+    const q = this.searchQuery().trim().toLowerCase();
+    const opts = this.options();
+    if (!q) return opts;
+    return opts.filter((o) => o.label.toLowerCase().includes(q));
+  });
 
   readonly currentValue = computed(() => {
     const fromInput = this.value();
@@ -304,16 +380,25 @@ export class AppSelect implements ControlValueAccessor {
 
   openList(): void {
     if (this.isDisabled()) return;
+    this.searchQuery.set('');
     const opts = this.options();
     const current = this.currentValue();
     const idx = opts.findIndex((o) => String(o.value) === String(current));
     this.activeIndex.set(idx >= 0 ? idx : 0);
     this.open.set(true);
+    queueMicrotask(() => this.searchInputRef()?.nativeElement.focus());
   }
 
   close(): void {
     this.open.set(false);
+    this.searchQuery.set('');
     this.onTouched();
+  }
+
+  onSearchInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchQuery.set(value);
+    this.activeIndex.set(0);
   }
 
   selectOption(opt: SelectOption): void {
@@ -345,8 +430,8 @@ export class AppSelect implements ControlValueAccessor {
   }
 
   onListKeydown(event: KeyboardEvent): void {
-    const opts = this.options();
-    if (!opts.length) return;
+    const opts = this.filteredOptions();
+    if (!opts.length && event.key !== 'Escape') return;
     switch (event.key) {
       case 'ArrowDown': {
         event.preventDefault();
@@ -362,8 +447,15 @@ export class AppSelect implements ControlValueAccessor {
         if (prev >= 0) this.activeIndex.set(prev);
         break;
       }
-      case 'Enter':
+      case 'Enter': {
+        event.preventDefault();
+        const opt = opts[this.activeIndex()];
+        if (opt) this.selectOption(opt);
+        break;
+      }
       case ' ': {
+        // En el input de búsqueda, espacio escribe; en la lista, selecciona.
+        if ((event.target as HTMLElement)?.tagName === 'INPUT') return;
         event.preventDefault();
         const opt = opts[this.activeIndex()];
         if (opt) this.selectOption(opt);

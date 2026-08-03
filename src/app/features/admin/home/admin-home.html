@@ -1,29 +1,18 @@
 <div class="admin-home">
   <app-admin-page-header
     title="Configuración del inicio"
-    subtitle="Editá el contenido de la página de inicio"
-  >
-    <app-admin-button
-      type="button"
-      variant="primary"
-      [disabled]="saving() || loading()"
-      (clicked)="saveCurrent()"
-    >
-      Guardar sección
-    </app-admin-button>
-  </app-admin-page-header>
-
-  @if (error(); as err) {
-    <app-admin-error-state
-      [message]="err.text"
-      [correlationId]="err.correlationId ?? null"
-      [showCorrelationId]="err.showCorrelationId"
-      (retry)="load()"
-    />
-  }
+    subtitle="Editá el contenido del inicio. Guardá o descartá desde la barra superior."
+  />
 
   @if (loading()) {
     <p class="admin-home__loading">Cargando configuración…</p>
+  } @else if (!content()) {
+    <p class="admin-home__loading">
+      No se pudo cargar la configuración.
+      <app-admin-button type="button" variant="secondary" (clicked)="load()">
+        Reintentar
+      </app-admin-button>
+    </p>
   } @else {
     <app-admin-tabs
       [tabs]="tabs"
@@ -32,36 +21,37 @@
     >
       @switch (selectedTab()) {
         @case ('header') {
-          <div class="admin-home__form">
-            <form [formGroup]="headerForm">
-              <app-image-uploader
-                label="Logo"
-                folder="home"
-                fallbackKind="logo"
-                [url]="headerForm.controls.imageUrl.value || null"
-                (urlChange)="setHeaderImage($event)"
-              />
-              <p class="admin-home__hint">
-                Si no cargás imagen, el sitio usa el logo por defecto.
-              </p>
-            </form>
+          <div class="admin-form-narrow">
+            <section class="admin-form-narrow__section">
+              <form class="admin-home__form" [formGroup]="headerForm">
+                <app-image-uploader
+                  label="Logo del encabezado"
+                  folder="home"
+                  fallbackKind="logo"
+                  [url]="headerForm.controls.imageUrl.value || null"
+                  (urlChange)="setHeaderImage($event)"
+                />
+              </form>
+            </section>
           </div>
         }
 
         @case ('nav') {
-          <div class="admin-home__form">
-            <p class="admin-home__hint">
-              Ítems del menú. Podés apuntar a una categoría, un catálogo o una página fija.
-              Arrastrá para reordenar.
-            </p>
-            <div class="admin-home__list-header">
-              <h3>Ítems del menú</h3>
-              <app-admin-button type="button" variant="secondary" (clicked)="addNavItem()">
-                <app-admin-icon name="plus" />
-                Agregar ítem
-              </app-admin-button>
-            </div>
-            <div class="admin-home__dnd" cdkDropList (cdkDropListDropped)="dropNavItem($event)">
+          <div class="admin-form-narrow">
+            <section class="admin-form-narrow__section">
+              <p class="admin-form-narrow__hint">
+                Ítems del menú. Podés apuntar a una categoría, un catálogo o una página fija.
+                Arrastrá para reordenar.
+              </p>
+              <div class="admin-home__list-header">
+                <h3>Ítems del menú</h3>
+                <app-admin-icon-button
+                  icon="plus"
+                  label="Agregar ítem"
+                  (clicked)="addNavItem()"
+                />
+              </div>
+              <div class="admin-home__dnd" cdkDropList (cdkDropListDropped)="dropNavItem($event)">
               @for (item of navItems.controls; track $index; let i = $index) {
                 <div class="admin-home__card" cdkDrag [formGroup]="item">
                   <div
@@ -71,20 +61,21 @@
                     tabindex="0"
                     (keydown.enter)="toggleCard('n-' + i)"
                   >
-                    <span class="admin-home__drag" cdkDragHandle aria-label="Arrastrar" (click)="$event.stopPropagation()">⋮⋮</span>
+                    <span class="admin-home__drag" cdkDragHandle aria-label="Arrastrar" (click)="$event.stopPropagation()">
+                      <app-admin-icon name="grip-vertical" [size]="16" />
+                    </span>
                     <strong class="admin-home__card-title">
                       {{ item.controls['label'].value || 'Nuevo ítem' }}
                     </strong>
                     <span class="admin-home__chevron" aria-hidden="true">
                       {{ isCardExpanded('n-' + i) ? '▾' : '▸' }}
                     </span>
-                    <app-admin-button
-                      type="button"
-                      variant="ghost"
+                    <app-admin-icon-button
+                      icon="trash"
+                      label="Eliminar"
+                      variant="danger"
                       (clicked)="removeNavItem(i)"
-                    >
-                      <app-admin-icon name="trash" />
-                    </app-admin-button>
+                    />
                   </div>
                   @if (isCardExpanded('n-' + i)) {
                     <div class="admin-home__card-body">
@@ -95,10 +86,11 @@
                       />
                       <div class="admin-home__list-header">
                         <h4>Submenú</h4>
-                        <app-admin-button type="button" variant="ghost" (clicked)="addNavChild(i)">
-                          <app-admin-icon name="plus" />
-                          Sub-ítem
-                        </app-admin-button>
+                        <app-admin-icon-button
+                          icon="plus"
+                          label="Agregar sub-ítem"
+                          (clicked)="addNavChild(i)"
+                        />
                       </div>
                       <div formArrayName="children" class="admin-home__sublist">
                         @for (child of navChildren(i).controls; track $index; let j = $index) {
@@ -108,9 +100,12 @@
                               [value]="navDest(i + '-' + j)"
                               (valueChange)="setNavDestination(i + '-' + j, $event)"
                             />
-                            <app-admin-button type="button" variant="ghost" (clicked)="removeNavChild(i, j)">
-                              <app-admin-icon name="trash" />
-                            </app-admin-button>
+                            <app-admin-icon-button
+                              icon="trash"
+                              label="Eliminar"
+                              variant="danger"
+                              (clicked)="removeNavChild(i, j)"
+                            />
                           </div>
                         }
                       </div>
@@ -119,301 +114,360 @@
                 </div>
               }
             </div>
+            </section>
           </div>
         }
 
         @case ('banner') {
-          <form class="admin-home__form" [formGroup]="bannerForm">
-            <label class="admin-home__check">
-              <input type="checkbox" formControlName="autoplay" />
-              Autoplay
-            </label>
-            <app-admin-form-field
-              label="Intervalo (ms)"
-              controlName="intervalMs"
-              type="number"
-            />
+          <div class="admin-form-narrow">
+            <form class="admin-home__form" [formGroup]="bannerForm">
+              <section class="admin-form-narrow__section">
+                <h3 class="admin-form-narrow__heading">Configuración del carrusel</h3>
+                <div class="admin-home__row">
+                  <span class="admin-home__row-label">Autoplay</span>
+                  <app-admin-switch
+                    label="Autoplay"
+                    activeLabel="Activado"
+                    inactiveLabel="Desactivado"
+                    formControlName="autoplay"
+                  />
+                </div>
+                <app-admin-form-field
+                  label="Intervalo (ms)"
+                  controlName="intervalMs"
+                  type="number"
+                />
+              </section>
 
-            <div class="admin-home__list-header">
-              <h3>Slides ({{ slides.length }}/{{ maxSlides }})</h3>
-              <app-admin-button
-                type="button"
-                variant="secondary"
-                [disabled]="slides.length >= maxSlides"
-                (clicked)="addSlide()"
-              >
-                <app-admin-icon name="plus" />
-                Agregar slide
-              </app-admin-button>
-            </div>
-            <p class="admin-home__hint">
-              Mínimo {{ minSlides }}, máximo {{ maxSlides }}. Tocá la cabecera para editar.
-            </p>
+              <section class="admin-form-narrow__section">
+                <div class="admin-home__list-header">
+                  <h3 class="admin-form-narrow__heading">Slides ({{ slides.length }}/{{ maxSlides }})</h3>
+                  <app-admin-icon-button
+                    icon="plus"
+                    label="Agregar slide"
+                    [disabled]="slides.length >= maxSlides"
+                    (clicked)="openAddSlide()"
+                  />
+                </div>
+                <p class="admin-home__hint">
+                  Mínimo {{ minSlides }}, máximo {{ maxSlides }}. Arrastrá para reordenar.
+                </p>
 
-            <div
-              class="admin-home__dnd"
-              cdkDropList
-              (cdkDropListDropped)="dropSlide($event)"
-            >
-              @for (slide of slides.controls; track $index; let i = $index) {
-                <div class="admin-home__card" cdkDrag [formGroup]="slide">
-                  <div
-                    class="admin-home__card-head"
-                    (click)="toggleCard('s-' + i)"
-                    role="button"
-                    tabindex="0"
-                    (keydown.enter)="toggleCard('s-' + i)"
-                  >
-                    <span class="admin-home__drag" cdkDragHandle aria-label="Arrastrar" (click)="$event.stopPropagation()">⋮⋮</span>
-                    <strong class="admin-home__card-title">
-                      {{ slide.controls['title'].value || 'Slide ' + (i + 1) }}
-                    </strong>
-                    <span class="admin-home__chevron" aria-hidden="true">
-                      {{ isCardExpanded('s-' + i) ? '▾' : '▸' }}
-                    </span>
-                    @if (slides.length > minSlides) {
-                      <app-admin-button type="button" variant="ghost" (clicked)="removeSlide(i)">
-                        <app-admin-icon name="trash" />
-                      </app-admin-button>
-                    }
-                  </div>
-                  @if (isCardExpanded('s-' + i)) {
-                    <div class="admin-home__card-body">
-                      <app-image-uploader
-                        label="Imagen del slide"
-                        folder="home"
-                        fallbackKind="product"
-                        [url]="slide.controls['imageUrl'].value || null"
-                        (urlChange)="setSlideImage(i, $event)"
-                      />
-                      <app-admin-form-field label="Título (opcional)" controlName="title" />
-                      <app-admin-form-field label="Texto del botón (opcional)" controlName="buttonText" />
-                      <app-destination-picker
-                        [value]="slideDestinations()[i] ?? null"
-                        (valueChange)="setSlideDestination(i, $event)"
-                      />
-                      <app-admin-form-field
-                        label="Posición del texto"
-                        controlName="textPosition"
-                        type="select"
-                        [options]="textPositionOptions"
-                      />
-                      <app-admin-form-field
-                        label="Intensidad del overlay"
-                        controlName="scheme"
-                        type="select"
-                        [options]="schemeOptions"
-                      />
-                      <p class="admin-home__hint">
-                        El título siempre se muestra en blanco para que se lea sobre cualquier foto.
-                      </p>
+                <div
+                  class="admin-home__dnd"
+                  cdkDropList
+                  (cdkDropListDropped)="dropSlide($event)"
+                >
+                  @for (slide of slides.controls; track $index; let i = $index) {
+                    <div class="admin-home__card" cdkDrag>
+                      <div class="admin-home__card-head admin-home__card-head--static">
+                        <span class="admin-home__drag" cdkDragHandle aria-label="Arrastrar">
+                          <app-admin-icon name="grip-vertical" [size]="16" />
+                        </span>
+                        <strong class="admin-home__card-title">
+                          {{ slide.controls['title'].value || 'Slide ' + (i + 1) }}
+                        </strong>
+                        <div class="admin-home__card-actions">
+                          <app-admin-icon-button
+                            icon="edit"
+                            label="Editar"
+                            (clicked)="openEditSlide(i)"
+                          />
+                          @if (slides.length > minSlides) {
+                            <app-admin-icon-button
+                              icon="trash"
+                              label="Eliminar"
+                              variant="danger"
+                              (clicked)="removeSlide(i)"
+                            />
+                          }
+                        </div>
+                      </div>
                     </div>
                   }
                 </div>
-              }
-            </div>
-          </form>
+              </section>
+            </form>
+          </div>
         }
 
         @case ('decor') {
-          <form class="admin-home__form" [formGroup]="findProductForm">
-            <h3 class="admin-home__section-title">Imagen decorativa</h3>
-            <app-image-uploader
-              label="Entre el carrusel y «Encontrá tu producto»"
-              folder="home"
-              fallbackKind="product"
-              [url]="findProductForm.controls.decorImageUrl.value || null"
-              (urlChange)="setFindProductDecorImage($event)"
-            />
-            <p class="admin-home__hint">
-              Si no cargás imagen, se usa la auxiliar de producto.
-            </p>
+          <div class="admin-form-narrow">
+            <form class="admin-home__form" [formGroup]="findProductForm">
+              <section class="admin-form-narrow__section">
+                <h3 class="admin-form-narrow__heading">Imagen decorativa</h3>
+                <app-image-uploader
+                  label="Entre el carrusel y «Encontrá tu producto»"
+                  folder="home"
+                  fallbackKind="product"
+                  [url]="findProductForm.controls.decorImageUrl.value || null"
+                  (urlChange)="setFindProductDecorImage($event)"
+                />
+              </section>
 
-            <h3 class="admin-home__section-title">Encontrá tu producto</h3>
-            <app-admin-form-field label="Título" controlName="title" />
-            <p class="admin-home__hint">
-              Franja roja debajo del decor. Solo se edita el texto.
-            </p>
-          </form>
+              <section class="admin-form-narrow__section">
+                <h3 class="admin-form-narrow__heading">Encontrá tu producto</h3>
+                <app-admin-form-field label="Título" controlName="title" />
+                <p class="admin-form-narrow__hint">
+                  Franja roja debajo del decor. Solo se edita el texto.
+                </p>
+              </section>
+            </form>
+          </div>
         }
 
         @case ('categories') {
-          <form class="admin-home__form" [formGroup]="categoriesForm">
-            <div class="admin-home__list-header">
-              <h3>Categorías en el home (máx. {{ maxCategories }})</h3>
-              @if (categoryItems.length < maxCategories) {
-                <app-admin-button type="button" variant="secondary" (clicked)="addCategoryItem()">
-                  <app-admin-icon name="plus" />
-                  Agregar
-                </app-admin-button>
-              } @else {
-                <p class="admin-home__limit">Máximo {{ maxCategories }} categorías</p>
-              }
-            </div>
-            <p class="admin-home__hint">Arrastrá para reordenar. Tocá la cabecera para editar.</p>
-            <div
-              class="admin-home__dnd"
-              cdkDropList
-              (cdkDropListDropped)="dropCategory($event)"
-            >
-              @for (item of categoryItems.controls; track $index; let i = $index) {
-                <div class="admin-home__card" cdkDrag [formGroup]="item">
-                  <div
-                    class="admin-home__card-head"
-                    (click)="toggleCard('c-' + i)"
-                    role="button"
-                    tabindex="0"
-                    (keydown.enter)="toggleCard('c-' + i)"
-                  >
-                    <span class="admin-home__drag" cdkDragHandle aria-label="Arrastrar" (click)="$event.stopPropagation()">⋮⋮</span>
-                    <strong class="admin-home__card-title">
-                      {{ categoryName(item.controls['categoryId'].value) }}
-                    </strong>
-                    <span class="admin-home__chevron" aria-hidden="true">
-                      {{ isCardExpanded('c-' + i) ? '▾' : '▸' }}
-                    </span>
-                    <app-admin-button type="button" variant="ghost" (clicked)="removeCategoryItem(i)">
-                      <app-admin-icon name="trash" />
-                    </app-admin-button>
-                  </div>
-                  @if (isCardExpanded('c-' + i)) {
-                    <div class="admin-home__card-body">
-                      <app-admin-form-field
-                        label="Categoría"
-                        controlName="categoryId"
-                        type="select"
-                        [options]="categoryFormOptions()"
-                        placeholder="Seleccioná…"
-                      />
-                      <app-admin-form-field
-                        label="Descripción del home (máx. ~3 líneas)"
-                        controlName="description"
-                        type="textarea"
-                      />
-                      <app-image-uploader
-                        label="Imagen del home (override)"
-                        folder="home"
-                        fallbackKind="category"
-                        [url]="item.controls['imageUrl'].value || null"
-                        (urlChange)="setCategoryImage(i, $event)"
-                      />
-                      <p class="admin-home__hint">
-                        Si no cargás imagen, se usa la auxiliar de categoría.
-                      </p>
+          <div class="admin-form-narrow">
+            <section class="admin-form-narrow__section">
+              <div class="admin-home__list-header">
+                <h3 class="admin-form-narrow__heading">Categorías en el home (máx. {{ maxCategories }})</h3>
+                @if (categoryItems.length < maxCategories) {
+                  <app-admin-icon-button
+                    icon="plus"
+                    label="Agregar categoría"
+                    (clicked)="openAddCategory()"
+                  />
+                } @else {
+                  <p class="admin-home__limit">Máximo {{ maxCategories }} categorías</p>
+                }
+              </div>
+              <p class="admin-home__hint">
+                Arrastrá para reordenar. Editá en el modal. La imagen es la de
+                tarjeta de cada categoría.
+              </p>
+              <div
+                class="admin-home__dnd"
+                cdkDropList
+                (cdkDropListDropped)="dropCategory($event)"
+              >
+                @for (item of categoryItems.controls; track $index; let i = $index) {
+                  <div class="admin-home__card" cdkDrag>
+                    <div class="admin-home__card-head admin-home__card-head--static">
+                      <span class="admin-home__drag" cdkDragHandle aria-label="Arrastrar">
+                        <app-admin-icon name="grip-vertical" [size]="16" />
+                      </span>
+                      <strong class="admin-home__card-title">
+                        {{ categoryName(item.controls['categoryId'].value) }}
+                      </strong>
+                      <div class="admin-home__card-actions">
+                        <app-admin-icon-button
+                          icon="edit"
+                          label="Editar"
+                          (clicked)="openEditCategory(i)"
+                        />
+                        <app-admin-icon-button
+                          icon="trash"
+                          label="Eliminar"
+                          variant="danger"
+                          (clicked)="removeCategoryItem(i)"
+                        />
+                      </div>
                     </div>
-                  }
-                </div>
-              }
-            </div>
-          </form>
+                  </div>
+                }
+              </div>
+            </section>
+          </div>
         }
 
         @case ('footer') {
-          <div class="admin-home__form">
-            <h3 class="admin-home__section-title">Pie de página</h3>
-            <form [formGroup]="footerForm">
-              <app-image-uploader
-                label="Imagen inferior (graphic)"
-                folder="home"
-                fallbackKind="product"
-                [url]="footerForm.controls.topImageUrl.value || null"
-                (urlChange)="setFooterTopImage($event)"
-              />
-              <app-image-uploader
-                label="Logo del footer"
-                folder="home"
-                fallbackKind="logo"
-                [url]="footerForm.controls.logoUrl.value || null"
-                (urlChange)="setFooterLogo($event)"
-              />
-              <p class="admin-home__hint">
-                Si no cargás logo, se usa el del logo principal o el por defecto.
-              </p>
-              <app-admin-form-field label="Copyright" controlName="copyrightText" />
-              <app-admin-form-field label="Design by" controlName="designBy" />
-              <app-admin-form-field label="Link Design by (opcional)" controlName="designByHref" />
-            </form>
+          <div class="admin-form-narrow admin-form-narrow--wide">
+            <div class="admin-home__footer-grid">
+              <section class="admin-form-narrow__section">
+                <h3 class="admin-form-narrow__heading">Pie de página</h3>
+                <form class="admin-home__form" [formGroup]="footerForm">
+                  <app-image-uploader
+                    label="Imagen inferior (graphic)"
+                    folder="home"
+                    fallbackKind="banner"
+                    [url]="footerForm.controls.topImageUrl.value || null"
+                    (urlChange)="setFooterTopImage($event)"
+                  />
+                  <app-image-uploader
+                    label="Logo del footer"
+                    folder="home"
+                    fallbackKind="logo"
+                    [url]="footerForm.controls.logoUrl.value || null"
+                    (urlChange)="setFooterLogo($event)"
+                  />
+                  <app-admin-form-field label="Copyright" controlName="copyrightText" />
+                  <app-admin-form-field label="Design by" controlName="designBy" />
+                  <app-admin-form-field label="Link Design by (opcional)" controlName="designByHref" />
+                </form>
+              </section>
 
-            <h3 class="admin-home__section-title">Redes</h3>
-            <form [formGroup]="socialForm">
-              <p class="admin-home__hint">
-                Se muestran en la franja negra del pie. WhatsApp = botón flotante (solo sitio público).
-              </p>
+              <div class="admin-home__footer-stack">
+                <section class="admin-form-narrow__section">
+                  <h3 class="admin-form-narrow__heading">Redes sociales</h3>
+                  <p class="admin-form-narrow__hint">
+                    Franja negra del pie. WhatsApp es botón flotante (sitio público).
+                  </p>
+                  <form class="admin-home__form" [formGroup]="socialForm">
+                    <div class="admin-home__social-card">
+                      <div class="admin-home__social-card-head">
+                        <span class="admin-home__social-name">Instagram</span>
+                        <app-admin-switch
+                          label="Instagram visible"
+                          activeLabel="Visible"
+                          inactiveLabel="Oculto"
+                          formControlName="instagramShow"
+                        />
+                      </div>
+                      <app-admin-form-field
+                        label="URL"
+                        controlName="instagramUrl"
+                        type="url"
+                        placeholder="https://instagram.com/…"
+                      />
+                    </div>
 
-              <div class="admin-home__social-card">
-                <div class="admin-home__social-card-head">
-                  <span class="admin-home__social-name">Instagram</span>
-                  <label class="admin-home__switch">
-                    <input type="checkbox" formControlName="instagramShow" />
-                    <span>Visible</span>
-                  </label>
-                </div>
-                <label class="admin-home__social-url-label" for="ig-url">URL</label>
-                <input
-                  id="ig-url"
-                  class="admin-home__social-url"
-                  type="url"
-                  formControlName="instagramUrl"
-                  placeholder="https://instagram.com/…"
-                />
+                    <div class="admin-home__social-card">
+                      <div class="admin-home__social-card-head">
+                        <span class="admin-home__social-name">TikTok</span>
+                        <app-admin-switch
+                          label="TikTok visible"
+                          activeLabel="Visible"
+                          inactiveLabel="Oculto"
+                          formControlName="tiktokShow"
+                        />
+                      </div>
+                      <app-admin-form-field
+                        label="URL"
+                        controlName="tiktokUrl"
+                        type="url"
+                        placeholder="https://tiktok.com/@…"
+                      />
+                    </div>
+
+                    <div class="admin-home__social-card">
+                      <div class="admin-home__social-card-head">
+                        <span class="admin-home__social-name">Facebook</span>
+                        <app-admin-switch
+                          label="Facebook visible"
+                          activeLabel="Visible"
+                          inactiveLabel="Oculto"
+                          formControlName="facebookShow"
+                        />
+                      </div>
+                      <app-admin-form-field
+                        label="URL"
+                        controlName="facebookUrl"
+                        type="url"
+                        placeholder="https://facebook.com/…"
+                      />
+                    </div>
+                  </form>
+                </section>
+
+                <section class="admin-form-narrow__section">
+                  <h3 class="admin-form-narrow__heading">WhatsApp</h3>
+                  <p class="admin-form-narrow__hint">
+                    Número con código de país (ej. 59170000000). Botón flotante solo en el sitio público.
+                  </p>
+                  <form class="admin-home__form" [formGroup]="whatsappForm">
+                    <div class="admin-home__row">
+                      <span class="admin-home__row-label">Activar WhatsApp</span>
+                      <app-admin-switch
+                        label="Activar WhatsApp"
+                        activeLabel="Activado"
+                        inactiveLabel="Desactivado"
+                        formControlName="enabled"
+                      />
+                    </div>
+                    <app-admin-form-field label="Teléfono (con código de país)" controlName="phone" />
+                    <app-admin-form-field
+                      label="Mensaje predeterminado"
+                      controlName="message"
+                      type="textarea"
+                    />
+                  </form>
+                </section>
               </div>
-
-              <div class="admin-home__social-card">
-                <div class="admin-home__social-card-head">
-                  <span class="admin-home__social-name">TikTok</span>
-                  <label class="admin-home__switch">
-                    <input type="checkbox" formControlName="tiktokShow" />
-                    <span>Visible</span>
-                  </label>
-                </div>
-                <label class="admin-home__social-url-label" for="tt-url">URL</label>
-                <input
-                  id="tt-url"
-                  class="admin-home__social-url"
-                  type="url"
-                  formControlName="tiktokUrl"
-                  placeholder="https://tiktok.com/@…"
-                />
-              </div>
-
-              <div class="admin-home__social-card">
-                <div class="admin-home__social-card-head">
-                  <span class="admin-home__social-name">Facebook</span>
-                  <label class="admin-home__switch">
-                    <input type="checkbox" formControlName="facebookShow" />
-                    <span>Visible</span>
-                  </label>
-                </div>
-                <label class="admin-home__social-url-label" for="fb-url">URL</label>
-                <input
-                  id="fb-url"
-                  class="admin-home__social-url"
-                  type="url"
-                  formControlName="facebookUrl"
-                  placeholder="https://facebook.com/…"
-                />
-              </div>
-            </form>
-
-            <h3 class="admin-home__section-title">WhatsApp</h3>
-            <form [formGroup]="whatsappForm">
-              <p class="admin-home__hint">
-                Número con código de país (ej. 59170000000). Botón flotante solo en el sitio público.
-              </p>
-              <label class="admin-home__check">
-                <input type="checkbox" formControlName="enabled" />
-                Activar WhatsApp
-              </label>
-              <app-admin-form-field label="Teléfono (con código de país)" controlName="phone" />
-              <app-admin-form-field
-                label="Mensaje predeterminado"
-                controlName="message"
-                type="textarea"
-              />
-            </form>
+            </div>
           </div>
         }
       }
     </app-admin-tabs>
   }
 </div>
+
+@if (slideModalOpen() && slideEditIndex() !== null) {
+  @let si = slideEditIndex()!;
+  <app-admin-modal
+    [open]="true"
+    [wide]="true"
+    [title]="slideModalTitle()"
+    (closed)="closeSlideModal()"
+  >
+    <div class="admin-home__modal-form" [formGroup]="slides.at(si)">
+      <app-image-uploader
+        label="Imagen del slide"
+        folder="home"
+        fallbackKind="product"
+        [url]="slides.at(si).controls['imageUrl'].value || null"
+        (urlChange)="setSlideImage(si, $event)"
+      />
+      <app-admin-form-field label="Título (opcional)" controlName="title" />
+      <app-admin-form-field label="Texto del botón (opcional)" controlName="buttonText" />
+      <app-destination-picker
+        [value]="slideDestinations()[si] ?? null"
+        (valueChange)="setSlideDestination(si, $event)"
+      />
+      <app-admin-form-field
+        label="Posición del texto"
+        controlName="textPosition"
+        type="select"
+        [options]="textPositionOptions"
+      />
+      <app-admin-form-field
+        label="Intensidad del overlay"
+        controlName="scheme"
+        type="select"
+        [options]="schemeOptions"
+      />
+      <p class="admin-home__hint">
+        El título siempre se muestra en blanco para que se lea sobre cualquier foto.
+      </p>
+      <div class="admin-home__modal-actions">
+        <app-admin-button type="button" variant="primary" (clicked)="closeSlideModal()">
+          Listo
+        </app-admin-button>
+      </div>
+    </div>
+  </app-admin-modal>
+}
+
+@if (categoryModalOpen() && categoryEditIndex() !== null) {
+  @let ci = categoryEditIndex()!;
+  <app-admin-modal
+    [open]="true"
+    [wide]="true"
+    [title]="categoryModalTitle()"
+    (closed)="closeCategoryModal()"
+  >
+    <div class="admin-home__modal-form" [formGroup]="categoryItems.at(ci)">
+      <app-admin-form-field
+        label="Categoría"
+        controlName="categoryId"
+        type="select"
+        [options]="categoryFormOptions()"
+        placeholder="Seleccioná…"
+        [searchable]="true"
+        [expandInline]="true"
+      />
+      <app-admin-form-field
+        label="Descripción del home (máx. ~3 líneas)"
+        controlName="description"
+        type="textarea"
+      />
+      <p class="admin-home__hint">
+        La imagen sale de la tarjeta de la categoría (Admin → Categorías).
+      </p>
+      <div class="admin-home__modal-actions">
+        <app-admin-button type="button" variant="primary" (clicked)="closeCategoryModal()">
+          Listo
+        </app-admin-button>
+      </div>
+    </div>
+  </app-admin-modal>
+}

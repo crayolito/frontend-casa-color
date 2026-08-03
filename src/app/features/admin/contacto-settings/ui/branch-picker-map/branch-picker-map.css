@@ -1,0 +1,25 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.branch-picker-map {
+  display: block;
+  width: 100%;
+  height: 240px;
+  background: #e8e8e8;
+  border-radius: var(--radius-md, 8px);
+}
+
+.branch-picker-map--loading,
+.branch-picker-map--error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.branch-picker-map--error {
+  color: var(--color-accent);
+}

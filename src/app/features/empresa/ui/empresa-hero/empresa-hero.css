@@ -1,0 +1,25 @@
+:host {
+  display: block;
+}
+
+/*
+  Clonada: #page-header-wrap 700px; data-padding-amt=high → mobile padding 13% 0
+  (mismo patrón que cartas-de-color / contacto).
+*/
+.empresa-hero {
+  margin-top: var(--header-h-mobile);
+  height: auto;
+  padding: 13% 0;
+  background-color: #000;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+@media (min-width: 1000px) {
+  .empresa-hero {
+    margin-top: var(--header-h-desktop);
+    height: 700px;
+    padding: 0;
+  }
+}

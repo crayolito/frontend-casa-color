@@ -21,7 +21,8 @@ describe('AdminCategories', () => {
         slug: 'nueva',
         description: '<p>Uno</p>',
         description2: '<p>Dos</p>',
-        imageUrl: null,
+        coverImageUrl: null,
+        cardImageUrl: null,
         createdAt: '',
         updatedAt: '',
       });
@@ -42,7 +43,7 @@ describe('AdminCategories', () => {
     }).compileComponents();
   });
 
-  it('al guardar crea con description y description2 (sin shortDescription)', () => {
+  it('al guardar crea con description, description2 y ambas imágenes', () => {
     const fixture = TestBed.createComponent(AdminCategories);
     const component = fixture.componentInstance;
     fixture.detectChanges();
@@ -52,7 +53,8 @@ describe('AdminCategories', () => {
       name: 'Nueva',
       description: '<p>Uno</p>',
       description2: '<ul><li>Dos</li></ul>',
-      imageUrl: '',
+      coverImageUrl: '/cover.jpg',
+      cardImageUrl: '/card.jpg',
     });
     component.save();
 
@@ -60,10 +62,14 @@ describe('AdminCategories', () => {
       name: 'Nueva',
       description: '<p>Uno</p>',
       description2: '<ul><li>Dos</li></ul>',
-      imageUrl: undefined,
+      coverImageUrl: '/cover.jpg',
+      cardImageUrl: '/card.jpg',
     });
     expect(
       (createBody as Record<string, unknown>)['shortDescription'],
+    ).toBeUndefined();
+    expect(
+      (createBody as Record<string, unknown>)['imageUrl'],
     ).toBeUndefined();
   });
 });

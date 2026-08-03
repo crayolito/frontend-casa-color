@@ -1,4 +1,6 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
+
+const DEFAULT_GRAPHIC = '/img/decor/red-paint.png';
 
 @Component({
   selector: 'app-graphic-section',
@@ -6,5 +8,11 @@ import { Component, input } from '@angular/core';
   styleUrl: './graphic-section.css',
 })
 export class GraphicSection {
-  readonly imageUrl = input<string | null | undefined>('/img/decor/red-paint.png');
+  /** URL desde home.footer.topImageUrl. Vacío → red-paint. */
+  readonly imageUrl = input<string | null | undefined>(undefined);
+
+  protected readonly src = computed(() => {
+    const url = this.imageUrl()?.trim();
+    return url || DEFAULT_GRAPHIC;
+  });
 }

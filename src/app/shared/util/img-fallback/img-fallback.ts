@@ -1,13 +1,19 @@
 import { Directive, HostListener, input } from '@angular/core';
 import { DEFAULT_IMAGES } from '../default-images';
 
-export type ImgFallbackKind = 'product' | 'category' | 'catalog' | 'logo';
+export type ImgFallbackKind =
+  | 'product'
+  | 'category'
+  | 'catalog'
+  | 'logo'
+  | 'banner';
 
 const FALLBACK_BY_KIND: Record<ImgFallbackKind, string> = {
   product: DEFAULT_IMAGES.product,
   category: DEFAULT_IMAGES.category,
   catalog: DEFAULT_IMAGES.catalog,
   logo: DEFAULT_IMAGES.logo,
+  banner: DEFAULT_IMAGES.banner,
 };
 
 /**

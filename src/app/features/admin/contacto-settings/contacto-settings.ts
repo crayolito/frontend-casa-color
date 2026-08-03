@@ -1,11 +1,14 @@
 import {
   Component,
   ChangeDetectionStrategy,
+  DestroyRef,
   OnInit,
+  computed,
   inject,
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SiteSettingsApi } from '../data/site-settings.api';
 import { ContactoSettings } from '../data/admin.models';
 import { isAppError } from '../../../shared/util/api-errors';
@@ -15,10 +18,12 @@ import {
   resolveErrorMessage,
 } from '../../../shared/errors/resolve-error-message';
 import { AdminPageHeader } from '../../../shared/admin-ui/admin-page-header/admin-page-header';
-import { AdminButton } from '../../../shared/admin-ui/admin-button/admin-button';
 import { AdminFormField } from '../../../shared/admin-ui/admin-form-field/admin-form-field';
 import { AdminErrorState } from '../../../shared/admin-ui/admin-error-state/admin-error-state';
 import { ImageUploader } from '../../../shared/admin-ui/image-uploader/image-uploader';
+import { ContactoBranchesEditor } from './contacto-branches-editor';
+import { AdminFormContext } from '../../../shared/admin-ui/admin-form-context/admin-form-context';
+import { AdminToastService } from '../../../shared/admin-ui/admin-toast/admin-toast.service';
 
 const CONTACTO_KEY = 'contacto';
 
@@ -91,10 +96,10 @@ function parseSettings(value: Record<string, unknown>): ContactoSettings {
   imports: [
     ReactiveFormsModule,
     AdminPageHeader,
-    AdminButton,
     AdminFormField,
     AdminErrorState,
     ImageUploader,
+    ContactoBranchesEditor,
   ],
   templateUrl: './contacto-settings.html',
   styleUrl: './contacto-settings.css',
@@ -102,12 +107,16 @@ function parseSettings(value: Record<string, unknown>): ContactoSettings {
 export class AdminContactoSettings implements OnInit {
   private readonly api = inject(SiteSettingsApi);
   private readonly fb = inject(FormBuilder);
+  private readonly toast = inject(AdminToastService);
+  private readonly formCtx = inject(AdminFormContext);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly loading = signal(false);
   readonly saving = signal(false);
-  readonly flash = signal<string | null>(null);
   readonly error = signal<ResolvedErrorMessage | null>(null);
   readonly updatedAt = signal<string | null>(null);
+
+  private readonly _dirtyTick = signal(0);
 
   readonly form = this.fb.nonNullable.group({
     heroImageUrl: [''],
@@ -125,14 +134,34 @@ export class AdminContactoSettings implements OnInit {
     infoRequestLabel: [DEFAULTS.infoRequestLabel, [Validators.required]],
   });
 
+  readonly formDirty = computed(() => {
+    this._dirtyTick();
+    return this.form.dirty;
+  });
+
   ngOnInit(): void {
+    this.formCtx.register(
+      {
+        dirty: this.formDirty,
+        saving: this.saving,
+        save: () => this.save(),
+        discard: () => this.discardChanges(),
+      },
+      this.destroyRef,
+    );
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this._dirtyTick.update((n) => n + 1));
+    this.load();
+  }
+
+  discardChanges(): void {
     this.load();
   }
 
   load(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.flash.set(null);
     this.api.get(CONTACTO_KEY).subscribe({
       next: (res) => {
         this.loading.set(false);
@@ -144,7 +173,7 @@ export class AdminContactoSettings implements OnInit {
         this.updatedAt.set(null);
         if (isAppError(err) && err.status === 404) {
           this.patchForm(DEFAULTS);
-          this.flash.set(
+          this.toast.info(
             'La configuración de contacto aún no existe. Guardá para crearla.',
           );
           return;
@@ -160,6 +189,9 @@ export class AdminContactoSettings implements OnInit {
 
   onHeroChange(url: string | null): void {
     this.form.controls.heroImageUrl.setValue(url ?? '');
+    this.form.controls.heroImageUrl.markAsDirty();
+    this.form.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
   }
 
   save(): void {
@@ -190,7 +222,7 @@ export class AdminContactoSettings implements OnInit {
       next: (res) => {
         this.saving.set(false);
         this.updatedAt.set(res.updatedAt);
-        this.flash.set('Guardado correctamente');
+        this.toast.success('Guardado correctamente');
         this.patchForm(parseSettings(res.value));
       },
       error: (err: unknown) => {
@@ -210,5 +242,7 @@ export class AdminContactoSettings implements OnInit {
       attentionLabel: settings.attentionLabel,
       infoRequestLabel: settings.infoRequestLabel,
     });
+    this.form.markAsPristine();
+    this._dirtyTick.update((n) => n + 1);
   }
 }

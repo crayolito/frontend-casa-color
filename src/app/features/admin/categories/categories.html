@@ -3,14 +3,10 @@
   subtitle="Gestioná las categorías del catálogo"
 >
   <app-admin-button type="button" variant="primary" (clicked)="openCreate()">
-    <app-admin-icon name="plus" />
     Nueva categoría
   </app-admin-button>
 </app-admin-page-header>
 
-@if (flash(); as msg) {
-  <p class="admin-flash" role="status">{{ msg }}</p>
-}
 @if (error(); as err) {
   <app-admin-error-state
     [message]="err.text"
@@ -47,7 +43,7 @@
       <article class="admin-entity-card">
         <div class="admin-entity-card__media">
           <img
-            [src]="row.imageUrl || '/img/img-auxiliar2.jpg'"
+            [src]="row.cardImageUrl || '/img/img-auxiliar2.jpg'"
             [alt]="row.name"
             width="320"
             height="200"
@@ -61,13 +57,17 @@
           </p>
         </div>
         <div class="admin-entity-card__actions">
-          <app-admin-button type="button" variant="secondary" (clicked)="openEdit(row)">
-            Editar
-          </app-admin-button>
-          <app-admin-button type="button" variant="ghost" (clicked)="askDelete(row)">
-            <app-admin-icon name="trash" />
-            Eliminar
-          </app-admin-button>
+          <app-admin-icon-button
+            icon="edit"
+            label="Editar"
+            (clicked)="openEdit(row)"
+          />
+          <app-admin-icon-button
+            icon="trash"
+            label="Eliminar"
+            variant="danger"
+            (clicked)="askDelete(row)"
+          />
         </div>
       </article>
     }
@@ -126,12 +126,26 @@
     <p class="admin-form__hint">Descripción secundaria (HTML enriquecido).</p>
 
     <app-image-uploader
-      label="Imagen"
+      label="Imagen portada"
+      folder="categories"
+      fallbackKind="banner"
+      [url]="form.controls.coverImageUrl.value || null"
+      (urlChange)="onCoverImageChange($event)"
+    />
+    <p class="admin-form__hint">
+      Grande: hero al entrar a la categoría (/categoria/…).
+    </p>
+
+    <app-image-uploader
+      label="Imagen tarjeta"
       folder="categories"
       fallbackKind="category"
-      [url]="form.controls.imageUrl.value || null"
-      (urlChange)="onImageChange($event)"
+      [url]="form.controls.cardImageUrl.value || null"
+      (urlChange)="onCardImageChange($event)"
     />
+    <p class="admin-form__hint">
+      Compacta: home y fichas técnicas (logo ~200px).
+    </p>
 
     <div class="admin-form__actions">
       <app-admin-button type="button" variant="secondary" (clicked)="closeModal()">

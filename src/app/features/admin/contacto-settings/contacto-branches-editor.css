@@ -1,0 +1,139 @@
+:host {
+  display: block;
+}
+
+.branches-editor__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.branches-editor__title {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.branches-editor__hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.branches-editor__status {
+  margin: 0.75rem 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.branches-editor__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.branches-editor__card {
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+}
+
+.branches-editor__card.cdk-drag-preview {
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
+}
+
+.branches-editor__card.cdk-drag-placeholder {
+  opacity: 0.4;
+}
+
+.branches-editor__card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.branches-editor__drag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.25rem;
+  cursor: grab;
+  color: var(--color-text-muted);
+  user-select: none;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.branches-editor__card-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.branches-editor__card-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.branches-editor__meta {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-form__map {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-form__map-label {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.admin-form__coords {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.admin-form__actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 480px) {
+  .admin-form__coords {
+    grid-template-columns: 1fr;
+  }
+
+  .branches-editor__meta {
+    display: none;
+  }
+}

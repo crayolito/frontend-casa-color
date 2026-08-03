@@ -1,0 +1,16 @@
+<section class="empresa-section">
+  <h6
+    class="empresa-section__title"
+    [style.color]="titleColor()"
+  >
+    <strong>{{ section().title }}</strong>
+  </h6>
+  <div class="empresa-section__divider" aria-hidden="true"></div>
+
+  @if (hasDescription()) {
+    <div
+      class="empresa-section__desc"
+      [innerHTML]="section().descriptionHtml | safeHtml"
+    ></div>
+  }
+</section>

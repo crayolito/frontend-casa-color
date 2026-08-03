@@ -64,6 +64,18 @@ export class ApiService {
       );
   }
 
+  getBlob(path: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}${path}`, {
+      responseType: 'blob',
+    });
+  }
+
+  postFormData<T>(path: string, formData: FormData): Observable<T> {
+    return this.http
+      .post<DataEnvelope<T>>(`${this.baseUrl}${path}`, formData)
+      .pipe(map((res) => res.data));
+  }
+
   post<T>(path: string, body: unknown): Observable<T> {
     return this.http
       .post<DataEnvelope<T>>(`${this.baseUrl}${path}`, body)

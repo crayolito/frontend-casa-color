@@ -3,9 +3,8 @@
 }
 
 .categories {
-  /* Fondo blanco full-bleed. Padding inferior = divider 50px del clon
-     (row separada antes del red-paint) — evita que choque con la sección de abajo. */
-  padding: 0 0 50px;
+  /* El aire de 50px antes del red-paint vive en app-graphic-section (layout). */
+  padding: 0;
   background: #ffffff;
 }
 
@@ -23,8 +22,8 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  /* Dentro de .container: gutters más chicos que full-bleed (clon ~12–18px) */
-  padding-inline: 0.75rem;
+  /* Clon: padding-2-percent left-right */
+  padding-inline: 2%;
   flex: 0 1 100%;
   width: 100%;
   max-width: 100%;
@@ -34,9 +33,12 @@
 /*
  * Título categoría = body h4 theme options:
  * 35px / 40px / weight 300 (mobile 31.5 / 36). Color #ff0000 como el clon.
+ * min-height de 2 líneas: si un nombre wrappea, flechas/logos siguen alineados.
  */
 .categories__title {
   margin: 0;
+  width: 100%;
+  min-height: calc(var(--line-height-h4) * 2);
   color: #ff0000;
   font-family: var(--font-body);
   font-weight: 300;
@@ -67,16 +69,17 @@
   object-fit: contain;
 }
 
+/* Clon: divider height 20px */
 .categories__spacer {
   height: 20px;
   flex-shrink: 0;
 }
 
 .categories__spacer--top {
-  height: 40px;
+  height: 20px;
 }
 
-/* Logo 354×354 como en el clon; contain para no recortar */
+/* Clon: logo 354×354 */
 .categories__logo-link {
   display: block;
   max-width: 354px;
@@ -139,8 +142,7 @@
   object-fit: contain;
 }
 
-/* Toggles a ANCHO DE COLUMNA (clon), no limitados al logo 354px.
-   Limitar a 354px dejaba huecos enormes entre columnas. */
+/* Toggles a ANCHO DE COLUMNA (clon), no limitados al logo */
 .categories__groups {
   width: 100%;
   max-width: none;
@@ -179,20 +181,11 @@
   text-decoration: underline;
 }
 
-/* Tablet: 2 cols; desde desktop: 3 cols como vc_col-sm-4 */
-@media (min-width: 700px) {
-  .categories__column {
-    flex: 0 1 50%;
-    max-width: 50%;
-    padding-inline: 0.85rem;
-  }
-}
-
-@media (min-width: 1000px) {
+/* Clon vc_col-sm-4: 3 columnas desde ~768px */
+@media (min-width: 690px) {
   .categories__column {
     flex: 0 1 33.333%;
     max-width: 33.333%;
-    /* Dentro de .container: clon estático ~12–13px (no el padding de full-bleed) */
-    padding-inline: 0.9rem;
+    padding-inline: 2%;
   }
 }

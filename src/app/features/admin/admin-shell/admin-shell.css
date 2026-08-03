@@ -34,6 +34,10 @@
   width: 100%;
 }
 
+.admin-shell__scroll--locked {
+  overflow: hidden;
+}
+
 .admin-shell__content {
   width: 100%;
   max-width: 75rem;
@@ -63,6 +67,10 @@
 }
 
 @media (max-width: 999px) {
+  .admin-shell__content {
+    padding-bottom: 5.5rem;
+  }
+
   .admin-shell__backdrop {
     display: block;
     position: fixed;
@@ -82,5 +90,16 @@
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
+  }
+}
+
+/* Save bar inferior solo en mobile (desktop usa el slot del topbar) */
+.admin-shell__mobile-save {
+  display: none;
+}
+
+@media (max-width: 999px) {
+  .admin-shell__mobile-save {
+    display: block;
   }
 }

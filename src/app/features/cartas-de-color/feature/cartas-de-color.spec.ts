@@ -3,11 +3,13 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { ColorCard } from '../../admin/data/admin.models';
 import { ColorCardsApi } from '../../admin/data/color-cards.api';
+import { CartasPageApi } from '../data/cartas-page.api';
+import { DEFAULT_IMAGES } from '../../../shared/util/default-images';
 import { CartasDeColor } from './cartas-de-color';
 
 function makeCard(overrides: Partial<ColorCard> & Pick<ColorCard, 'id'>): ColorCard {
   return {
-    imageUrl: '/img/cartas/colom-3000-web.png',
+    imageUrl: '/img/img-auxiliar.jpg',
     titlePrefix: 'COLOM',
     titleStrong: ' 3000',
     descriptionHtml: '<p>Descripción de prueba</p>',
@@ -22,9 +24,11 @@ function makeCard(overrides: Partial<ColorCard> & Pick<ColorCard, 'id'>): ColorC
 
 describe('CartasDeColor', () => {
   let listPublicSpy: ReturnType<typeof vi.fn>;
+  let pageGetSpy: ReturnType<typeof vi.fn>;
 
   async function setup(opts?: {
     cards?: ColorCard[];
+    heroImageUrl?: string | null;
     error?: boolean;
   }): Promise<ComponentFixture<CartasDeColor>> {
     const cards =
@@ -37,7 +41,7 @@ describe('CartasDeColor', () => {
           descriptionHtml: null,
           buttonLabel: 'Descargar Carta Colom Revestimientos',
           pdfUrl: '/documentacion/carta-colom-revestimientos.pdf',
-          imageUrl: '/img/cartas/colom-revestimientos-web.png',
+          imageUrl: '/img/img-auxiliar.jpg',
           sortOrder: 1,
         }),
       ];
@@ -56,10 +60,18 @@ describe('CartasDeColor', () => {
           }),
     );
 
+    pageGetSpy = vi.fn(() =>
+      of({
+        heroImageUrl:
+          opts?.heroImageUrl === undefined ? null : opts.heroImageUrl,
+      }),
+    );
+
     await TestBed.configureTestingModule({
       imports: [CartasDeColor],
       providers: [
         { provide: ColorCardsApi, useValue: { listPublic: listPublicSpy } },
+        { provide: CartasPageApi, useValue: { getPublic: pageGetSpy } },
       ],
     }).compileComponents();
 
@@ -88,6 +100,20 @@ describe('CartasDeColor', () => {
       'Cartas de Color',
     );
     expect(compiled.querySelectorAll('app-color-card').length).toBe(2);
+  });
+
+  it('uses banner fallback when hero is null', async () => {
+    const fixture = await setup({ heroImageUrl: null });
+    const compiled = fixture.nativeElement as HTMLElement;
+    const hero = compiled.querySelector('.cartas__hero') as HTMLElement;
+    expect(hero.style.backgroundImage).toContain(DEFAULT_IMAGES.banner);
+  });
+
+  it('applies configured hero image', async () => {
+    const fixture = await setup({ heroImageUrl: '/custom-hero.jpg' });
+    const compiled = fixture.nativeElement as HTMLElement;
+    const hero = compiled.querySelector('.cartas__hero') as HTMLElement;
+    expect(hero.style.backgroundImage).toContain('/custom-hero.jpg');
   });
 
   it('renders download buttons with PDF links', async () => {

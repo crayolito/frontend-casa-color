@@ -46,7 +46,24 @@ describe('Footer', () => {
     expect(img?.getAttribute('src')).toBe('/uploads/header-logo.png');
   });
 
-  it('visibleSocial includes facebook when show+url', async () => {
+  it('does not render section headings or brand tagline', async () => {
+    fixture.componentRef.setInput('footer', {
+      ...BASE,
+      address: ['Calle 1'],
+      phones: ['700'],
+      legalLinks: [{ label: 'Empresa', href: '/empresa' }],
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.footer__heading')).toBeNull();
+    expect(el.querySelector('.footer__tagline')).toBeNull();
+    expect(el.textContent).not.toContain('Ubicación');
+    expect(el.textContent).not.toContain('Contacto');
+    expect(el.textContent).not.toContain('Enlaces');
+  });
+
+  it('renders social links in the copyright bar', async () => {
     fixture.componentRef.setInput('footer', {
       ...BASE,
       social: {
@@ -56,8 +73,12 @@ describe('Footer', () => {
       },
     });
     await fixture.whenStable();
+    fixture.detectChanges();
+    const copyright = fixture.nativeElement.querySelector(
+      '.footer__copyright',
+    ) as HTMLElement;
     const links = Array.from(
-      fixture.nativeElement.querySelectorAll(
+      copyright.querySelectorAll(
         '.footer__social-link',
       ) as NodeListOf<HTMLAnchorElement>,
     );
@@ -77,6 +98,7 @@ describe('Footer', () => {
       } as HomeFooter['social'],
     });
     await fixture.whenStable();
+    fixture.detectChanges();
     const fb = fixture.nativeElement.querySelector(
       'a[aria-label="Facebook"]',
     ) as HTMLAnchorElement | null;

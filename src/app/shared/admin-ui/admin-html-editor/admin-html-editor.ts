@@ -15,7 +15,6 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
-import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import { Table } from '@tiptap/extension-table';
 import { TableRow } from '@tiptap/extension-table-row';
@@ -92,12 +91,14 @@ function normalizeHtml(value: string): string {
   styles: `
     :host {
       display: block;
+      margin-top: 0.25rem;
     }
 
     .admin-he {
       display: flex;
       flex-direction: column;
-      gap: 0.375rem;
+      gap: 0.5rem;
+      padding-inline: 0;
     }
 
     .admin-he__head {
@@ -106,6 +107,7 @@ function normalizeHtml(value: string): string {
       justify-content: space-between;
       gap: 0.75rem;
       flex-wrap: wrap;
+      padding-top: 0.125rem;
     }
 
     .admin-he__label {
@@ -279,6 +281,13 @@ export class AdminHtmlEditor implements OnDestroy {
       }
     });
 
+    // Re-init when the TipTap host mounts late (modal open, new section, mode switch).
+    effect(() => {
+      const el = this.host()?.nativeElement;
+      if (!el || this.editor || this.mode() !== 'visual') return;
+      this.initEditor();
+    });
+
     effect(() => {
       const value = normalizeHtml(this.html() ?? '');
       if (value === this.lastEmitted) return;
@@ -391,14 +400,15 @@ export class AdminHtmlEditor implements OnDestroy {
       element: el,
       editable: true,
       extensions: [
+        // TipTap v3: Link ya viene en StarterKit — no registrar @tiptap/extension-link aparte.
         StarterKit.configure({
           heading: { levels: [2, 3] },
           codeBlock: false,
           code: false,
-        }),
-        Link.configure({
-          openOnClick: false,
-          HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' },
+          link: {
+            openOnClick: false,
+            HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' },
+          },
         }),
         Image.configure({ allowBase64: false }),
         Table.configure({ resizable: false }),

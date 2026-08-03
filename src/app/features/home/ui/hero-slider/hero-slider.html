@@ -53,31 +53,23 @@
     }
   </div>
 
-  @if (showArrows()) {
-    <div class="hero__controls">
-      <button type="button" class="hero__nav hero__nav--prev" (click)="prev()" aria-label="Slide anterior">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path
-            d="M15 18l-6-6 6-6"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-      </button>
-      <button type="button" class="hero__nav hero__nav--next" (click)="next()" aria-label="Slide siguiente">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path
-            d="M9 6l6 6-6 6"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-      </button>
-    </div>
+  @if (showNav()) {
+    <button
+      type="button"
+      class="hero__nav hero__nav--prev"
+      (click)="prev()"
+      aria-label="Slide anterior"
+    >
+      <span class="hero__nav-icon" aria-hidden="true">‹</span>
+    </button>
+    <button
+      type="button"
+      class="hero__nav hero__nav--next"
+      (click)="next()"
+      aria-label="Slide siguiente"
+    >
+      <span class="hero__nav-icon" aria-hidden="true">›</span>
+    </button>
   }
 
   <button

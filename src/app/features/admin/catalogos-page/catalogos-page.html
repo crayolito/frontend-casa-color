@@ -1,0 +1,60 @@
+<app-admin-page-header
+  title="Catálogos"
+  subtitle="Imagen y botón PDF de la página pública /catalogos"
+/>
+
+@if (error(); as err) {
+  <app-admin-error-state
+    [message]="err.text"
+    [correlationId]="err.correlationId ?? null"
+    [showCorrelationId]="err.showCorrelationId"
+    (retry)="load()"
+  />
+}
+
+@if (loading()) {
+  <p class="admin-catalogos-page__status">Cargando…</p>
+} @else {
+  <form
+    class="admin-form-narrow"
+    [formGroup]="form"
+    (ngSubmit)="save()"
+  >
+    <section class="admin-form-narrow__section">
+      <h2 class="admin-form-narrow__heading">Contenido</h2>
+
+      <app-image-uploader
+        label="Imagen del catálogo"
+        folder="catalogos_page"
+        fallbackKind="banner"
+        [url]="form.controls.imageUrl.value || null"
+        (urlChange)="onImageChange($event)"
+      />
+      <p class="admin-form__hint">
+        Imagen full-width como en el sitio de referencia. Si no cargás, se usa
+        el auxiliar de banner.
+      </p>
+
+      <app-admin-form-field
+        label="PDF (URL)"
+        controlName="pdfUrl"
+        type="url"
+      />
+      <p class="admin-form__hint">
+        Link externo. Se abre en una pestaña nueva. El botón solo se muestra
+        si hay URL.
+      </p>
+
+      <app-admin-form-field
+        label="Texto del botón"
+        controlName="pdfButtonLabel"
+        [error]="
+          form.controls.pdfButtonLabel.touched &&
+          form.controls.pdfButtonLabel.invalid
+            ? 'Requerido · máx. 50 caracteres'
+            : null
+        "
+      />
+    </section>
+  </form>
+}

@@ -1,0 +1,25 @@
+<div class="catalog-card__media">
+  <img
+    class="catalog-card__img"
+    [src]="imageSrc()"
+    width="480"
+    height="320"
+    [alt]="catalog().name"
+    loading="lazy"
+    decoding="async"
+    appImgFallback="catalog"
+  />
+</div>
+
+@if (catalog().pdfUrl; as pdf) {
+  <div class="catalog-card__body">
+    <a
+      class="catalog-card__button"
+      [href]="pdf"
+      target="_blank"
+      rel="noopener"
+    >
+      <span>{{ catalog().pdfButtonLabel || 'Descargar PDF' }}</span>
+    </a>
+  </div>
+}

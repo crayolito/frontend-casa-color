@@ -1,0 +1,149 @@
+<section class="branches-editor" aria-labelledby="branches-editor-title">
+  <div class="branches-editor__head">
+    <h2 id="branches-editor-title" class="branches-editor__title">Sucursales</h2>
+    <app-admin-icon-button
+      icon="plus"
+      label="Agregar sucursal"
+      (clicked)="openCreate()"
+    />
+  </div>
+
+  @if (error(); as err) {
+    <app-admin-error-state
+      [message]="err.text"
+      [correlationId]="err.correlationId ?? null"
+      [showCorrelationId]="err.showCorrelationId"
+      (retry)="reload()"
+    />
+  }
+
+  @if (loading()) {
+    <p class="branches-editor__status">Cargando sucursales…</p>
+  } @else if (rows().length === 0) {
+    <p class="branches-editor__status">No hay sucursales todavía.</p>
+  } @else {
+    <div
+      class="branches-editor__list"
+      cdkDropList
+      (cdkDropListDropped)="drop($event)"
+    >
+      @for (row of rows(); track row.id) {
+        <div class="branches-editor__card" cdkDrag>
+          <div class="branches-editor__card-head">
+            <span
+              class="branches-editor__drag"
+              cdkDragHandle
+              aria-label="Arrastrar"
+            >
+              <app-admin-icon name="grip-vertical" [size]="16" />
+            </span>
+            <div class="branches-editor__card-text">
+              <strong class="branches-editor__card-title">{{ row.name }}</strong>
+              <span class="branches-editor__meta">
+                {{ row.addressLines[0] ?? '' }}
+                @if (row.phone) {
+                  · {{ row.phone }}
+                }
+              </span>
+            </div>
+            <app-admin-icon-button
+              icon="edit"
+              label="Editar"
+              (clicked)="openEdit(row)"
+            />
+            <app-admin-icon-button
+              icon="trash"
+              label="Eliminar"
+              variant="danger"
+              (clicked)="askDelete(row)"
+            />
+          </div>
+        </div>
+      }
+    </div>
+  }
+</section>
+
+<app-admin-modal
+  [open]="modalOpen()"
+  [wide]="true"
+  [title]="editing() ? 'Editar sucursal' : 'Nueva sucursal'"
+  (closed)="closeModal()"
+>
+  <form class="admin-form" [formGroup]="form" (ngSubmit)="save()">
+    <app-admin-form-field
+      label="Nombre"
+      controlName="name"
+      [error]="form.controls.name.touched && form.controls.name.invalid ? 'Requerido' : null"
+    />
+
+    <app-admin-form-field
+      label="Dirección (una línea por renglón)"
+      controlName="addressLines"
+      type="textarea"
+      [rows]="4"
+      [error]="form.controls.addressLines.touched && form.controls.addressLines.invalid ? 'Requerido' : null"
+    />
+
+    <app-admin-form-field
+      label="Teléfono"
+      controlName="phone"
+      [error]="form.controls.phone.touched && form.controls.phone.invalid ? 'Requerido' : null"
+    />
+
+    <app-admin-form-field
+      label="Email"
+      controlName="email"
+      [error]="form.controls.email.touched && form.controls.email.invalid ? 'Email inválido' : null"
+    />
+
+    <app-admin-form-field
+      label="Horarios (una línea por renglón)"
+      controlName="hours"
+      type="textarea"
+      [rows]="3"
+      [error]="form.controls.hours.touched && form.controls.hours.invalid ? 'Requerido' : null"
+    />
+
+    <app-image-uploader
+      label="Imagen"
+      folder="branches"
+      [url]="form.controls.imageUrl.value || null"
+      (urlChange)="onImageChange($event)"
+    />
+
+    <div class="admin-form__map">
+      <p class="admin-form__map-label">Ubicación en el mapa</p>
+      <p class="branches-editor__hint">
+        Arrastrá el pin o hacé click en el mapa para fijar la ubicación.
+      </p>
+      <app-branch-picker-map
+        [lat]="form.controls.lat.value"
+        [lng]="form.controls.lng.value"
+        (positionChange)="onMapPosition($event)"
+      />
+      <div class="admin-form__coords">
+        <app-admin-form-field label="Latitud" controlName="lat" type="number" />
+        <app-admin-form-field label="Longitud" controlName="lng" type="number" />
+      </div>
+    </div>
+
+    <div class="admin-form__actions">
+      <app-admin-button type="button" variant="secondary" (clicked)="closeModal()">
+        Cancelar
+      </app-admin-button>
+      <app-admin-button type="submit" variant="primary" [loading]="saving()">
+        Guardar
+      </app-admin-button>
+    </div>
+  </form>
+</app-admin-modal>
+
+<app-admin-confirm-dialog
+  [open]="!!deleteTarget()"
+  title="Eliminar sucursal"
+  [message]="deleteMessage()"
+  [loading]="saving()"
+  (confirmed)="confirmDelete()"
+  (cancelled)="deleteTarget.set(null)"
+/>

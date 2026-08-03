@@ -1,0 +1,45 @@
+<main class="catalogos">
+  @if (loading()) {
+    <div class="catalogos__skeleton" aria-busy="true" aria-live="polite">
+      <p class="catalogos__status">Cargando…</p>
+    </div>
+  } @else if (error(); as err) {
+    <div class="catalogos__error-wrap" role="alert">
+      <div class="catalogos__error">
+        <p>{{ err.text }}</p>
+        <button type="button" class="catalogos__retry" (click)="load()">
+          Reintentar
+        </button>
+      </div>
+    </div>
+  } @else if (!hasContent()) {
+    <p class="catalogos__status">
+      Todavía no hay un catálogo publicado en esta página.
+    </p>
+  } @else if (content(); as c) {
+    <div class="catalogos__image-wrap">
+      <img
+        class="catalogos__image"
+        [src]="imageSrc()"
+        alt="Catálogo"
+        width="2000"
+        height="1334"
+        decoding="async"
+        appImgFallback="banner"
+      />
+    </div>
+
+    @if (c.pdfUrl; as pdf) {
+      <div class="catalogos__cta">
+        <a
+          class="catalogos__button"
+          [href]="pdf"
+          target="_blank"
+          rel="noopener"
+        >
+          <span>{{ c.pdfButtonLabel || 'DESCARGAR' }}</span>
+        </a>
+      </div>
+    }
+  }
+</main>

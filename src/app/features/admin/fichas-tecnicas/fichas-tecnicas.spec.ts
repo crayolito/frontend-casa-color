@@ -22,9 +22,27 @@ describe('AdminFichasTecnicas', () => {
             list: () =>
               of({
                 data: [
-                  { id: 1, name: 'Decoración', slug: 'decoracion' },
-                  { id: 2, name: 'Industria', slug: 'industria' },
-                  { id: 3, name: 'Arte', slug: 'arte' },
+                  {
+                    id: 1,
+                    name: 'Decoración',
+                    slug: 'decoracion',
+                    cardImageUrl: '/img/deco.jpg',
+                    coverImageUrl: null,
+                  },
+                  {
+                    id: 2,
+                    name: 'Industria',
+                    slug: 'industria',
+                    cardImageUrl: '/img/ind.jpg',
+                    coverImageUrl: null,
+                  },
+                  {
+                    id: 3,
+                    name: 'Arte',
+                    slug: 'arte',
+                    cardImageUrl: null,
+                    coverImageUrl: null,
+                  },
                 ],
                 meta: { page: 1, limit: 100, total: 3, totalPages: 1 },
               }),
@@ -61,22 +79,29 @@ describe('AdminFichasTecnicas', () => {
     fixture.detectChanges();
   });
 
-  it('renders 3 collapsible cards for FormArray categories', () => {
+  it('renders 3 static cards for FormArray categories', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelectorAll('.fichas-admin__card').length).toBe(3);
-    expect(el.querySelectorAll('app-accordion').length).toBe(0);
+    expect(el.querySelectorAll('.fichas-admin__chevron').length).toBe(0);
+    expect(el.querySelector('app-admin-modal')).toBeNull();
     expect(el.textContent).toContain('Decoración');
+    expect(el.querySelector('[aria-label="Editar"]')).toBeTruthy();
   });
 
-  it('keeps form bindings when editing label', () => {
+  it('opens edit modal with only category select', () => {
     const cmp = fixture.componentInstance;
-    cmp.categoryGroup(0).patchValue({ label: 'Nueva etiqueta' });
+    cmp.openEditCategory(0);
     fixture.detectChanges();
-    expect(cmp.categoryGroup(0).value.label).toBe('Nueva etiqueta');
-    expect(cmp.cardTitle(0)).toBe('Nueva etiqueta');
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(cmp.categoryModalOpen()).toBe(true);
+    expect(el.querySelector('app-admin-modal')).toBeTruthy();
+    expect(el.querySelector('app-select')).toBeTruthy();
+    expect(el.textContent).not.toContain('Etiqueta visible');
+    expect(el.textContent).not.toContain('Imagen de la tarjeta');
   });
 
-  it('save sends same body shape', () => {
+  it('save derives label and imageUrl from selected category', () => {
     const cmp = fixture.componentInstance;
     cmp.save();
     expect(upsertSpy).toHaveBeenCalled();
@@ -86,6 +111,12 @@ describe('AdminFichasTecnicas', () => {
     expect(body.categories[0]).toMatchObject({
       categoryId: 1,
       label: 'Decoración',
+      imageUrl: '/img/deco.jpg',
+    });
+    expect(body.categories[2]).toMatchObject({
+      categoryId: 3,
+      label: 'Arte',
+      imageUrl: null,
     });
   });
 });

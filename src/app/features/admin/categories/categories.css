@@ -40,27 +40,6 @@
   overflow: hidden;
 }
 
-.admin-entity-card__media {
-  aspect-ratio: 16 / 10;
-  background: #f3f3f3;
-  overflow: hidden;
-}
-
-.admin-entity-card__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.admin-entity-card__placeholder {
-  display: grid;
-  place-items: center;
-  height: 100%;
-  font-size: 0.8125rem;
-  color: var(--color-text-muted);
-}
-
 .admin-entity-card__body {
   display: flex;
   flex-direction: column;
@@ -99,7 +78,8 @@
 .admin-entity-card__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.15rem;
   padding: 0.75rem 1rem 1rem;
   border-top: 1px solid var(--admin-border);
   margin-top: auto;

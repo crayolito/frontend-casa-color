@@ -13,10 +13,18 @@ export const ERROR_MESSAGES: Record<string, string> = {
   SLUG_TAKEN: 'Ese slug ya está en uso. Probá con otro.',
   SITE_SETTING_NOT_FOUND: 'Configuración no encontrada',
   FICHAS_TECNICAS_INVALID: 'Configurá entre 3 y 4 categorías para Fichas Técnicas',
+  COLOR_CARD_NOT_FOUND: 'Carta de color no encontrada',
+  COLOR_CARDS_LIMIT: 'Debés tener entre 2 y 4 cartas de color',
   VALIDATION_ERROR: 'Revisá los campos marcados e intentá de nuevo',
   INTERNAL_ERROR: 'Algo salió mal. Intentá de nuevo en unos minutos.',
   NETWORK_ERROR: 'Sin conexión. Revisá tu red e intentá de nuevo.',
   UNKNOWN: 'Algo salió mal. Intentá de nuevo.',
+  BULK_FILE_INVALID: 'El archivo no es un Excel válido (.xlsx).',
+  BULK_FILE_TOO_LARGE: 'El archivo supera el límite de 10 MB.',
+  BULK_ROW_LIMIT_EXCEEDED: 'El archivo supera el límite de 5000 filas.',
+  BULK_INVALID_COMMAND: 'Comando de importación inválido.',
+  BULK_COMMAND_DISABLED: 'El comando DELETE no está habilitado.',
+  BULK_SLUG_REQUIRED: 'La fila necesita un slug.',
 };
 
 export function messageForCode(code: AppErrorCode | string): string | undefined {

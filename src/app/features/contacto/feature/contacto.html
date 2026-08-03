@@ -12,46 +12,57 @@
     <app-contact-hero [backgroundImage]="heroImage()" />
 
     <app-container>
-      <div class="contacto__info" appReveal>
-        @for (block of infoBlocks(); track block.icon) {
-          <app-contact-info-block [block]="block" />
-        }
-      </div>
-
-      <div class="contacto__divider" aria-hidden="true"></div>
-
-      <div class="contacto__branches" appReveal>
-        <div class="contacto__map">
-          <app-branch-map
-            [branches]="branches()"
-            [selectedId]="selectedId()"
-            [userLocation]="userLocation()"
-            (markerClick)="onSelectBranch($event)"
-          />
-        </div>
-        <aside class="contacto__list" aria-label="Sucursales">
-          <h2 class="contacto__list-heading">Nuestras sucursales</h2>
-          @if (branches().length === 0) {
-            <p class="contacto__geo-hint">No hay sucursales publicadas todavía.</p>
-          } @else if (geoStatus() === 'pending') {
-            <p class="contacto__geo-hint">Obteniendo tu ubicación…</p>
-          } @else if (geoStatus() === 'granted') {
-            <p class="contacto__geo-hint">
-              Ordenadas por distancia a tu ubicación.
-            </p>
-          } @else {
-            <p class="contacto__geo-hint">
-              Ubicación no disponible — mostrando todas las sucursales.
-            </p>
-          }
-          <div class="contacto__list-scroll">
-            <app-branch-list
-              [branches]="branchesWithDistance()"
-              [selectedId]="selectedId()"
-              (select)="onSelectBranch($event)"
-            />
+      <div class="contacto__body" appReveal>
+        <div class="contacto__info">
+          <div class="contacto__info-grid">
+            @for (block of infoBlocks(); track block.icon) {
+              <app-contact-info-block [block]="block" />
+            }
           </div>
-        </aside>
+        </div>
+
+        <section class="contacto__map-row" aria-label="Mapa y sucursales">
+          <div class="contacto__map-section">
+            @defer (on viewport; prefetch on idle) {
+              <app-branch-map
+                [branches]="branches()"
+                [selectedId]="selectedId()"
+                [userLocation]="userLocation()"
+                (markerClick)="onSelectBranch($event)"
+              />
+            } @placeholder {
+              <div
+                class="contacto__map-placeholder"
+                aria-busy="true"
+                aria-label="Cargando mapa"
+              ></div>
+            }
+          </div>
+
+          <aside class="contacto__branches" aria-label="Sucursales">
+            <h2 class="contacto__list-heading">Nuestras sucursales</h2>
+            @if (branches().length === 0) {
+              <p class="contacto__geo-hint">No hay sucursales publicadas todavía.</p>
+            } @else if (geoStatus() === 'pending') {
+              <p class="contacto__geo-hint">Obteniendo tu ubicación…</p>
+            } @else if (geoStatus() === 'granted') {
+              <p class="contacto__geo-hint">
+                Ordenadas por distancia a tu ubicación.
+              </p>
+            } @else {
+              <p class="contacto__geo-hint">
+                Ubicación no disponible — mostrando todas las sucursales.
+              </p>
+            }
+            <div class="contacto__list-scroll">
+              <app-branch-list
+                [branches]="branchesWithDistance()"
+                [selectedId]="selectedId()"
+                (select)="onSelectBranch($event)"
+              />
+            </div>
+          </aside>
+        </section>
       </div>
     </app-container>
   }

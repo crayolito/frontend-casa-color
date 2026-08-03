@@ -1,9 +1,10 @@
 :host {
   display: block;
+  /* Banda blanca 50px del clon (row separada antes del red-paint). */
+  padding-top: 50px;
+  background: #ffffff;
 }
 
-/* El aire de 50px vive como padding-bottom blanco en .categories.
-   Acá solo la franja de pintura. */
 .graphic {
   padding-top: 15vw;
   background-position: center bottom;

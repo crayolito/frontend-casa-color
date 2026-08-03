@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { PaginatedMeta } from '../../../core/http/api.service';
 import { AdminButton } from '../admin-button/admin-button';
+import { AdminIconButton } from '../admin-icon-button/admin-icon-button';
 import { AdminIcon, type AdminIconName } from '../icons/admin-icon';
 import {
   ImgFallback,
@@ -42,7 +43,7 @@ export interface AdminTableColumn<T> {
 @Component({
   selector: 'app-admin-table',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AdminButton, AdminIcon, ImgFallback],
+  imports: [AdminButton, AdminIconButton, AdminIcon, ImgFallback],
   template: `
     <div class="admin-table-wrap" [attr.aria-busy]="loading() && rows().length === 0">
       @if (loading() && rows().length === 0) {
@@ -182,34 +183,23 @@ export interface AdminTableColumn<T> {
                 @if (showActions()) {
                   <td class="admin-table__actions">
                     @if (showToggle()) {
-                      <button
-                        type="button"
-                        class="admin-table__icon-btn"
-                        [attr.aria-label]="isActive()(row) ? 'Desactivar' : 'Activar'"
-                        [title]="isActive()(row) ? 'Desactivar' : 'Activar'"
-                        (click)="toggle.emit(row)"
-                      >
-                        <app-admin-icon [name]="isActive()(row) ? 'eye' : 'eye-off'" />
-                      </button>
+                      <app-admin-icon-button
+                        [icon]="isActive()(row) ? 'eye' : 'eye-off'"
+                        [label]="isActive()(row) ? 'Desactivar' : 'Activar'"
+                        (clicked)="toggle.emit(row)"
+                      />
                     }
-                    <button
-                      type="button"
-                      class="admin-table__icon-btn"
-                      aria-label="Editar"
-                      title="Editar"
-                      (click)="edit.emit(row)"
-                    >
-                      <app-admin-icon name="edit" />
-                    </button>
-                    <button
-                      type="button"
-                      class="admin-table__icon-btn admin-table__icon-btn--danger"
-                      aria-label="Eliminar permanente"
-                      title="Eliminar permanente"
-                      (click)="remove.emit(row)"
-                    >
-                      <app-admin-icon name="trash" />
-                    </button>
+                    <app-admin-icon-button
+                      icon="edit"
+                      label="Editar"
+                      (clicked)="edit.emit(row)"
+                    />
+                    <app-admin-icon-button
+                      icon="trash"
+                      label="Eliminar permanente"
+                      variant="danger"
+                      (clicked)="remove.emit(row)"
+                    />
                   </td>
                 }
               </tr>
@@ -449,35 +439,6 @@ export interface AdminTableColumn<T> {
       justify-content: flex-end;
       min-width: 80px;
       width: 80px;
-    }
-
-    .admin-table__icon-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      border: 0;
-      background: transparent;
-      color: var(--color-text);
-      cursor: pointer;
-      border-radius: var(--radius-md);
-      transition: color 0.15s ease, background 0.15s ease;
-    }
-
-    .admin-table__icon-btn:hover {
-      color: var(--color-accent);
-      background: rgba(221, 51, 51, 0.08);
-    }
-
-    .admin-table__icon-btn--danger:hover {
-      color: #b82b2b;
-      background: rgba(221, 51, 51, 0.1);
-    }
-
-    .admin-table__icon-btn:focus-visible {
-      outline: 2px solid var(--color-extra-1);
-      outline-offset: 2px;
     }
 
     .admin-table__empty {

@@ -1,4 +1,5 @@
 import { Branch } from '../../admin/data/admin.models';
+import { DEFAULT_IMAGES } from '../../../shared/util/default-images';
 
 export type { Branch };
 
@@ -22,9 +23,9 @@ export const MAP_DEFAULT_CENTER = { lat: -17.7833, lng: -63.1821 };
 export const MAP_DEFAULT_ZOOM = 12;
 export const MAP_FOCUS_ZOOM = 15;
 
-export const BRANCH_MARKER_ICON = '/img/logos/logo-colom-small.png';
+export const BRANCH_MARKER_ICON = DEFAULT_IMAGES.logo;
 
-export const CONTACT_HERO_FALLBACK = '/img/slides/empresa-destacada-2.jpg';
+export const CONTACT_HERO_FALLBACK = DEFAULT_IMAGES.banner;
 
 export function buildContactInfoBlocks(settings: {
   centralAddressLines: string[];

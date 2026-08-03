@@ -32,10 +32,11 @@ import { AdminModal } from '../../../shared/admin-ui/admin-modal/admin-modal';
 import { AdminFormField } from '../../../shared/admin-ui/admin-form-field/admin-form-field';
 import { AdminConfirmDialog } from '../../../shared/admin-ui/admin-confirm-dialog/admin-confirm-dialog';
 import { AdminFilters } from '../../../shared/admin-ui/admin-filters/admin-filters';
-import { AdminIcon } from '../../../shared/admin-ui/icons/admin-icon';
+import { AdminIconButton } from '../../../shared/admin-ui/admin-icon-button/admin-icon-button';
 import { ImageUploader } from '../../../shared/admin-ui/image-uploader/image-uploader';
 import { AdminErrorState } from '../../../shared/admin-ui/admin-error-state/admin-error-state';
 import { AdminHtmlEditor } from '../../../shared/admin-ui/admin-html-editor/admin-html-editor';
+import { AdminToastService } from '../../../shared/admin-ui/admin-toast/admin-toast.service';
 import { ImgFallback } from '../../../shared/util/img-fallback/img-fallback';
 
 @Component({
@@ -46,11 +47,11 @@ import { ImgFallback } from '../../../shared/util/img-fallback/img-fallback';
     FormsModule,
     AdminPageHeader,
     AdminButton,
+    AdminIconButton,
     AdminModal,
     AdminFormField,
     AdminConfirmDialog,
     AdminFilters,
-    AdminIcon,
     ImageUploader,
     AdminErrorState,
     AdminHtmlEditor,
@@ -65,12 +66,12 @@ export class AdminCategories {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly toast = inject(AdminToastService);
 
   readonly rows = signal<Category[]>([]);
   readonly meta = signal<PaginatedMeta | null>(null);
   readonly loading = signal(true);
   readonly saving = signal(false);
-  readonly flash = signal<string | null>(null);
   readonly error = signal<ResolvedErrorMessage | null>(null);
   readonly reloadToken = signal(0);
   readonly modalOpen = signal(false);
@@ -91,7 +92,8 @@ export class AdminCategories {
     name: ['', [Validators.required, Validators.maxLength(150)]],
     description: [''],
     description2: [''],
-    imageUrl: [''],
+    coverImageUrl: [''],
+    cardImageUrl: [''],
   });
 
   constructor() {
@@ -163,7 +165,8 @@ export class AdminCategories {
       name: '',
       description: '',
       description2: '',
-      imageUrl: '',
+      coverImageUrl: '',
+      cardImageUrl: '',
     });
     this.modalOpen.set(true);
   }
@@ -174,7 +177,8 @@ export class AdminCategories {
       name: row.name,
       description: row.description ?? '',
       description2: row.description2 ?? '',
-      imageUrl: row.imageUrl ?? '',
+      coverImageUrl: row.coverImageUrl ?? '',
+      cardImageUrl: row.cardImageUrl ?? '',
     });
     this.modalOpen.set(true);
   }
@@ -183,8 +187,12 @@ export class AdminCategories {
     this.modalOpen.set(false);
   }
 
-  onImageChange(url: string | null): void {
-    this.form.controls.imageUrl.setValue(url ?? '');
+  onCoverImageChange(url: string | null): void {
+    this.form.controls.coverImageUrl.setValue(url ?? '');
+  }
+
+  onCardImageChange(url: string | null): void {
+    this.form.controls.cardImageUrl.setValue(url ?? '');
   }
 
   onDescriptionChange(html: string): void {
@@ -207,7 +215,8 @@ export class AdminCategories {
       name: raw.name.trim(),
       description: raw.description.trim() || undefined,
       description2: raw.description2.trim() || undefined,
-      imageUrl: raw.imageUrl.trim() || undefined,
+      coverImageUrl: raw.coverImageUrl.trim() || undefined,
+      cardImageUrl: raw.cardImageUrl.trim() || undefined,
     };
     this.saving.set(true);
     const editing = this.editing();
@@ -219,7 +228,7 @@ export class AdminCategories {
       next: () => {
         this.saving.set(false);
         this.modalOpen.set(false);
-        this.flash.set(editing ? 'Categoría actualizada' : 'Categoría creada');
+        this.toast.success(editing ? 'Categoría actualizada' : 'Categoría creada');
         this.reload();
       },
       error: (err: unknown) => {
@@ -241,7 +250,7 @@ export class AdminCategories {
       next: () => {
         this.saving.set(false);
         this.deleteTarget.set(null);
-        this.flash.set('Categoría eliminada');
+        this.toast.success('Categoría eliminada');
         this.reload();
       },
       error: (err: unknown) => {

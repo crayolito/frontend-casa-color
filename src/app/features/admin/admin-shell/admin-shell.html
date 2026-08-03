@@ -22,12 +22,27 @@
       (collapseToggle)="toggleCollapse()"
     />
     <!-- Scroll a ancho completo (barra al borde); el content interno se centra. -->
-    <main class="admin-shell__scroll" id="admin-main">
+    <main
+      class="admin-shell__scroll"
+      id="admin-main"
+      [class.admin-shell__scroll--locked]="scrollLocked()"
+    >
       <div class="admin-shell__content">
         <router-outlet />
       </div>
     </main>
   </div>
+
+  @if (formCtx.dirty()) {
+    <div class="admin-shell__mobile-save">
+      <app-admin-save-bar
+        [dirty]="true"
+        [saving]="formCtx.saving()"
+        (save)="formCtx.requestSave()"
+        (discard)="formCtx.requestDiscard()"
+      />
+    </div>
+  }
 
   <app-admin-toast-host />
 </div>

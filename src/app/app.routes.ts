@@ -29,6 +29,14 @@ export const routes: Routes = [
         data: { title: 'Cartas de color' },
       },
       {
+        path: 'catalogos',
+        loadChildren: () =>
+          import('./features/catalogos/catalogos.routes').then(
+            (m) => m.CATALOGOS_ROUTES,
+          ),
+        data: { title: 'Catálogos' },
+      },
+      {
         path: 'fichas-tecnicas',
         loadChildren: () =>
           import('./features/fichas-tecnicas/fichas-tecnicas.routes').then(
@@ -50,6 +58,14 @@ export const routes: Routes = [
             (m) => m.CONTACTO_ROUTES,
           ),
         data: { title: 'Contacto' },
+      },
+      {
+        path: 'empresa',
+        loadChildren: () =>
+          import('./features/empresa/empresa.routes').then(
+            (m) => m.EMPRESA_ROUTES,
+          ),
+        data: { title: 'Empresa' },
       },
       {
         path: 'search',

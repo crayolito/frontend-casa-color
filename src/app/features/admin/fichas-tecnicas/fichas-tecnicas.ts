@@ -36,9 +36,13 @@ import { AdminPageHeader } from '../../../shared/admin-ui/admin-page-header/admi
 import { AdminButton } from '../../../shared/admin-ui/admin-button/admin-button';
 import { AdminFormField } from '../../../shared/admin-ui/admin-form-field/admin-form-field';
 import { AdminIcon } from '../../../shared/admin-ui/icons/admin-icon';
+import { AdminIconButton } from '../../../shared/admin-ui/admin-icon-button/admin-icon-button';
 import { ImageUploader } from '../../../shared/admin-ui/image-uploader/image-uploader';
 import { AdminErrorState } from '../../../shared/admin-ui/admin-error-state/admin-error-state';
+import { AdminModal } from '../../../shared/admin-ui/admin-modal/admin-modal';
 import { AppSelect, SelectOption } from '../../../shared/ui/select/select';
+import { AdminFormContext } from '../../../shared/admin-ui/admin-form-context/admin-form-context';
+import { AdminToastService } from '../../../shared/admin-ui/admin-toast/admin-toast.service';
 
 const MIN_CATEGORIES = 3;
 const MAX_CATEGORIES = 4;
@@ -46,8 +50,6 @@ const SETTING_KEY = 'fichas_tecnicas';
 
 type CategoryGroup = FormGroup<{
   categoryId: FormControl<number>;
-  label: FormControl<string>;
-  imageUrl: FormControl<string>;
 }>;
 
 @Component({
@@ -60,8 +62,10 @@ type CategoryGroup = FormGroup<{
     AdminButton,
     AdminFormField,
     AdminIcon,
+    AdminIconButton,
     ImageUploader,
     AdminErrorState,
+    AdminModal,
     AppSelect,
   ],
   templateUrl: './fichas-tecnicas.html',
@@ -73,15 +77,19 @@ export class AdminFichasTecnicas implements OnInit {
   private readonly settingsApi = inject(SiteSettingsApi);
   private readonly categoriesApi = inject(CategoriesApi);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly toast = inject(AdminToastService);
+  private readonly formCtx = inject(AdminFormContext);
 
   readonly String = String;
 
   readonly allCategories = signal<Category[]>([]);
   readonly loading = signal(true);
   readonly saving = signal(false);
-  readonly flash = signal<string | null>(null);
   readonly error = signal<ResolvedErrorMessage | null>(null);
-  readonly expandedCards = signal<Set<string>>(new Set());
+  readonly categoryModalOpen = signal(false);
+  readonly categoryEditIndex = signal<number | null>(null);
+
+  private readonly _dirtyTick = signal(0);
 
   readonly form = this.fb.nonNullable.group({
     heading: ['Fichas Técnicas', [Validators.required, Validators.maxLength(200)]],
@@ -100,6 +108,10 @@ export class AdminFichasTecnicas implements OnInit {
   });
   readonly canAdd = computed(() => this.categoryCount() < MAX_CATEGORIES);
   readonly canRemove = computed(() => this.categoryCount() > MIN_CATEGORIES);
+  readonly formDirty = computed(() => {
+    this._dirtyTick();
+    return this.form.dirty;
+  });
 
   get categoriesFA(): FormArray<CategoryGroup> {
     return this.form.controls.categories;
@@ -110,29 +122,49 @@ export class AdminFichasTecnicas implements OnInit {
   }
 
   cardTitle(index: number): string {
-    const label = this.categoriesFA.at(index).value.label?.trim();
-    if (label) return label;
     const id = this.categoriesFA.at(index).value.categoryId;
     if (id) {
-      return this.allCategories().find((c) => c.id === id)?.name ?? `Categoría ${index + 1}`;
+      return (
+        this.allCategories().find((c) => c.id === id)?.name ??
+        `Categoría ${index + 1}`
+      );
     }
     return `Categoría ${index + 1}`;
   }
 
-  isCardExpanded(key: string): boolean {
-    return this.expandedCards().has(key);
+  categoryModalTitle(): string {
+    const idx = this.categoryEditIndex();
+    if (idx === null) return 'Categoría';
+    return this.cardTitle(idx);
   }
 
-  toggleCard(key: string): void {
-    this.expandedCards.update((set) => {
-      const next = new Set(set);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
+  openEditCategory(index: number): void {
+    this.categoryEditIndex.set(index);
+    this.categoryModalOpen.set(true);
+  }
+
+  closeCategoryModal(): void {
+    this.categoryModalOpen.set(false);
+    this.categoryEditIndex.set(null);
   }
 
   ngOnInit(): void {
+    this.formCtx.register(
+      {
+        dirty: this.formDirty,
+        saving: this.saving,
+        save: () => this.save(),
+        discard: () => this.discardChanges(),
+      },
+      this.destroyRef,
+    );
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this._dirtyTick.update((n) => n + 1));
+    this.load();
+  }
+
+  discardChanges(): void {
     this.load();
   }
 
@@ -151,30 +183,32 @@ export class AdminFichasTecnicas implements OnInit {
     const group = this.categoriesFA.at(index);
     const id = value === null || value === '' ? 0 : Number(value);
     group.patchValue({ categoryId: id });
-    if (id && !group.value.label?.trim()) {
-      const cat = this.allCategories().find((c) => c.id === id);
-      if (cat) group.patchValue({ label: cat.name });
-    }
+    group.markAsDirty();
+    this.form.markAsDirty();
   }
 
   onHeroUploaded(url: string | null): void {
     this.form.controls.heroImageUrl.setValue(url ?? '');
-  }
-
-  onCategoryImageUploaded(index: number, url: string | null): void {
-    this.categoriesFA.at(index).patchValue({ imageUrl: url ?? '' });
+    this.form.controls.heroImageUrl.markAsDirty();
   }
 
   addCategory(): void {
     if (!this.canAdd()) return;
+    const idx = this.categoriesFA.length;
     this.categoriesFA.push(this.createCategoryGroup());
     this.categoriesVersion.update((n) => n + 1);
+    this.form.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
+    this.openEditCategory(idx);
   }
 
   removeCategory(index: number): void {
     if (!this.canRemove()) return;
+    if (this.categoryEditIndex() === index) this.closeCategoryModal();
     this.categoriesFA.removeAt(index);
     this.categoriesVersion.update((n) => n + 1);
+    this.form.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
   }
 
   dropCategory(event: CdkDragDrop<CategoryGroup[]>): void {
@@ -184,12 +218,13 @@ export class AdminFichasTecnicas implements OnInit {
       event.currentIndex,
     );
     this.categoriesVersion.update((n) => n + 1);
+    this.form.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
   }
 
   load(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.flash.set(null);
 
     forkJoin({
       categories: this.categoriesApi.list(1, 100),
@@ -213,7 +248,7 @@ export class AdminFichasTecnicas implements OnInit {
               : null,
           );
           if (!setting) {
-            this.flash.set(
+            this.toast.info(
               'Todavía no hay configuración. Elegí 3 o 4 categorías y guardá.',
             );
           }
@@ -228,21 +263,26 @@ export class AdminFichasTecnicas implements OnInit {
   save(): void {
     this.form.markAllAsTouched();
     if (this.form.invalid) {
-      this.flash.set('Completá título y las categorías (mín. 3, máx. 4).');
+      this.toast.error('Completá título y elegí las categorías (mín. 3, máx. 4).');
       return;
     }
 
     const raw = this.form.getRawValue();
+    const byId = new Map(this.allCategories().map((c) => [c.id, c]));
     const categories = raw.categories
-      .filter((c) => c.categoryId > 0 && c.label.trim())
-      .map((c) => ({
-        categoryId: c.categoryId,
-        label: c.label.trim(),
-        imageUrl: c.imageUrl.trim() || null,
-      }));
+      .filter((c) => c.categoryId > 0)
+      .map((c) => {
+        const cat = byId.get(c.categoryId);
+        return {
+          categoryId: c.categoryId,
+          label: cat?.name ?? '',
+          imageUrl: cat?.cardImageUrl?.trim() || null,
+        };
+      })
+      .filter((c) => c.label);
 
     if (categories.length < MIN_CATEGORIES || categories.length > MAX_CATEGORIES) {
-      this.flash.set(
+      this.toast.error(
         `Debés configurar entre ${MIN_CATEGORIES} y ${MAX_CATEGORIES} categorías.`,
       );
       return;
@@ -255,7 +295,6 @@ export class AdminFichasTecnicas implements OnInit {
     };
 
     this.saving.set(true);
-    this.flash.set(null);
     this.error.set(null);
     this.fichasApi
       .upsert(body)
@@ -263,7 +302,9 @@ export class AdminFichasTecnicas implements OnInit {
       .subscribe({
         next: () => {
           this.saving.set(false);
-          this.flash.set('Fichas técnicas guardadas.');
+          this.toast.success('Fichas técnicas guardadas.');
+          this.form.markAsPristine();
+          this._dirtyTick.update((n) => n + 1);
         },
         error: (err: unknown) => {
           this.saving.set(false);
@@ -275,8 +316,6 @@ export class AdminFichasTecnicas implements OnInit {
   private createCategoryGroup(): CategoryGroup {
     return this.fb.nonNullable.group({
       categoryId: [0, [Validators.required, Validators.min(1)]],
-      label: ['', [Validators.required, Validators.maxLength(150)]],
-      imageUrl: [''],
     });
   }
 
@@ -292,20 +331,18 @@ export class AdminFichasTecnicas implements OnInit {
       cats.length >= MIN_CATEGORIES
         ? cats.slice(0, MAX_CATEGORIES)
         : [
-            { categoryId: 0, label: '', imageUrl: null },
-            { categoryId: 0, label: '', imageUrl: null },
-            { categoryId: 0, label: '', imageUrl: null },
+            { categoryId: 0 },
+            { categoryId: 0 },
+            { categoryId: 0 },
           ];
     for (const c of seed) {
       const group = this.createCategoryGroup();
-      group.patchValue({
-        categoryId: c.categoryId ?? 0,
-        label: c.label ?? '',
-        imageUrl: c.imageUrl ?? '',
-      });
+      group.patchValue({ categoryId: c.categoryId ?? 0 });
       this.categoriesFA.push(group);
     }
     this.categoriesVersion.update((n) => n + 1);
-    this.expandedCards.set(new Set());
+    this.closeCategoryModal();
+    this.form.markAsPristine();
+    this._dirtyTick.update((n) => n + 1);
   }
 }

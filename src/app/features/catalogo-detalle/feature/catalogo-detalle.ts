@@ -27,9 +27,10 @@ import {
   localErrorMessage,
   resolveErrorMessage,
 } from '../../../shared/errors/resolve-error-message';
-import { withCatalogFallback } from '../../../shared/util/default-images';
-
-const FALLBACK_PRODUCT_IMAGE = '/img/productos/envase-colom-industria-375x400.jpg';
+import {
+  withCatalogFallback,
+  withProductFallback,
+} from '../../../shared/util/default-images';
 
 @Component({
   selector: 'app-catalogo-detalle',
@@ -148,11 +149,11 @@ export class CatalogoDetalle implements OnInit {
 
   private mapProducts(data: PublicProduct[]): ProductItem[] {
     return data.map((p) => {
-      const main =
+      const main = withProductFallback(
         p.images?.find((i) => i.isMain)?.url ??
-        p.images?.[0]?.url ??
-        p.mainImageUrl ??
-        FALLBACK_PRODUCT_IMAGE;
+          p.images?.[0]?.url ??
+          p.mainImageUrl,
+      );
       return {
         title: p.title,
         href: `/producto/${p.slug}`,

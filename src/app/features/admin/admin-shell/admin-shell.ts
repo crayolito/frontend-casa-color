@@ -13,22 +13,28 @@ import { RouterOutlet } from '@angular/router';
 import { AdminSidebar } from './admin-sidebar/admin-sidebar';
 import { AdminTopbar } from './admin-topbar/admin-topbar';
 import { AdminToastHost } from '../../../shared/admin-ui/admin-toast/admin-toast-host';
+import { AdminSaveBar } from '../../../shared/admin-ui/admin-save-bar/admin-save-bar';
+import { AdminScrollLockService } from '../../../shared/admin-ui/admin-scroll-lock.service';
+import { AdminFormContext } from '../../../shared/admin-ui/admin-form-context/admin-form-context';
 
 const AUTO_COLLAPSE_MIN = 1680;
 
 @Component({
   selector: 'app-admin-shell',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, AdminSidebar, AdminTopbar, AdminToastHost],
+  imports: [RouterOutlet, AdminSidebar, AdminTopbar, AdminToastHost, AdminSaveBar],
   templateUrl: './admin-shell.html',
   styleUrl: './admin-shell.css',
 })
 export class AdminShell implements OnInit {
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly scrollLock = inject(AdminScrollLockService);
+  readonly formCtx = inject(AdminFormContext);
 
   readonly navOpen = signal(false);
   readonly sidebarCollapsed = signal(false);
+  readonly scrollLocked = this.scrollLock.locked;
   /** Si el usuario tocó el collapse manualmente, no auto-ajustar. */
   private userToggled = false;
 

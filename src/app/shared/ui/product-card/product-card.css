@@ -136,29 +136,30 @@
   }
 }
 
+/* Clon: .product-wrap — altura natural de la img (375×400), sin caja forzada */
 .product-card__wrap {
   overflow: hidden;
   position: relative;
-  aspect-ratio: 375 / 400;
-  padding: 8px;
   box-sizing: border-box;
-  /* Mismo blanco de contenido (#fff); body es #f8f8f8 y el JPG no alcanza */
-  background-color: #fff;
+  /* Solo visible si la imagen falla / tarda en cargar */
+  background-color: #f3f3f3;
 }
 
 .product-card__img {
   width: 100%;
-  height: 100%;
-  object-fit: contain;
+  height: auto;
   display: block;
   box-shadow: none;
-  background-color: #fff;
 }
 
 /* Clon: img.hover-gallery-image — segunda imagen en Esmalte Sintético */
 .product-card__img--hover {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
@@ -170,6 +171,7 @@
   opacity: 1;
 }
 
+/* Clon: .bg-overlay — opacity 0 en reposo; 0.88 en .hovered */
 .product-card__overlay {
   transition: opacity 0.3s cubic-bezier(0.21, 0.6, 0.35, 1);
   opacity: 0;
@@ -193,6 +195,7 @@
   height: 100%;
 }
 
+/* Clon: .text-on-hover-wrap — centrado vertical, oculto hasta hover */
 .product-card__hover {
   position: absolute;
   top: 50%;
@@ -217,6 +220,14 @@
   opacity: 1;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .product-card__overlay,
+  .product-card__hover,
+  .product-card__img--hover {
+    transition: none;
+  }
+}
+
 .product-card__categories a {
   color: #777;
   font-size: 12px;
@@ -235,15 +246,21 @@
   font-size: 12px;
 }
 
+/*
+  Clon woocommerce.css:
+  ul.products li.product h2 / .woocommerce-loop-product__title
+  → 18px / 23px / weight 400. text_on_hover: padding-bottom:0.
+  NO usar --font-size-h4 ni h2 global (~45px): eso era el “gigante”.
+*/
 .product-card__title {
   font-family: var(--font-body);
-  font-weight: 300;
-  line-height: 1.28;
-  font-size: var(--font-size-h4);
-  margin-top: 10px;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 23px;
+  margin: 10px 0 0;
   text-transform: none;
   letter-spacing: 0;
-  padding: 0.5em 0 0.3em;
+  padding: 0.5em 0 0;
   color: #000;
   text-align: center;
 }
@@ -252,12 +269,21 @@
   text-decoration: none;
 }
 
-.product-card__button {
+:host a:hover {
+  text-decoration: none;
+}
+
+/*
+  Clon cascada real (salient-dynamic-styles gana a text-on-hover):
+  .text_on_hover.product > .button { color:#dd3333!important; font-size:16px; }
+  (product-style-text-on-hover pone color:#000 sin !important → pierde)
+*/
+:host a.product-card__button {
   display: inline-block;
   background-color: transparent;
   color: #dd3333;
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 16px;
   line-height: 1.25;
   font-weight: 400;
   text-transform: none;
@@ -272,11 +298,12 @@
   transition: all 0.25s ease 0s;
 }
 
-.product-card__button:hover {
+:host a.product-card__button:hover {
   border-color: transparent;
   background-color: transparent;
   opacity: 0.7;
   text-decoration: none;
+  color: #dd3333;
 }
 
 .product-card__link-overlay:focus-visible {

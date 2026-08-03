@@ -1,0 +1,14 @@
+:host {
+  display: block;
+}
+
+.admin-catalogos-page__status {
+  margin: 1.5rem 0;
+  color: var(--admin-text-muted, #6b7280);
+}
+
+.admin-form__hint {
+  margin: -0.5rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--admin-text-muted, #6b7280);
+}

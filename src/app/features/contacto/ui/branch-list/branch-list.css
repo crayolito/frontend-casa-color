@@ -1,6 +1,4 @@
-/* Lista lateral de sucursales — mejora sobre el clon (no existe ahí).
-   Filosofía visual: Open Sans, accent #dd3333, radius 0.
-   Scroll propio: ~2 ítems visibles, el resto con scroll interno. */
+/* Lista de sucursales — panel derecho dentro del container. */
 
 :host {
   display: block;
@@ -10,47 +8,38 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  max-height: 22rem;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-accent) transparent;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .branch-list__item {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas:
     'name distance'
     'address address'
     'hours hours'
     'meta meta';
-  gap: 4px 12px;
+  gap: 0.35rem 0.75rem;
   width: 100%;
-  padding: 14px 12px;
+  max-width: 100%;
+  padding: 0.9rem 0.5rem 0.9rem 0.65rem;
   border: 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-  border-left: 3px solid transparent;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-left: 2px solid transparent;
   background: transparent;
   text-align: left;
   font-family: inherit;
   font-size: inherit;
-  line-height: inherit;
+  line-height: 1.35;
   color: var(--color-text);
   cursor: pointer;
+  box-sizing: border-box;
   transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-
-.branch-list li:last-child .branch-list__item {
-  border-bottom: 0;
 }
 
 .branch-list__item:hover,
 .branch-list__item:focus-visible {
-  background: #f3f3f3;
+  background: #f5f5f5;
   outline: none;
 }
 
@@ -62,12 +51,15 @@
 .branch-list__name {
   grid-area: name;
   font-weight: 600;
+  font-size: 0.9375rem;
   color: #333;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .branch-list__distance {
   grid-area: distance;
-  font-size: 12px;
+  font-size: 0.6875rem;
   font-weight: 600;
   color: var(--color-accent);
   white-space: nowrap;
@@ -75,23 +67,26 @@
 
 .branch-list__address {
   grid-area: address;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--color-text-muted);
+  overflow-wrap: anywhere;
 }
 
 .branch-list__hours {
   grid-area: hours;
-  font-size: 12px;
-  color: #555;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
 }
 
 .branch-list__meta {
   grid-area: meta;
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  margin-top: 2px;
-  font-size: 13px;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-top: 0.1rem;
+  font-size: 0.75rem;
+  min-width: 0;
 }
 
 .branch-list__phone,
@@ -99,15 +94,10 @@
   color: var(--color-accent);
   text-decoration: none;
   word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .branch-list__phone:hover,
 .branch-list__email:hover {
   text-decoration: underline;
-}
-
-@media (max-width: 999px) {
-  .branch-list {
-    max-height: 20rem;
-  }
 }

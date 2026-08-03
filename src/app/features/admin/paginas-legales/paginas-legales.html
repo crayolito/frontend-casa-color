@@ -1,71 +1,55 @@
-<div class="admin-content-narrow">
-  <app-admin-page-header
-    title="Páginas legales"
-    subtitle="Aviso legal y política de datos visibles en el sitio público"
+<app-admin-page-header
+  title="Legales"
+  subtitle="Aviso legal y política de datos"
+/>
+
+@if (error(); as err) {
+  <app-admin-error-state
+    [message]="err.text"
+    [correlationId]="err.correlationId ?? null"
+    [showCorrelationId]="err.showCorrelationId"
+    [showRetry]="err.code !== 'VALIDATION_ERROR'"
+    (retry)="onRetryLoad()"
   />
+}
 
-  @if (flash(); as msg) {
-    <p class="admin-flash" role="status">{{ msg }}</p>
-  }
-  @if (error(); as err) {
-    <app-admin-error-state
-      [message]="err.text"
-      [correlationId]="err.correlationId ?? null"
-      [showCorrelationId]="err.showCorrelationId"
-      [showRetry]="err.code !== 'VALIDATION_ERROR'"
-      (retry)="onRetryLoad()"
-    />
-  }
-
-  <div class="paginas-legales">
+<form
+  class="admin-form-narrow paginas-legales__form"
+  [formGroup]="form"
+  (ngSubmit)="save()"
+>
+  <section class="admin-form-narrow__section paginas-legales">
     <app-admin-tabs
       [tabs]="tabs"
       [active]="selectedKey()"
       (activeChange)="selectKey($event)"
     >
-      <form
-        class="paginas-legales__form"
-        [formGroup]="form"
-        (ngSubmit)="save()"
-      >
-        <label class="paginas-legales__field">
-          <span class="paginas-legales__label">Título</span>
-          <input
-            class="paginas-legales__input"
-            formControlName="title"
-            maxlength="200"
-            autocomplete="off"
-          />
-        </label>
-
-        <app-admin-html-editor
-          label="Contenido"
-          [html]="form.controls.bodyHtml.value"
-          (htmlChange)="onBodyHtmlChange($event)"
+      <label class="paginas-legales__field">
+        <span class="paginas-legales__label">Título</span>
+        <input
+          class="paginas-legales__input"
+          formControlName="title"
+          maxlength="200"
+          autocomplete="off"
         />
-        <p class="paginas-legales__hint">
-          HTML enriquecido. El cliente sanitiza al mostrar la página.
-        </p>
+      </label>
 
-        @if (updatedAt(); as at) {
-          <p class="paginas-legales__meta">Actualizado: {{ at }}</p>
-        }
-
-        @if (loading()) {
-          <p class="paginas-legales__meta">Cargando…</p>
-        }
-
-        <div class="paginas-legales__actions">
-          <app-admin-button
-            type="submit"
-            variant="primary"
-            [loading]="saving()"
-            [disabled]="loading()"
-          >
-            Guardar
-          </app-admin-button>
-        </div>
-      </form>
+      <app-admin-html-editor
+        label="Contenido"
+        [html]="form.controls.bodyHtml.value"
+        (htmlChange)="onBodyHtmlChange($event)"
+      />
+      <p class="paginas-legales__hint">
+        HTML enriquecido. El cliente sanitiza al mostrar la página.
+      </p>
     </app-admin-tabs>
-  </div>
-</div>
+
+    @if (updatedAt(); as at) {
+      <p class="admin-form-narrow__meta">Actualizado: {{ at }}</p>
+    }
+
+    @if (loading()) {
+      <p class="admin-form-narrow__meta">Cargando…</p>
+    }
+  </section>
+</form>

@@ -10,10 +10,14 @@ export type AdminButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
 @Component({
   selector: 'app-admin-button',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[class.admin-btn-host--block]': 'block()',
+  },
   template: `
     <button
       class="admin-btn"
       [class]="variantClass()"
+      [class.admin-btn--block]="block()"
       [attr.type]="type()"
       [disabled]="disabled() || loading()"
       (click)="clicked.emit()"
@@ -27,6 +31,11 @@ export type AdminButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
   styles: `
     :host {
       display: inline-block;
+    }
+
+    :host(.admin-btn-host--block) {
+      display: block;
+      width: 100%;
     }
 
     .admin-btn {
@@ -46,6 +55,10 @@ export type AdminButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
       cursor: pointer;
       transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease,
         box-shadow 0.2s ease;
+    }
+
+    .admin-btn--block {
+      width: 100%;
     }
 
     .admin-btn:focus-visible {
@@ -125,6 +138,8 @@ export class AdminButton {
   readonly type = input<'button' | 'submit' | 'reset'>('button');
   readonly disabled = input(false);
   readonly loading = input(false);
+  /** Si true, el botón ocupa el 100% del contenedor. */
+  readonly block = input(false);
   readonly clicked = output<void>();
 
   protected variantClass(): string {
