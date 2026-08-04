@@ -23,6 +23,10 @@ RUN npm run build
 # =============================================================================
 FROM nginx:1.27-alpine AS runtime
 
+# curl para HEALTHCHECK: wget no siempre viene en nginx:alpine y Dokploy
+# marca Unhealthy → Traefik 502 aunque nginx esté arriba.
+RUN apk add --no-cache curl
+
 # Copia config custom de nginx (SPA fallback, gzip, cache headers).
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
@@ -34,4 +38,4 @@ EXPOSE 80
 
 # nginx ya maneja señales correctamente, no hace falta dumb-init.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD wget -q --spider http://localhost/ || exit 1
+    CMD curl -fsS http://127.0.0.1/ >/dev/null || exit 1
