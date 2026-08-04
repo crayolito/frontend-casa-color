@@ -188,4 +188,15 @@
     max-width: 33.333%;
     padding-inline: 2%;
   }
+
+  /*
+   * Cuando hay EXACTAMENTE 4 categorías, cada una ocupa 25% para que las 4
+   * entren en una sola fila. El logo ya es width:100% con max-width:354px,
+   * así que se reduce solo (sin deformar). Con 3 vuelve al 33.333% de arriba.
+   */
+  .categories__column:first-child:nth-last-child(4),
+  .categories__column:first-child:nth-last-child(4) ~ .categories__column {
+    flex: 0 1 25%;
+    max-width: 25%;
+  }
 }
