@@ -3,7 +3,8 @@
 # =============================================================================
 # Stage 1 — builder: instala y compila Angular a estáticos
 # =============================================================================
-FROM node:20-alpine AS builder
+# Angular CLI 22 exige Node ≥22.22.3 (node:20 falla en `ng build`).
+FROM node:22-alpine AS builder
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
