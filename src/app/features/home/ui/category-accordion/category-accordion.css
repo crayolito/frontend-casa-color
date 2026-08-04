@@ -199,4 +199,37 @@
     flex: 0 1 25%;
     max-width: 25%;
   }
+
+  /*
+   * Tipografía escalada (~85% del token) solo con 4 columnas, para que el
+   * texto no se vea apretado en una columna más angosta. Calculado sobre los
+   * tokens del design system, sin literales sueltos.
+   */
+  .categories__column:first-child:nth-last-child(4) .categories__title,
+  .categories__column:first-child:nth-last-child(4) ~ .categories__column .categories__title {
+    font-size: calc(var(--font-size-h4) * 0.86);
+    line-height: calc(var(--line-height-h4) * 0.9);
+  }
+
+  .categories__column:first-child:nth-last-child(4) .categories__desc,
+  .categories__column:first-child:nth-last-child(4) ~ .categories__column .categories__desc {
+    font-size: calc(var(--font-size-h6) * 0.92);
+    line-height: calc(var(--line-height-h6) * 0.95);
+  }
+
+  .categories__column:first-child:nth-last-child(4) .categories__products a,
+  .categories__column:first-child:nth-last-child(4) ~ .categories__column .categories__products a {
+    font-size: calc(var(--font-size-body) * 0.92);
+    line-height: calc(var(--line-height-body) * 0.95);
+  }
+
+  /*
+   * Spacers verticales algo más chicos con 4 columnas: como la columna es
+   * más angosta, el aire relativo se siente más grande; reducirlo un toque
+   * mantiene la proporción visual que tiene el layout de 3.
+   */
+  .categories__column:first-child:nth-last-child(4) .categories__spacer,
+  .categories__column:first-child:nth-last-child(4) ~ .categories__column .categories__spacer {
+    height: 16px;
+  }
 }
