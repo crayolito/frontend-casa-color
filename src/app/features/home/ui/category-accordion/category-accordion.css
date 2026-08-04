@@ -232,4 +232,19 @@
   .categories__column:first-child:nth-last-child(4) ~ .categories__column .categories__spacer {
     height: 16px;
   }
+
+  /*
+   * Acordeones más compactos cuando hay 4 columnas: fuente, padding e ícono
+   * escalados. Las variables viven en .accordion__trigger (shared/ui/accordion)
+   * y se heredan desde acá por la cascada de custom properties. Con 3 columnas
+   * no se activa y el acordeón conserva sus valores originales.
+   */
+  .categories__column:first-child:nth-last-child(4),
+  .categories__column:first-child:nth-last-child(4) ~ .categories__column {
+    --accordion-trigger-font-size: 1.0625rem; /* 17px (era 20px) */
+    --accordion-trigger-line-height: 1.2;
+    --accordion-trigger-padding-y: 22px; /* era 30px */
+    --accordion-trigger-padding-right: 56px; /* era 70px */
+    --accordion-icon-size: 26px; /* era 30px */
+  }
 }

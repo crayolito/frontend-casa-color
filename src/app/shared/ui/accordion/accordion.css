@@ -21,19 +21,26 @@
 
 .accordion__trigger {
   --accordion-accent: var(--color-accent);
+  /* Parámetros sobreescribibles desde el host (ver category-accordion 4-cols). */
+  --accordion-trigger-padding-y: 30px;
+  --accordion-trigger-padding-right: 70px;
+  --accordion-trigger-font-size: 1.25rem;
+  --accordion-trigger-line-height: 1.25;
+  --accordion-icon-size: 30px;
   position: relative;
   display: block;
   width: 100%;
-  padding: 30px 70px 30px 0;
+  padding: var(--accordion-trigger-padding-y) var(--accordion-trigger-padding-right)
+    var(--accordion-trigger-padding-y) 0;
   border: 0;
   background: transparent;
   color: rgba(0, 0, 0, 0.65);
   font-family: inherit;
   /* Custom CSS del clon index.html: font-size 20px !important; line-height 25px */
-  font-size: 1.25rem;
+  font-size: var(--accordion-trigger-font-size);
   font-weight: 400;
   letter-spacing: 0;
-  line-height: 1.25; /* 25/20 */
+  line-height: var(--accordion-trigger-line-height); /* 25/20 */
   text-align: left;
   text-transform: uppercase;
   cursor: pointer;
@@ -55,14 +62,14 @@
   display: block;
 }
 
-/* Círculo 30×30 a la derecha — borde #888 en reposo */
+/* Círculo a la derecha — borde #888 en reposo. Tamaño vía variable. */
 .accordion__icon {
   position: absolute;
   top: 50%;
   right: 0;
-  width: 30px;
-  height: 30px;
-  margin-top: -15px;
+  width: var(--accordion-icon-size);
+  height: var(--accordion-icon-size);
+  margin-top: calc(var(--accordion-icon-size) / -2);
   border: 2px solid #888;
   border-radius: 50%;
   box-sizing: border-box;
@@ -75,7 +82,10 @@
   border-color: var(--accordion-accent);
 }
 
-/* Barras del + — posiciones exactas del CSS custom del clon */
+/*
+ * Barras del + — posiciones escaladas vía --accordion-icon-size.
+ * Con size=30px reproducen exactamente el clon (top 14, left 6, etc.).
+ */
 .accordion__icon-h,
 .accordion__icon-v {
   position: absolute;
@@ -84,20 +94,20 @@
 }
 
 .accordion__icon-h {
-  top: 14px;
-  left: 6px;
+  top: calc(var(--accordion-icon-size) * 0.4667);
+  left: calc(var(--accordion-icon-size) * 0.2);
   margin-top: -2px;
-  width: 14px;
+  width: calc(var(--accordion-icon-size) * 0.4667);
   height: 2px;
   transition: background-color 0.15s ease;
 }
 
 .accordion__icon-v {
-  top: 6px;
-  left: 14px;
+  top: calc(var(--accordion-icon-size) * 0.2);
+  left: calc(var(--accordion-icon-size) * 0.4667);
   margin-left: -2px;
   width: 2px;
-  height: 14px;
+  height: calc(var(--accordion-icon-size) * 0.4667);
   transition:
     transform 0.45s cubic-bezier(0.3, 0.4, 0.2, 1),
     background-color 0.15s ease;
