@@ -21,26 +21,28 @@
 
 .accordion__trigger {
   --accordion-accent: var(--color-accent);
-  /* Parámetros sobreescribibles desde el host (ver category-accordion 4-cols). */
-  --accordion-trigger-padding-y: 30px;
-  --accordion-trigger-padding-right: 70px;
-  --accordion-trigger-font-size: 1.25rem;
-  --accordion-trigger-line-height: 1.25;
-  --accordion-icon-size: 30px;
   position: relative;
   display: block;
   width: 100%;
-  padding: var(--accordion-trigger-padding-y) var(--accordion-trigger-padding-right)
-    var(--accordion-trigger-padding-y) 0;
+  /*
+   * Las variables de sizing (--accordion-trigger-* / --accordion-icon-size)
+   * NO se declaran acá: se leen con fallback desde el ancestro, así un host
+   * puede sobreescribirlas (ej. category-accordion con 4 columnas). Si las
+   * declaráramos en este elemento, la cascada del propio elemento le ganaría
+   * siempre a la heredada y el override nunca llegaría.
+   */
+  padding: var(--accordion-trigger-padding-y, 30px)
+    var(--accordion-trigger-padding-right, 70px)
+    var(--accordion-trigger-padding-y, 30px) 0;
   border: 0;
   background: transparent;
   color: rgba(0, 0, 0, 0.65);
   font-family: inherit;
   /* Custom CSS del clon index.html: font-size 20px !important; line-height 25px */
-  font-size: var(--accordion-trigger-font-size);
+  font-size: var(--accordion-trigger-font-size, 1.25rem);
   font-weight: 400;
   letter-spacing: 0;
-  line-height: var(--accordion-trigger-line-height); /* 25/20 */
+  line-height: var(--accordion-trigger-line-height, 1.25); /* 25/20 */
   text-align: left;
   text-transform: uppercase;
   cursor: pointer;
@@ -62,14 +64,14 @@
   display: block;
 }
 
-/* Círculo a la derecha — borde #888 en reposo. Tamaño vía variable. */
+/* Círculo a la derecha — borde #888 en reposo. Tamaño vía variable con fallback. */
 .accordion__icon {
   position: absolute;
   top: 50%;
   right: 0;
-  width: var(--accordion-icon-size);
-  height: var(--accordion-icon-size);
-  margin-top: calc(var(--accordion-icon-size) / -2);
+  width: var(--accordion-icon-size, 30px);
+  height: var(--accordion-icon-size, 30px);
+  margin-top: calc(var(--accordion-icon-size, 30px) / -2);
   border: 2px solid #888;
   border-radius: 50%;
   box-sizing: border-box;
@@ -94,20 +96,20 @@
 }
 
 .accordion__icon-h {
-  top: calc(var(--accordion-icon-size) * 0.4667);
-  left: calc(var(--accordion-icon-size) * 0.2);
+  top: calc(var(--accordion-icon-size, 30px) * 0.4667);
+  left: calc(var(--accordion-icon-size, 30px) * 0.2);
   margin-top: -2px;
-  width: calc(var(--accordion-icon-size) * 0.4667);
+  width: calc(var(--accordion-icon-size, 30px) * 0.4667);
   height: 2px;
   transition: background-color 0.15s ease;
 }
 
 .accordion__icon-v {
-  top: calc(var(--accordion-icon-size) * 0.2);
-  left: calc(var(--accordion-icon-size) * 0.4667);
+  top: calc(var(--accordion-icon-size, 30px) * 0.2);
+  left: calc(var(--accordion-icon-size, 30px) * 0.4667);
   margin-left: -2px;
   width: 2px;
-  height: calc(var(--accordion-icon-size) * 0.4667);
+  height: calc(var(--accordion-icon-size, 30px) * 0.4667);
   transition:
     transform 0.45s cubic-bezier(0.3, 0.4, 0.2, 1),
     background-color 0.15s ease;
