@@ -1,0 +1,30 @@
+# Build compilado y dependencias
+dist
+tmp
+out-tsc
+bazel-out
+node_modules
+
+# Cachés de Angular / herramientas
+.angular
+.connect.lock
+.libpeerconnection.log
+testem.log
+coverage
+__screenshots__
+
+# Sistema / IDE
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Scripts temporales
+tmp-compare-shot.cjs

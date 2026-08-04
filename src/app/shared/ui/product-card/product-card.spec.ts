@@ -91,7 +91,7 @@ describe('ProductCard', () => {
     expect(host.getAttribute('data-columns')).toBe('archive-4');
   });
 
-  it('uses loop title size (18px) not h4, and accent Leer más like clone', async () => {
+  it('matches live clone title (#444/300/18px) and accent Leer más', async () => {
     await setup();
     const el = fixture.nativeElement as HTMLElement;
     const title = el.querySelector('.product-card__title') as HTMLElement;
@@ -100,8 +100,10 @@ describe('ProductCard', () => {
     const buttonStyle = getComputedStyle(button);
     expect(titleStyle.fontSize).toBe('18px');
     expect(titleStyle.lineHeight).toBe('23px');
-    expect(titleStyle.fontWeight).toMatch(/^(400|normal)$/);
-    // Cascada real del clon: salient-dynamic-styles #dd3333!important
+    expect(titleStyle.fontWeight).toMatch(/^(300|normal)$/);
+    // happy-dom may report font-weight 300 as "normal" inconsistently; color is the key
+    expect(titleStyle.color).toMatch(/rgb\(68,\s*68,\s*68\)/);
+    // Medido en pinturascolom.com: rgb(221,51,51), 16px
     expect(buttonStyle.color).toMatch(/rgb\(221,\s*51,\s*51\)/);
     expect(buttonStyle.fontSize).toBe('16px');
   });
