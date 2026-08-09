@@ -1,25 +1,26 @@
-<app-admin-page-header
-  title="Catálogos"
-  subtitle="Imagen y botón PDF de la página pública /catalogos"
-/>
-
-@if (error(); as err) {
-  <app-admin-error-state
-    [message]="err.text"
-    [correlationId]="err.correlationId ?? null"
-    [showCorrelationId]="err.showCorrelationId"
-    (retry)="load()"
+<div class="admin-content-narrow">
+  <app-admin-page-header
+    title="Catálogos"
+    subtitle="Imagen y botón PDF de la página pública /catalogos"
   />
-}
 
-@if (loading()) {
-  <p class="admin-catalogos-page__status">Cargando…</p>
-} @else {
-  <form
-    class="admin-form-narrow"
-    [formGroup]="form"
-    (ngSubmit)="save()"
-  >
+  @if (error(); as err) {
+    <app-admin-error-state
+      [message]="err.text"
+      [correlationId]="err.correlationId ?? null"
+      [showCorrelationId]="err.showCorrelationId"
+      (retry)="load()"
+    />
+  }
+
+  @if (loading()) {
+    <p class="admin-catalogos-page__status">Cargando…</p>
+  } @else {
+    <form
+      class="admin-form-narrow"
+      [formGroup]="form"
+      (ngSubmit)="save()"
+    >
     <section class="admin-form-narrow__section">
       <h2 class="admin-form-narrow__heading">Contenido</h2>
 
@@ -57,4 +58,5 @@
       />
     </section>
   </form>
-}
+  }
+</div>

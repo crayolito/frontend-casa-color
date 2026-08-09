@@ -59,4 +59,38 @@ describe('ImageUploader', () => {
     expect(uploadFile).not.toHaveBeenCalled();
     expect(fixture.componentInstance.error()).toBe('Solo se permiten imágenes');
   });
+
+  it('emits the url when a valid image link is applied', () => {
+    const emitted: Array<string | null> = [];
+    const publicIds: Array<string | null> = [];
+    fixture.componentInstance.urlChange.subscribe((url) => emitted.push(url));
+    fixture.componentInstance.publicIdChange.subscribe((id) =>
+      publicIds.push(id),
+    );
+
+    fixture.componentInstance.urlDraft.set('https://cdn.example/foto.png');
+    fixture.componentInstance.applyUrl();
+
+    expect(emitted).toEqual(['https://cdn.example/foto.png']);
+    expect(publicIds).toEqual([null]);
+    expect(fixture.componentInstance.urlError()).toBeNull();
+    expect(fixture.componentInstance.urlMode()).toBe(false);
+  });
+
+  it('rejects an invalid url', () => {
+    fixture.componentInstance.urlDraft.set('no-es-una-url');
+    fixture.componentInstance.applyUrl();
+
+    expect(fixture.componentInstance.urlError()).not.toBeNull();
+  });
+
+  it('ignores applyUrl when the draft is empty', () => {
+    const spy = vi.fn();
+    fixture.componentInstance.urlChange.subscribe(spy);
+    fixture.componentInstance.urlDraft.set('   ');
+
+    fixture.componentInstance.applyUrl();
+
+    expect(spy).not.toHaveBeenCalled();
+  });
 });

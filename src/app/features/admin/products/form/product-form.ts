@@ -414,10 +414,6 @@ export class AdminProductForm implements OnInit {
 
   save(): void {
     this.error.set(null);
-    if (this.selectedCatalogIds().length === 0) {
-      this.error.set(localErrorMessage('Agregá al menos un catálogo'));
-      return;
-    }
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.error.set(localErrorMessage('Revisá los campos requeridos'));
@@ -427,7 +423,7 @@ export class AdminProductForm implements OnInit {
     const raw = this.form.getRawValue();
     const body: ProductWrite = {
       catalogIds: this.selectedCatalogIds(),
-      catalogId: this.selectedCatalogIds()[0],
+      catalogId: this.selectedCatalogIds()[0] ?? undefined,
       title: raw.title.trim(),
       slug: raw.slug.trim() || undefined,
       description: raw.description.trim() || undefined,
@@ -436,7 +432,7 @@ export class AdminProductForm implements OnInit {
       displayOrder: Number(raw.displayOrder) || 0,
       images: this.images().map((img, i) => ({
         url: img.url,
-        publicId: img.publicId,
+        publicId: img.publicId?.trim() ? img.publicId.trim() : undefined,
         isMain: i === 0 ? true : img.isMain,
         displayOrder: i,
       })),

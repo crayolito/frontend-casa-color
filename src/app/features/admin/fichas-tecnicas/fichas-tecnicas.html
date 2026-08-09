@@ -1,25 +1,26 @@
-<app-admin-page-header
-  title="Fichas técnicas"
-  subtitle="Elegí 3 o 4 categorías"
-/>
-
-@if (error(); as err) {
-  <app-admin-error-state
-    [message]="err.text"
-    [correlationId]="err.correlationId ?? null"
-    [showCorrelationId]="err.showCorrelationId"
-    (retry)="load()"
+<div class="admin-content-narrow">
+  <app-admin-page-header
+    title="Fichas técnicas"
+    subtitle="Elegí 3 o 4 categorías"
   />
-}
 
-@if (loading()) {
-  <p class="fichas-admin__status">Cargando…</p>
-} @else {
-  <form
-    class="admin-form-narrow fichas-admin"
-    [formGroup]="form"
-    (ngSubmit)="save()"
-  >
+  @if (error(); as err) {
+    <app-admin-error-state
+      [message]="err.text"
+      [correlationId]="err.correlationId ?? null"
+      [showCorrelationId]="err.showCorrelationId"
+      (retry)="load()"
+    />
+  }
+
+  @if (loading()) {
+    <p class="fichas-admin__status">Cargando…</p>
+  } @else {
+    <form
+      class="admin-form-narrow fichas-admin"
+      [formGroup]="form"
+      (ngSubmit)="save()"
+    >
     <section class="admin-form-narrow__section">
       <h2 class="admin-form-narrow__heading">Cabecera</h2>
 
@@ -97,7 +98,8 @@
       </div>
     </section>
   </form>
-}
+  }
+</div>
 
 @if (categoryModalOpen() && categoryEditIndex() !== null) {
   @let ci = categoryEditIndex()!;

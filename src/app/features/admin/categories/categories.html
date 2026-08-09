@@ -28,74 +28,127 @@
       type="search"
       [ngModel]="search()"
       (ngModelChange)="onSearchInput($event)"
-      placeholder="Nombre…"
+      placeholder="Nombre o descripción…"
     />
   </label>
+
+  <label class="admin-filters__field">
+    <span class="admin-filters__label">Ordenar por</span>
+    <app-select
+      [options]="sortOptions"
+      [value]="sort()"
+      (valueChange)="onSortChange($event)"
+    />
+  </label>
+
+  <div class="admin-view-toggle" admin-filters-actions role="group" aria-label="Cambiar vista">
+    <button
+      type="button"
+      class="admin-view-toggle__btn"
+      [class.admin-view-toggle__btn--active]="viewMode() === 'card'"
+      [attr.aria-pressed]="viewMode() === 'card'"
+      aria-label="Vista tarjeta"
+      title="Vista tarjeta"
+      (click)="setViewMode('card')"
+    >
+      <app-admin-icon name="layout-grid" [size]="18" />
+    </button>
+    <button
+      type="button"
+      class="admin-view-toggle__btn"
+      [class.admin-view-toggle__btn--active]="viewMode() === 'list'"
+      [attr.aria-pressed]="viewMode() === 'list'"
+      aria-label="Vista listado"
+      title="Vista listado"
+      (click)="setViewMode('list')"
+    >
+      <app-admin-icon name="list" [size]="18" />
+    </button>
+  </div>
 </app-admin-filters>
 
-@if (loading()) {
-  <p class="admin-entity-grid__status">Cargando…</p>
-} @else if (rows().length === 0) {
-  <p class="admin-entity-grid__status">{{ emptyMessage() }}</p>
-} @else {
-  <div class="admin-entity-grid">
-    @for (row of rows(); track row.id) {
-      <article class="admin-entity-card">
-        <div class="admin-entity-card__media">
-          <img
-            [src]="row.cardImageUrl || '/img/img-auxiliar2.jpg'"
-            [alt]="row.name"
-            width="320"
-            height="200"
-            appImgFallback="category"
-          />
-        </div>
-        <div class="admin-entity-card__body">
-          <h3 class="admin-entity-card__title">{{ row.name }}</h3>
-          <p class="admin-entity-card__meta">
-            {{ row.catalogsCount ?? 0 }} catálogo(s)
-          </p>
-        </div>
-        <div class="admin-entity-card__actions">
-          <app-admin-icon-button
-            icon="edit"
-            label="Editar"
-            (clicked)="openEdit(row)"
-          />
-          <app-admin-icon-button
-            icon="trash"
-            label="Eliminar"
-            variant="danger"
-            (clicked)="askDelete(row)"
-          />
-        </div>
-      </article>
-    }
-  </div>
+@if (viewMode() === 'card') {
+  @if (loading()) {
+    <p class="admin-entity-grid__status">Cargando…</p>
+  } @else if (rows().length === 0) {
+    <p class="admin-entity-grid__status">{{ emptyMessage() }}</p>
+  } @else {
+    <div class="admin-entity-grid">
+      @for (row of rows(); track row.id) {
+        <article class="admin-entity-card">
+          <div class="admin-entity-card__media">
+            <img
+              [src]="row.cardImageUrl || '/img/img-auxiliar2.jpg'"
+              [alt]="row.name"
+              width="320"
+              height="200"
+              appImgFallback="category"
+            />
+          </div>
+          <div class="admin-entity-card__body">
+            <h3 class="admin-entity-card__title">{{ row.name }}</h3>
+            <p class="admin-entity-card__meta">
+              {{ row.catalogsCount ?? 0 }} catálogo(s)
+            </p>
+          </div>
+          <div class="admin-entity-card__actions">
+            <app-admin-icon-button
+              icon="eye"
+              label="Ver catálogos"
+              (clicked)="openCatalogs(row)"
+            />
+            <app-admin-icon-button
+              icon="edit"
+              label="Editar"
+              (clicked)="openEdit(row)"
+            />
+            <app-admin-icon-button
+              icon="trash"
+              label="Eliminar"
+              variant="danger"
+              (clicked)="askDelete(row)"
+            />
+          </div>
+        </article>
+      }
+    </div>
 
-  @if (meta(); as m) {
-    @if (m.totalPages > 1) {
-      <nav class="admin-entity-pager" aria-label="Paginación">
-        <app-admin-button
-          type="button"
-          variant="secondary"
-          [disabled]="m.page <= 1"
-          (clicked)="onPageChange(m.page - 1)"
-        >
-          Anterior
-        </app-admin-button>
-        <span class="admin-entity-pager__label">Página {{ m.page }} de {{ m.totalPages }}</span>
-        <app-admin-button
-          type="button"
-          variant="secondary"
-          [disabled]="m.page >= m.totalPages"
-          (clicked)="onPageChange(m.page + 1)"
-        >
-          Siguiente
-        </app-admin-button>
-      </nav>
+    @if (meta(); as m) {
+      @if (m.totalPages > 1) {
+        <nav class="admin-entity-pager" aria-label="Paginación">
+          <app-admin-button
+            type="button"
+            variant="secondary"
+            [disabled]="m.page <= 1"
+            (clicked)="onPageChange(m.page - 1)"
+          >
+            Anterior
+          </app-admin-button>
+          <span class="admin-entity-pager__label">Página {{ m.page }} de {{ m.totalPages }}</span>
+          <app-admin-button
+            type="button"
+            variant="secondary"
+            [disabled]="m.page >= m.totalPages"
+            (clicked)="onPageChange(m.page + 1)"
+          >
+            Siguiente
+          </app-admin-button>
+        </nav>
+      }
     }
   }
+} @else {
+  <app-admin-table
+    [columns]="columns"
+    [rows]="rows()"
+    [loading]="loading()"
+    [emptyMessage]="emptyMessage()"
+    [meta]="meta()"
+    (edit)="openEdit($event)"
+    (remove)="askDelete($event)"
+    (cellAction)="onCellAction($event)"
+    (pageChange)="onPageChange($event)"
+  />
 }
 
 <app-admin-modal
@@ -167,3 +220,54 @@
   (confirmed)="confirmDelete()"
   (cancelled)="deleteTarget.set(null)"
 />
+
+@if (catalogsModal(); as modal) {
+  <app-admin-modal
+    [open]="true"
+    [title]="'Catálogos · ' + modal.category.name"
+    (closed)="closeCatalogsModal()"
+  >
+    @if (modal.loading) {
+      <p class="admin-detail-status">Cargando…</p>
+    } @else if (modal.items.length === 0) {
+      <p class="admin-detail-status">Sin catálogos en esta categoría</p>
+    } @else {
+      @if (modal.items.length > 5) {
+        <input
+          class="admin-detail-search"
+          type="search"
+          [ngModel]="catalogsModalSearch()"
+          (ngModelChange)="onCatalogsSearch($event)"
+          placeholder="Buscar catálogo…"
+        />
+      }
+      <ul class="admin-detail-list">
+        @for (item of filteredModalCatalogs(); track item.id) {
+          <li class="admin-detail-list__item">
+            <img
+              class="admin-detail-list__thumb"
+              [src]="item.imageUrl || '/img/img-auxiliar2.jpg'"
+              [alt]="item.name"
+              width="40"
+              height="40"
+              loading="lazy"
+              appImgFallback="catalog"
+            />
+            <div class="admin-detail-list__info">
+              <span class="admin-detail-list__name">{{ item.name }}</span>
+            </div>
+            <app-admin-icon-button
+              icon="x"
+              label="Quitar de la categoría"
+              variant="danger"
+              [disabled]="removingCatalogId() === item.id"
+              (clicked)="removeCatalogFromCategory(item)"
+            />
+          </li>
+        } @empty {
+          <li class="admin-detail-status">Sin resultados para «{{ catalogsModalSearch() }}»</li>
+        }
+      </ul>
+    }
+  </app-admin-modal>
+}

@@ -12,8 +12,10 @@ export class CatalogsApi {
     limit = 20,
     categoryId?: number,
     search?: string,
+    sortBy: 'name' | 'createdAt' = 'name',
+    sortDir: 'asc' | 'desc' = 'asc',
   ): Observable<PaginatedResult<Catalog>> {
-    const params: QueryParams = { page, limit, categoryId, search };
+    const params: QueryParams = { page, limit, categoryId, search, sortBy, sortDir };
     return this.api.getList<Catalog>('/public/catalogs', params);
   }
 

@@ -13,6 +13,7 @@ import { AdminIcon } from '../icons/admin-icon';
 import { AdminIconButton } from '../admin-icon-button/admin-icon-button';
 import { ImgFallback } from '../../util/img-fallback/img-fallback';
 import { withProductFallback } from '../../util/default-images';
+import { isValidImageUrl } from '../image-uploader/image-uploader';
 
 export interface GalleryImage {
   url: string;
@@ -29,19 +30,59 @@ export interface GalleryImage {
     <div class="gallery">
       <div class="gallery__head">
         <h3 class="gallery__title">{{ title() }}</h3>
-        <label class="gallery__add">
-          <input
-            type="file"
-            accept="image/*"
-            hidden
-            multiple
-            (change)="onFilesSelected($event)"
-            [disabled]="uploading()"
-          />
-          <app-admin-icon name="upload" />
-          {{ uploading() ? 'Subiendo…' : 'Agregar imágenes' }}
-        </label>
+        <div class="gallery__add-group">
+          <label class="gallery__add">
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              multiple
+              (change)="onFilesSelected($event)"
+              [disabled]="uploading()"
+            />
+            <app-admin-icon name="upload" />
+            {{ uploading() ? 'Subiendo…' : 'Agregar imágenes' }}
+          </label>
+          <button
+            type="button"
+            class="gallery__add gallery__add--url"
+            [class.gallery__add--active]="urlOpen()"
+            (click)="toggleUrlMode()"
+          >
+            <app-admin-icon name="link" />
+            Pegar URL
+          </button>
+        </div>
       </div>
+
+      @if (urlOpen()) {
+        <div class="gallery__url">
+          <div class="gallery__url-row">
+            <input
+              class="gallery__url-input"
+              type="url"
+              inputmode="url"
+              placeholder="https://ejemplo.com/imagen.jpg"
+              [value]="urlDraft()"
+              (input)="urlDraft.set($any($event.target).value)"
+              (keydown.enter)="addUrl()"
+              [attr.aria-invalid]="urlError() !== null"
+              aria-label="URL de la imagen"
+            />
+            <button
+              type="button"
+              class="gallery__add"
+              [disabled]="!urlDraft().trim()"
+              (click)="addUrl()"
+            >
+              Agregar
+            </button>
+          </div>
+          @if (urlError(); as err) {
+            <p class="gallery__error" role="alert">{{ err }}</p>
+          }
+        </div>
+      }
 
       @if (error(); as err) {
         <p class="gallery__error" role="alert">{{ err }}</p>
@@ -50,7 +91,7 @@ export interface GalleryImage {
       @if (images().length === 0) {
         <div class="gallery__empty">
           <app-admin-icon name="image" [size]="40" />
-          <p>Subí imágenes del producto</p>
+          <p>Subí imágenes del producto o pegá un enlace</p>
         </div>
       } @else {
         <ul
@@ -58,7 +99,7 @@ export interface GalleryImage {
           cdkDropList
           (cdkDropListDropped)="onDrop($event)"
         >
-          @for (img of images(); track img.publicId; let i = $index) {
+          @for (img of images(); track $index; let i = $index) {
             <li class="gallery__item" cdkDrag>
               <img
                 [src]="withProductFallback(img.url)"
@@ -110,6 +151,13 @@ export interface GalleryImage {
       color: #333;
     }
 
+    .gallery__add-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
     .gallery__add {
       display: inline-flex;
       align-items: center;
@@ -123,11 +171,63 @@ export interface GalleryImage {
       text-transform: uppercase;
       cursor: pointer;
       color: var(--color-text);
+      background: transparent;
+      font-family: inherit;
     }
 
-    .gallery__add:hover {
+    .gallery__add:hover:not(:disabled) {
       border-color: var(--color-accent);
       color: var(--color-accent);
+    }
+
+    .gallery__add:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .gallery__add--url {
+      color: var(--color-text-muted);
+    }
+
+    .gallery__add--active {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+
+    .gallery__url {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+      margin-bottom: 1rem;
+      padding: 0.875rem;
+      border: 1px solid var(--admin-border);
+      border-radius: var(--radius-md);
+      background: #fafafa;
+    }
+
+    .gallery__url-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .gallery__url-input {
+      flex: 1;
+      min-width: 0;
+      min-height: 40px;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--admin-border);
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      color: #333;
+      background: var(--color-white);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .gallery__url-input:focus {
+      outline: none;
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px rgba(221, 51, 51, 0.12);
     }
 
     .gallery__empty {
@@ -205,6 +305,9 @@ export class ImageGallery {
 
   readonly uploading = signal(false);
   readonly error = signal<string | null>(null);
+  readonly urlOpen = signal(false);
+  readonly urlDraft = signal('');
+  readonly urlError = signal<string | null>(null);
 
   protected withProductFallback = withProductFallback;
 
@@ -245,6 +348,32 @@ export class ImageGallery {
         },
       });
     }
+  }
+
+  toggleUrlMode(): void {
+    this.urlOpen.update((v) => !v);
+    this.urlError.set(null);
+    if (!this.urlOpen()) this.urlDraft.set('');
+  }
+
+  addUrl(): void {
+    const raw = this.urlDraft().trim();
+    if (!raw) return;
+    if (!isValidImageUrl(raw)) {
+      this.urlError.set('Pegá un enlace válido que empiece con https://');
+      return;
+    }
+    this.urlError.set(null);
+    this.urlDraft.set('');
+    this.urlOpen.set(false);
+    const next = [...this.images()];
+    next.push({
+      url: raw,
+      publicId: '',
+      isMain: next.length === 0,
+      displayOrder: next.length,
+    });
+    this.emitOrdered(next);
   }
 
   setMain(index: number): void {

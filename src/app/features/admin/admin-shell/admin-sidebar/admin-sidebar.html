@@ -6,11 +6,21 @@
 >
   <div class="admin-sidebar__brand">
     <a routerLink="/admin/products" class="admin-sidebar__logo" (click)="onNavigate()">
-      <span class="admin-sidebar__mark" aria-hidden="true">CC</span>
-      <span class="admin-sidebar__brand-text">
-        <span class="admin-sidebar__name">Casa Color</span>
-        <span class="admin-sidebar__tagline">Panel de gestión</span>
-      </span>
+      @if (collapsed()) {
+        <span class="admin-sidebar__mark-icon" aria-hidden="true">
+          <app-admin-icon name="palette" [size]="22" />
+        </span>
+      } @else if (logoUrl(); as logo) {
+        <img
+          class="admin-sidebar__logo-img"
+          [src]="logo"
+          [alt]="logoAlt()"
+          width="140"
+          height="40"
+        />
+      } @else {
+        <span class="admin-sidebar__brand-label">Panel de gestión</span>
+      }
     </a>
   </div>
 

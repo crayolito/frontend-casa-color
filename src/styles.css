@@ -109,7 +109,7 @@
   --admin-gap-sm: 0.5rem;
   --admin-gap: 0.75rem;
   --admin-gap-lg: 1.25rem;
-  --admin-content-narrow: 48rem;
+  --admin-content-narrow: 45rem;
 
   --bp-mobile: 690px;
   --bp-tablet: 999px;
@@ -246,6 +246,11 @@ h6 {
   width: 100%;
   max-width: var(--admin-content-narrow);
   margin-inline: auto;
+}
+
+/* Variante ancha para layouts de 2 columnas (ej. Contacto) */
+.admin-content-narrow--wide {
+  max-width: 68.75rem;
 }
 
 /* Acento cursivo Salient (.nectar-inherit-italic / blockquote title) */

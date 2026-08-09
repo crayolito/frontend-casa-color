@@ -20,7 +20,8 @@ import {
   catchError,
 } from 'rxjs';
 import { CategoriesApi } from '../data/categories.api';
-import { Category } from '../data/admin.models';
+import { CatalogsApi } from '../data/catalogs.api';
+import { Category, Catalog, CatalogWrite } from '../data/admin.models';
 import { PaginatedMeta } from '../../../core/http/api.service';
 import {
   ResolvedErrorMessage,
@@ -38,6 +39,14 @@ import { AdminErrorState } from '../../../shared/admin-ui/admin-error-state/admi
 import { AdminHtmlEditor } from '../../../shared/admin-ui/admin-html-editor/admin-html-editor';
 import { AdminToastService } from '../../../shared/admin-ui/admin-toast/admin-toast.service';
 import { ImgFallback } from '../../../shared/util/img-fallback/img-fallback';
+import { AppSelect } from '../../../shared/ui/select/select';
+import { AdminIcon } from '../../../shared/admin-ui/icons/admin-icon';
+import {
+  AdminTable,
+  AdminTableColumn,
+} from '../../../shared/admin-ui/admin-table/admin-table';
+
+const VIEW_MODE_STORAGE_KEY = 'admin.categories.view';
 
 @Component({
   selector: 'app-admin-categories',
@@ -56,12 +65,16 @@ import { ImgFallback } from '../../../shared/util/img-fallback/img-fallback';
     AdminErrorState,
     AdminHtmlEditor,
     ImgFallback,
+    AppSelect,
+    AdminIcon,
+    AdminTable,
   ],
   templateUrl: './categories.html',
   styleUrl: './categories.css',
 })
 export class AdminCategories {
   private readonly api = inject(CategoriesApi);
+  private readonly catalogsApi = inject(CatalogsApi);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -78,15 +91,128 @@ export class AdminCategories {
   readonly editing = signal<Category | null>(null);
   readonly deleteTarget = signal<Category | null>(null);
 
+  readonly catalogsModal = signal<{
+    category: Category;
+    items: Catalog[];
+    loading: boolean;
+  } | null>(null);
+  readonly catalogsModalSearch = signal('');
+  readonly removingCatalogId = signal<number | null>(null);
+
   readonly search = signal('');
   readonly page = signal(1);
+  readonly sort = signal<'name|asc' | 'name|desc' | 'createdAt|desc' | 'createdAt|asc'>(
+    'name|asc',
+  );
 
-  readonly hasActiveFilters = computed(() => !!this.search().trim());
+  readonly viewMode = signal<'card' | 'list'>(
+    localStorage.getItem(VIEW_MODE_STORAGE_KEY) === 'list' ? 'list' : 'card',
+  );
+
+  readonly columns: AdminTableColumn<Category>[] = [
+    {
+      key: 'image',
+      label: '',
+      cell: () => '',
+      image: (row) => row.cardImageUrl ?? row.coverImageUrl ?? null,
+      imageKind: 'category',
+    },
+    { key: 'name', label: 'Nombre', cell: (row) => row.name },
+    { key: 'slug', label: 'Slug', cell: (row) => row.slug },
+    {
+      key: 'catalogs',
+      label: 'Catálogos',
+      cell: (row) => String(row.catalogsCount ?? 0),
+      action: { icon: 'eye', label: 'Ver catálogos' },
+    },
+  ];
+
+  readonly sortOptions = [
+    { value: 'name|asc', label: 'Nombre (A–Z)' },
+    { value: 'name|desc', label: 'Nombre (Z–A)' },
+    { value: 'createdAt|desc', label: 'Más recientes' },
+    { value: 'createdAt|asc', label: 'Más antiguos' },
+  ];
+
+  readonly hasActiveFilters = computed(
+    () => !!this.search().trim() || this.sort() !== 'name|asc',
+  );
   readonly emptyMessage = computed(() =>
     this.hasActiveFilters()
       ? 'No se encontraron categorías con esa búsqueda'
       : 'No hay categorías todavía',
   );
+
+  setViewMode(mode: 'card' | 'list'): void {
+    this.viewMode.set(mode);
+    localStorage.setItem(VIEW_MODE_STORAGE_KEY, mode);
+  }
+
+  readonly filteredModalCatalogs = computed(() => {
+    const modal = this.catalogsModal();
+    if (!modal) return [];
+    const q = this.catalogsModalSearch().trim().toLowerCase();
+    if (!q) return modal.items;
+    return modal.items.filter((c) => c.name.toLowerCase().includes(q));
+  });
+
+  openCatalogs(row: Category): void {
+    this.catalogsModalSearch.set('');
+    this.catalogsModal.set({ category: row, items: [], loading: true });
+    this.catalogsApi.list(1, 100, row.id).subscribe({
+      next: (res) => {
+        this.catalogsModal.set({ category: row, items: res.data, loading: false });
+      },
+      error: (err: unknown) => {
+        this.catalogsModal.set({ category: row, items: [], loading: false });
+        this.toast.error(resolveErrorMessage(err).text);
+      },
+    });
+  }
+
+  closeCatalogsModal(): void {
+    this.catalogsModal.set(null);
+    this.catalogsModalSearch.set('');
+  }
+
+  onCatalogsSearch(value: string): void {
+    this.catalogsModalSearch.set(value);
+  }
+
+  catalogIsPrincipal(item: Catalog): boolean {
+    const categoryId = this.catalogsModal()?.category.id;
+    return categoryId !== undefined && item.categoryId === categoryId;
+  }
+
+  removeCatalogFromCategory(item: Catalog): void {
+    const modal = this.catalogsModal();
+    if (!modal) return;
+    const isPrincipal = this.catalogIsPrincipal(item);
+    const payload: Partial<CatalogWrite> = isPrincipal
+      ? { categoryId: null }
+      : {
+          extraCategoryIds: item.extraCategoryIds.filter(
+            (id) => id !== modal.category.id,
+          ),
+        };
+    this.removingCatalogId.set(item.id);
+    this.catalogsApi.update(item.id, payload).subscribe({
+      next: () => {
+        this.removingCatalogId.set(null);
+        this.catalogsModal.update((m) =>
+          m
+            ? { ...m, items: m.items.filter((c) => c.id !== item.id) }
+            : m,
+        );
+        this.toast.success(`«${item.name}» desasignado`);
+        this.reload();
+      },
+      error: (err: unknown) => {
+        this.removingCatalogId.set(null);
+        this.toast.error(resolveErrorMessage(err).text);
+      },
+    });
+  }
 
   readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(150)]],
@@ -101,10 +227,13 @@ export class AdminCategories {
     this.search.set(qp.get('q') ?? '');
     const page = qp.get('page');
     if (page) this.page.set(Number(page) || 1);
+    const sort = qp.get('sort');
+    if (sort && this.isSortValue(sort)) this.sort.set(sort);
 
     combineLatest([
       toObservable(this.search).pipe(debounceTime(300), distinctUntilChanged()),
       toObservable(this.page),
+      toObservable(this.sort),
       toObservable(this.reloadToken),
     ])
       .pipe(
@@ -116,19 +245,21 @@ export class AdminCategories {
             queryParams: {
               q: this.search().trim() || null,
               page: this.page() > 1 ? this.page() : null,
+              sort: this.sort() !== 'name|asc' ? this.sort() : null,
             },
             queryParamsHandling: 'merge',
             replaceUrl: true,
           });
         }),
-        switchMap(([search, page]) =>
-          this.api.list(page, 20, search.trim() || undefined).pipe(
+        switchMap(([search, page, sort]) => {
+          const [sortBy, sortDir] = sort.split('|') as ['name' | 'createdAt', 'asc' | 'desc'];
+          return this.api.list(page, 20, search.trim() || undefined, sortBy, sortDir).pipe(
             catchError((err: unknown) => {
               this.error.set(resolveErrorMessage(err));
               return of(null);
             }),
-          ),
-        ),
+          );
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
@@ -141,13 +272,27 @@ export class AdminCategories {
       });
   }
 
+  private isSortValue(value: string): value is 'name|asc' | 'name|desc' | 'createdAt|desc' | 'createdAt|asc' {
+    return ['name|asc', 'name|desc', 'createdAt|desc', 'createdAt|asc'].includes(value);
+  }
+
   onSearchInput(value: string): void {
     this.search.set(value);
     this.page.set(1);
   }
 
+  onSortChange(value: string | number | null): void {
+    if (value === null || value === '') return;
+    const next = String(value);
+    if (this.isSortValue(next)) {
+      this.sort.set(next);
+      this.page.set(1);
+    }
+  }
+
   clearFilters(): void {
     this.search.set('');
+    this.sort.set('name|asc');
     this.page.set(1);
   }
 
@@ -262,5 +407,11 @@ export class AdminCategories {
 
   onPageChange(page: number): void {
     this.page.set(page);
+  }
+
+  onCellAction(event: { row: Category; key: string }): void {
+    if (event.key === 'catalogs') {
+      this.openCatalogs(event.row);
+    }
   }
 }

@@ -11,8 +11,10 @@ export class CategoriesApi {
     page = 1,
     limit = 20,
     search?: string,
+    sortBy: 'name' | 'createdAt' = 'name',
+    sortDir: 'asc' | 'desc' = 'asc',
   ): Observable<PaginatedResult<Category>> {
-    const params: QueryParams = { page, limit, search };
+    const params: QueryParams = { page, limit, search, sortBy, sortDir };
     return this.api.getList<Category>('/public/categories', params);
   }
 

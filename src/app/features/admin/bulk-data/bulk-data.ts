@@ -16,11 +16,13 @@ import {
 } from '../data/bulk-data.api';
 import { AdminPageHeader } from '../../../shared/admin-ui/admin-page-header/admin-page-header';
 import { AdminButton } from '../../../shared/admin-ui/admin-button/admin-button';
+import { AdminIcon } from '../../../shared/admin-ui/icons/admin-icon';
 import { AdminConfirmDialog } from '../../../shared/admin-ui/admin-confirm-dialog/admin-confirm-dialog';
 import { AdminToastService } from '../../../shared/admin-ui/admin-toast/admin-toast.service';
 import { resolveErrorMessage } from '../../../shared/errors/resolve-error-message';
 import { messageForCode } from '../../../shared/errors/error-messages';
 import { downloadBlob } from './download-blob';
+import { PRODUCT_SECTION_ICONS } from '../data/admin.models';
 
 interface EntityCardConfig {
   entity: BulkEntity;
@@ -82,7 +84,7 @@ function initialCardState(): EntityCardState {
 @Component({
   selector: 'app-admin-bulk-data',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AdminPageHeader, AdminButton, AdminConfirmDialog],
+  imports: [AdminPageHeader, AdminButton, AdminConfirmDialog, AdminIcon],
   templateUrl: './bulk-data.html',
   styleUrl: './bulk-data.css',
 })
@@ -92,6 +94,12 @@ export class AdminBulkData {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly cards = ENTITY_CARDS;
+
+  /** Guía visual numerada (1-10) para las columnas secciones/imagenes del Excel. */
+  readonly productIconGuide = PRODUCT_SECTION_ICONS.map((icon, i) => ({
+    ...icon,
+    number: i + 1,
+  }));
 
   readonly cardStates = signal<Record<BulkEntity, EntityCardState>>({
     categories: initialCardState(),

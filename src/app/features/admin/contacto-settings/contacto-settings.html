@@ -1,20 +1,21 @@
-<app-admin-page-header
-  title="Contacto"
-  subtitle="Datos centrales y sucursales"
-/>
-
-@if (error(); as err) {
-  <app-admin-error-state
-    [message]="err.text"
-    [correlationId]="err.correlationId ?? null"
-    [showCorrelationId]="err.showCorrelationId"
-    (retry)="onRetryLoad()"
+<div class="admin-content-narrow admin-content-narrow--wide">
+  <app-admin-page-header
+    title="Contacto"
+    subtitle="Datos centrales y sucursales"
   />
-}
 
-@if (loading()) {
-  <p class="admin-contacto__status">Cargando…</p>
-} @else {
+  @if (error(); as err) {
+    <app-admin-error-state
+      [message]="err.text"
+      [correlationId]="err.correlationId ?? null"
+      [showCorrelationId]="err.showCorrelationId"
+      (retry)="onRetryLoad()"
+    />
+  }
+
+  @if (loading()) {
+    <p class="admin-contacto__status">Cargando…</p>
+  } @else {
   <div class="admin-contacto__grid">
     <form
       class="admin-contacto__main"
@@ -119,4 +120,5 @@
       }
     </aside>
   </div>
-}
+  }
+</div>

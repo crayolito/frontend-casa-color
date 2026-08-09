@@ -22,12 +22,15 @@ import { AdminIcon } from '../icons/admin-icon';
             {{ total() }} resultado{{ total() === 1 ? '' : 's' }}
           </p>
         }
-        @if (hasActiveFilters()) {
-          <app-admin-button type="button" variant="ghost" (clicked)="cleared.emit()">
-            <app-admin-icon name="x" />
-            Limpiar
-          </app-admin-button>
-        }
+        <div class="admin-filters__actions">
+          @if (hasActiveFilters()) {
+            <app-admin-button type="button" variant="ghost" (clicked)="cleared.emit()">
+              <app-admin-icon name="x" />
+              Limpiar
+            </app-admin-button>
+          }
+          <ng-content select="[admin-filters-actions]" />
+        </div>
       </div>
     </div>
   `,
@@ -60,6 +63,13 @@ import { AdminIcon } from '../icons/admin-icon';
       align-items: center;
       justify-content: space-between;
       gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .admin-filters__actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
       flex-wrap: wrap;
     }
 

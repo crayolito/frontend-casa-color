@@ -30,7 +30,8 @@
 
 .footer__logo {
   width: 100px;
-  height: 102px;
+  height: auto;
+  max-height: 102px;
   object-fit: contain;
 }
 

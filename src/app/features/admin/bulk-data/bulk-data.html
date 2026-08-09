@@ -20,22 +20,22 @@
           <app-admin-button
             variant="secondary"
             type="button"
-            [block]="true"
             [loading]="state.downloadingTemplate"
             [disabled]="state.downloadingTemplate || state.downloadingExport || state.importing"
             (clicked)="downloadTemplate(card.entity)"
           >
-            Importar plantilla
+            <app-admin-icon name="upload" [size]="18" />
+            <span>Importar plantilla</span>
           </app-admin-button>
           <app-admin-button
             variant="secondary"
             type="button"
-            [block]="true"
             [loading]="state.downloadingExport"
             [disabled]="state.downloadingTemplate || state.downloadingExport || state.importing"
             (clicked)="downloadExport(card.entity)"
           >
-            Exportar
+            <app-admin-icon name="download" [size]="18" />
+            <span>Exportar</span>
           </app-admin-button>
         </div>
 
@@ -89,6 +89,37 @@
       </article>
     }
   </div>
+
+  <section class="bulk-guide" aria-labelledby="bulk-guide-heading">
+    <h2 id="bulk-guide-heading" class="bulk-guide__title">
+      Guía de imágenes de producto
+    </h2>
+    <p class="bulk-guide__desc">
+      En las columnas <strong>secciones</strong> y <strong>imagenes</strong> del
+      Excel de productos podés escribir el número de cada imagen en vez de
+      pegar un enlace. Las imágenes reales no van dentro del archivo: van acá.
+    </p>
+    <ul class="bulk-guide__list">
+      @for (icon of productIconGuide; track icon.key) {
+        <li class="bulk-guide__item">
+          <span class="bulk-guide__num" aria-hidden="true">{{ icon.number }}</span>
+          <img
+            class="bulk-guide__img"
+            [src]="icon.path"
+            [alt]="icon.label"
+            width="48"
+            height="48"
+          />
+          <span class="bulk-guide__label">{{ icon.label }}</span>
+        </li>
+      }
+    </ul>
+    <p class="bulk-guide__note">
+      Ejemplo: <code>Usos|5|#ff4b3c|&lt;p&gt;Ideal para interiores&lt;/p&gt;</code> usa la
+      imagen 5 como ícono de la sección "Usos". La columna <code>imagenes</code> acepta
+      lo mismo: <code>1,5</code> usa las imágenes 1 y 5 de esta guía.
+    </p>
+  </section>
 
   @if (result(); as res) {
     <section class="bulk-result" aria-labelledby="bulk-result-heading">

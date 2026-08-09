@@ -1,10 +1,14 @@
 import {
   Component,
   ChangeDetectionStrategy,
+  OnInit,
+  inject,
   input,
   output,
+  signal,
 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { HomeApi } from '../../../../features/home/data/home.api';
 import { AdminIcon, AdminIconName } from '../../../../shared/admin-ui/icons/admin-icon';
 
 interface AdminNavItem {
@@ -25,10 +29,28 @@ interface AdminNavGroup {
   templateUrl: './admin-sidebar.html',
   styleUrl: './admin-sidebar.css',
 })
-export class AdminSidebar {
+export class AdminSidebar implements OnInit {
+  private readonly homeApi = inject(HomeApi);
+
   readonly open = input(false);
   readonly collapsed = input(false);
   readonly navigated = output<void>();
+
+  readonly logoUrl = signal<string | null>(null);
+  readonly logoAlt = signal('Casa Color');
+
+  ngOnInit(): void {
+    this.homeApi.loadHome().subscribe({
+      next: (data) => {
+        const header = data.header;
+        const url = header.imageUrl || header.logo?.imageUrl;
+        if (url) {
+          this.logoUrl.set(url);
+          this.logoAlt.set(header.altText || header.logo?.altText || 'Casa Color');
+        }
+      },
+    });
+  }
 
   readonly groups: AdminNavGroup[] = [
     {

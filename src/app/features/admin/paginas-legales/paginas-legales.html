@@ -1,55 +1,57 @@
-<app-admin-page-header
-  title="Legales"
-  subtitle="Aviso legal y política de datos"
-/>
-
-@if (error(); as err) {
-  <app-admin-error-state
-    [message]="err.text"
-    [correlationId]="err.correlationId ?? null"
-    [showCorrelationId]="err.showCorrelationId"
-    [showRetry]="err.code !== 'VALIDATION_ERROR'"
-    (retry)="onRetryLoad()"
+<div class="admin-content-narrow">
+  <app-admin-page-header
+    title="Legales"
+    subtitle="Aviso legal y política de datos"
   />
-}
 
-<form
-  class="admin-form-narrow paginas-legales__form"
-  [formGroup]="form"
-  (ngSubmit)="save()"
->
-  <section class="admin-form-narrow__section paginas-legales">
-    <app-admin-tabs
-      [tabs]="tabs"
-      [active]="selectedKey()"
-      (activeChange)="selectKey($event)"
-    >
-      <label class="paginas-legales__field">
-        <span class="paginas-legales__label">Título</span>
-        <input
-          class="paginas-legales__input"
-          formControlName="title"
-          maxlength="200"
-          autocomplete="off"
+  @if (error(); as err) {
+    <app-admin-error-state
+      [message]="err.text"
+      [correlationId]="err.correlationId ?? null"
+      [showCorrelationId]="err.showCorrelationId"
+      [showRetry]="err.code !== 'VALIDATION_ERROR'"
+      (retry)="onRetryLoad()"
+    />
+  }
+
+  <form
+    class="admin-form-narrow paginas-legales__form"
+    [formGroup]="form"
+    (ngSubmit)="save()"
+  >
+    <section class="admin-form-narrow__section paginas-legales">
+      <app-admin-tabs
+        [tabs]="tabs"
+        [active]="selectedKey()"
+        (activeChange)="selectKey($event)"
+      >
+        <label class="paginas-legales__field">
+          <span class="paginas-legales__label">Título</span>
+          <input
+            class="paginas-legales__input"
+            formControlName="title"
+            maxlength="200"
+            autocomplete="off"
+          />
+        </label>
+
+        <app-admin-html-editor
+          label="Contenido"
+          [html]="form.controls.bodyHtml.value"
+          (htmlChange)="onBodyHtmlChange($event)"
         />
-      </label>
+        <p class="paginas-legales__hint">
+          HTML enriquecido. El cliente sanitiza al mostrar la página.
+        </p>
+      </app-admin-tabs>
 
-      <app-admin-html-editor
-        label="Contenido"
-        [html]="form.controls.bodyHtml.value"
-        (htmlChange)="onBodyHtmlChange($event)"
-      />
-      <p class="paginas-legales__hint">
-        HTML enriquecido. El cliente sanitiza al mostrar la página.
-      </p>
-    </app-admin-tabs>
+      @if (updatedAt(); as at) {
+        <p class="admin-form-narrow__meta">Actualizado: {{ at }}</p>
+      }
 
-    @if (updatedAt(); as at) {
-      <p class="admin-form-narrow__meta">Actualizado: {{ at }}</p>
-    }
-
-    @if (loading()) {
-      <p class="admin-form-narrow__meta">Cargando…</p>
-    }
-  </section>
-</form>
+      @if (loading()) {
+        <p class="admin-form-narrow__meta">Cargando…</p>
+      }
+    </section>
+  </form>
+</div>

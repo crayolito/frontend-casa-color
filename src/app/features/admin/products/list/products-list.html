@@ -125,23 +125,55 @@
     @if (modal.items.length === 0) {
       <p class="products-detail-empty">Sin elementos</p>
     } @else {
+      @if (modal.items.length > 5) {
+        <input
+          class="products-detail-search"
+          type="search"
+          [ngModel]="detailModalSearch()"
+          (ngModelChange)="onDetailModalSearch($event)"
+          placeholder="Buscar…"
+        />
+      }
       <ul class="products-detail-list">
-        @for (item of modal.items; track item.id + '-' + item.name) {
+        @for (item of filteredDetailItems(); track item.id + '-' + item.name) {
           <li>
-            <div class="products-detail-list__row">
-              @if (modal.kind === 'colors' && item.hex) {
-                <span
-                  class="products-detail-swatch"
-                  [style.background]="item.hex"
-                  aria-hidden="true"
-                ></span>
+            @if (modal.kind === 'colors' && item.hex) {
+              <span
+                class="products-detail-swatch"
+                [style.background]="item.hex"
+                aria-hidden="true"
+              ></span>
+            } @else if (item.image) {
+              <img
+                class="products-detail-thumb"
+                [src]="item.image"
+                [alt]="item.name"
+                width="40"
+                height="40"
+                loading="lazy"
+                appImgFallback="product"
+              />
+            }
+            <div class="products-detail-list__info">
+              <div class="products-detail-list__row">
+                <span class="products-detail-list__name">{{ item.name }}</span>
+              </div>
+              @if (item.detail) {
+                <span class="products-detail-list__detail">{{ item.detail }}</span>
               }
-              <span class="products-detail-list__name">{{ item.name }}</span>
             </div>
-            @if (item.detail) {
-              <span class="products-detail-list__detail">{{ item.detail }}</span>
+            @if (modal.kind === 'catalog' || modal.kind === 'category') {
+              <app-admin-icon-button
+                icon="x"
+                label="Quitar"
+                variant="danger"
+                [disabled]="saving()"
+                (clicked)="removeDetailItem(item)"
+              />
             }
           </li>
+        } @empty {
+          <p class="products-detail-empty">Sin resultados para «{{ detailModalSearch() }}»</p>
         }
       </ul>
     }

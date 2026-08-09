@@ -37,10 +37,13 @@ import {
 import { AdminConfirmDialog } from '../../../../shared/admin-ui/admin-confirm-dialog/admin-confirm-dialog';
 import { AdminFilters } from '../../../../shared/admin-ui/admin-filters/admin-filters';
 import { AdminButton } from '../../../../shared/admin-ui/admin-button/admin-button';
+import { AdminIconButton } from '../../../../shared/admin-ui/admin-icon-button/admin-icon-button';
 import { AdminModal } from '../../../../shared/admin-ui/admin-modal/admin-modal';
 import { AdminToastService } from '../../../../shared/admin-ui/admin-toast/admin-toast.service';
 import { AdminErrorState } from '../../../../shared/admin-ui/admin-error-state/admin-error-state';
 import { AppSelect, SelectOption } from '../../../../shared/ui/select/select';
+import { ImgFallback } from '../../../../shared/util/img-fallback/img-fallback';
+import { withCatalogFallback } from '../../../../shared/util/default-images';
 
 const PAGE_SIZE = 16;
 
@@ -55,9 +58,11 @@ const PAGE_SIZE = 16;
     AdminConfirmDialog,
     AdminFilters,
     AdminButton,
+    AdminIconButton,
     AdminModal,
     AdminErrorState,
     AppSelect,
+    ImgFallback,
   ],
   templateUrl: './products-list.html',
   styleUrl: './products-list.css',
@@ -81,6 +86,7 @@ export class AdminProductsList {
   readonly deleteTarget = signal<Product | null>(null);
   readonly selectedIds = signal<Set<number>>(new Set());
   readonly detailModal = signal<{
+    row: Product;
     kind: 'catalog' | 'category' | 'colors' | 'finishes';
     title: string;
     items: Array<{
@@ -88,8 +94,10 @@ export class AdminProductsList {
       name: string;
       detail?: string;
       hex?: string | null;
+      image?: string | null;
     }>;
   } | null>(null);
+  readonly detailModalSearch = signal('');
 
   readonly categories = signal<Category[]>([]);
   readonly catalogs = signal<Catalog[]>([]);
@@ -213,18 +221,23 @@ export class AdminProductsList {
         id: c.id,
         name: c.name,
         detail: c.categoryName || undefined,
+        image: withCatalogFallback(
+          this.catalogs().find((cat) => cat.id === c.id)?.imageUrl,
+        ),
       }));
       this.detailModal.set({
+        row,
         kind: 'catalog',
         title: `Catálogos · ${row.title}`,
         items,
       });
+      this.detailModalSearch.set('');
       return;
     }
     if (event.key === 'category') {
       const byName = new Map<string, { id: number; name: string }>();
       for (const c of this.productCatalogs(row)) {
-        if (!c.categoryName) continue;
+        if (!c.categoryId || !c.categoryName) continue;
         if (!byName.has(c.categoryName)) {
           byName.set(c.categoryName, {
             id: c.categoryId,
@@ -233,14 +246,23 @@ export class AdminProductsList {
         }
       }
       this.detailModal.set({
+        row,
         kind: 'category',
         title: `Categorías · ${row.title}`,
-        items: [...byName.values()],
+        items: [...byName.values()].map((c) => {
+          const cat = this.categories().find((x) => x.id === c.id);
+          return {
+            ...c,
+            image: cat?.cardImageUrl ?? cat?.coverImageUrl ?? row.mainImageUrl,
+          };
+        }),
       });
+      this.detailModalSearch.set('');
       return;
     }
     if (event.key === 'colors') {
       this.detailModal.set({
+        row,
         kind: 'colors',
         title: `Colores · ${row.title}`,
         items: (row.colors ?? []).map((c) => ({
@@ -250,22 +272,86 @@ export class AdminProductsList {
           detail: c.hexCode ?? undefined,
         })),
       });
+      this.detailModalSearch.set('');
       return;
     }
     if (event.key === 'finishes') {
       this.detailModal.set({
+        row,
         kind: 'finishes',
         title: `Acabados · ${row.title}`,
         items: (row.finishes ?? []).map((f) => ({
           id: f.id,
           name: f.name,
+          image: f.imageUrl ?? row.mainImageUrl,
         })),
       });
+      this.detailModalSearch.set('');
     }
   }
 
   closeDetailModal(): void {
     this.detailModal.set(null);
+    this.detailModalSearch.set('');
+  }
+
+  readonly filteredDetailItems = computed(() => {
+    const modal = this.detailModal();
+    if (!modal) return [];
+    const q = this.detailModalSearch().trim().toLowerCase();
+    if (!q) return modal.items;
+    return modal.items.filter((i) => i.name.toLowerCase().includes(q));
+  });
+
+  onDetailModalSearch(value: string): void {
+    this.detailModalSearch.set(value);
+  }
+
+  /** Solo catálogos y categorías se pueden desasignar desde este modal. */
+  detailItemCanRemove(item: { id: number; name: string }): boolean {
+    const modal = this.detailModal();
+    return (
+      modal !== null && (modal.kind === 'catalog' || modal.kind === 'category')
+    );
+  }
+
+  removeDetailItem(item: { id: number; name: string }): void {
+    const modal = this.detailModal();
+    if (!modal) return;
+    const remaining = this.productCatalogs(modal.row)
+      .filter((c) => {
+        if (modal.kind === 'catalog') return c.id !== item.id;
+        if (modal.kind === 'category') return c.categoryName !== item.name;
+        return true;
+      })
+      .map((c) => c.id);
+    this.saving.set(true);
+    this.api.update(modal.row.id, { catalogIds: remaining }).subscribe({
+      next: (updated) => {
+        this.saving.set(false);
+        this.rows.update((rows) =>
+          rows.map((r) => (r.id === updated.id ? updated : r)),
+        );
+        this.detailModal.update((m) =>
+          m
+            ? {
+                ...m,
+                row: updated,
+                items: m.items.filter((i) => i.id !== item.id),
+              }
+            : m,
+        );
+        this.toast.success(
+          modal.kind === 'catalog'
+            ? `Producto desasignado del catálogo`
+            : `Producto desasignado de la categoría`,
+        );
+      },
+      error: (err: unknown) => {
+        this.saving.set(false);
+        this.toast.error(resolveErrorMessage(err).text);
+      },
+    });
   }
 
   onToggleActive(row: Product): void {

@@ -250,4 +250,74 @@ describe('AdminProductsList', () => {
     component.closeDetailModal();
     expect(component.detailModal()).toBeNull();
   });
+
+  it('desasigna un catálogo desde el modal de detalle y actualiza la fila', async () => {
+    const component = fixture.componentInstance;
+    const row = product({
+      id: 9,
+      title: 'I',
+      catalogs: [
+        { id: 1, name: 'Cat A', categoryId: 1, categoryName: 'Pinturas' },
+        { id: 2, name: 'Cat B', categoryId: 1, categoryName: 'Pinturas' },
+      ],
+    });
+    flushBoot();
+    component.rows.set([row]);
+    component.onCellAction({ row, key: 'catalog' });
+
+    const modal = component.detailModal()!;
+    expect(component.detailItemCanRemove(modal.items[0])).toBe(true);
+
+    component.removeDetailItem(modal.items[0]);
+
+    const patch = http.expectOne(
+      (r) =>
+        r.method === 'PATCH' &&
+        r.url === `${environment.apiUrl}/admin/products/9`,
+    );
+    expect(patch.request.body).toEqual({ catalogIds: [2] });
+    patch.flush({
+      data: {
+        ...row,
+        catalogs: [{ id: 2, name: 'Cat B', categoryId: 1, categoryName: 'Pinturas' }],
+      },
+    });
+    await fixture.whenStable();
+
+    expect(component.detailModal()?.items.length).toBe(1);
+    expect(component.rows()[0].catalogs.length).toBe(1);
+  });
+
+  it('permite desasignar el único catálogo y deja el producto suelto', async () => {
+    const component = fixture.componentInstance;
+    const row = product({
+      id: 10,
+      title: 'J',
+      catalogs: [
+        { id: 1, name: 'Cat A', categoryId: 1, categoryName: 'Pinturas' },
+      ],
+    });
+    flushBoot();
+    component.rows.set([row]);
+    component.onCellAction({ row, key: 'catalog' });
+
+    const modal = component.detailModal()!;
+    expect(component.detailItemCanRemove(modal.items[0])).toBe(true);
+
+    component.removeDetailItem(modal.items[0]);
+
+    const patch = http.expectOne(
+      (r) =>
+        r.method === 'PATCH' &&
+        r.url === `${environment.apiUrl}/admin/products/10`,
+    );
+    expect(patch.request.body).toEqual({ catalogIds: [] });
+    patch.flush({
+      data: { ...row, catalogs: [] },
+    });
+    await fixture.whenStable();
+
+    expect(component.detailModal()?.items.length).toBe(0);
+    expect(component.rows()[0].catalogs.length).toBe(0);
+  });
 });

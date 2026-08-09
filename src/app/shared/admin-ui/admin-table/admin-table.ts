@@ -59,7 +59,7 @@ export interface AdminTableColumn<T> {
                 <th scope="col">{{ col.label }}</th>
               }
               @if (showActions()) {
-                <th scope="col">Acciones</th>
+                <th class="admin-table__actions-col" scope="col">Acciones</th>
               }
             </tr>
           </thead>
@@ -106,7 +106,7 @@ export interface AdminTableColumn<T> {
                 <th scope="col">{{ col.label }}</th>
               }
               @if (showActions()) {
-                <th scope="col">Acciones</th>
+                <th class="admin-table__actions-col" scope="col">Acciones</th>
               }
             </tr>
           </thead>
@@ -245,7 +245,7 @@ export interface AdminTableColumn<T> {
       border: 1px solid var(--admin-border);
       border-radius: var(--radius-lg);
       box-shadow: var(--admin-card-shadow);
-      overflow: hidden;
+      overflow-x: auto;
     }
 
     .admin-table {
@@ -293,6 +293,7 @@ export interface AdminTableColumn<T> {
       height: auto;
       padding-top: 0.625rem;
       padding-bottom: 0.625rem;
+      vertical-align: middle;
     }
 
     .admin-table__check-col {
@@ -431,6 +432,12 @@ export interface AdminTableColumn<T> {
       outline-offset: 2px;
     }
 
+    .admin-table__actions-col {
+      text-align: right;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
     .admin-table__actions {
       white-space: nowrap;
       display: flex;
@@ -438,7 +445,6 @@ export interface AdminTableColumn<T> {
       align-items: center;
       justify-content: flex-end;
       min-width: 80px;
-      width: 80px;
     }
 
     .admin-table__empty {
@@ -499,12 +505,6 @@ export interface AdminTableColumn<T> {
     .admin-table__pager-actions {
       display: flex;
       gap: 0.5rem;
-    }
-
-    @media (max-width: 720px) {
-      .admin-table-wrap {
-        overflow-x: auto;
-      }
     }
   `,
 })

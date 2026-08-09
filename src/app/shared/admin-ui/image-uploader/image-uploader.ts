@@ -15,6 +15,15 @@ import {
   ImgFallbackKind,
 } from '../../util/img-fallback/img-fallback';
 
+export function isValidImageUrl(value: string): boolean {
+  try {
+    const url = new URL(value.trim());
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 @Component({
   selector: 'app-image-uploader',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,6 +53,14 @@ import {
             >
               Cambiar
             </button>
+            <button
+              type="button"
+              class="uploader__change uploader__change--url"
+              [disabled]="uploading()"
+              (click)="openUrlMode()"
+            >
+              Pegar URL
+            </button>
             <app-admin-icon-button
               icon="trash"
               label="Quitar"
@@ -51,31 +68,120 @@ import {
               (clicked)="clear()"
             />
           </div>
+          @if (urlMode()) {
+            <div class="uploader__url">
+              <div class="uploader__url-row">
+                <input
+                  class="uploader__url-input"
+                  type="url"
+                  inputmode="url"
+                  placeholder="https://ejemplo.com/imagen.jpg"
+                  [value]="urlDraft()"
+                  (input)="urlDraft.set($any($event.target).value)"
+                  (keydown.enter)="applyUrl()"
+                  [disabled]="uploading()"
+                  [attr.aria-invalid]="urlError() !== null"
+                  aria-label="URL de la imagen"
+                />
+                <button
+                  type="button"
+                  class="uploader__change"
+                  [disabled]="!urlDraft().trim() || uploading()"
+                  (click)="applyUrl()"
+                >
+                  Cargar
+                </button>
+              </div>
+              @if (urlError(); as err) {
+                <p class="uploader__error" role="alert">{{ err }}</p>
+              }
+            </div>
+          }
         </div>
       } @else {
         <div
-          class="uploader__drop"
-          role="button"
-          tabindex="0"
-          [class.uploader__drop--busy]="uploading()"
-          [class.uploader__drop--active]="dragOver()"
-          [attr.aria-disabled]="uploading()"
-          (click)="!uploading() && fileInput.click()"
-          (keydown.enter)="!uploading() && fileInput.click()"
-          (keydown.space)="$event.preventDefault(); !uploading() && fileInput.click()"
-          (dragenter)="onDragEnter($event)"
-          (dragover)="onDragOver($event)"
-          (dragleave)="onDragLeave($event)"
-          (drop)="onDrop($event)"
+          class="uploader__tabs"
+          role="tablist"
+          aria-label="Origen de la imagen"
         >
-          @if (uploading()) {
-            <span class="uploader__spinner" aria-hidden="true"></span>
-            <span>Subiendo…</span>
-          } @else {
-            <app-admin-icon name="upload" [size]="28" />
-            <span>Elegí o arrastrá una imagen</span>
-          }
+          <button
+            type="button"
+            role="tab"
+            class="uploader__tab"
+            [class.uploader__tab--active]="!urlMode()"
+            [attr.aria-selected]="!urlMode()"
+            (click)="urlMode.set(false)"
+          >
+            Subir archivo
+          </button>
+          <button
+            type="button"
+            role="tab"
+            class="uploader__tab"
+            [class.uploader__tab--active]="urlMode()"
+            [attr.aria-selected]="urlMode()"
+            (click)="urlMode.set(true)"
+          >
+            Pegar URL
+          </button>
         </div>
+
+        @if (urlMode()) {
+          <div class="uploader__url">
+            <div class="uploader__url-row">
+              <input
+                class="uploader__url-input"
+                type="url"
+                inputmode="url"
+                placeholder="https://ejemplo.com/imagen.jpg"
+                [value]="urlDraft()"
+                (input)="urlDraft.set($any($event.target).value)"
+                (keydown.enter)="applyUrl()"
+                [disabled]="uploading()"
+                [attr.aria-invalid]="urlError() !== null"
+                aria-label="URL de la imagen"
+              />
+              <button
+                type="button"
+                class="uploader__change"
+                [disabled]="!urlDraft().trim() || uploading()"
+                (click)="applyUrl()"
+              >
+                Cargar
+              </button>
+            </div>
+            <p class="uploader__hint">
+              Pegá el enlace directo de la imagen (https://…).
+            </p>
+            @if (urlError(); as err) {
+              <p class="uploader__error" role="alert">{{ err }}</p>
+            }
+          </div>
+        } @else {
+          <div
+            class="uploader__drop"
+            role="button"
+            tabindex="0"
+            [class.uploader__drop--busy]="uploading()"
+            [class.uploader__drop--active]="dragOver()"
+            [attr.aria-disabled]="uploading()"
+            (click)="!uploading() && fileInput.click()"
+            (keydown.enter)="!uploading() && fileInput.click()"
+            (keydown.space)="$event.preventDefault(); !uploading() && fileInput.click()"
+            (dragenter)="onDragEnter($event)"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+          >
+            @if (uploading()) {
+              <span class="uploader__spinner" aria-hidden="true"></span>
+              <span>Subiendo…</span>
+            } @else {
+              <app-admin-icon name="upload" [size]="28" />
+              <span>Elegí o arrastrá una imagen</span>
+            }
+          </div>
+        }
       }
 
       @if (error(); as err) {
@@ -95,6 +201,35 @@ import {
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: var(--color-text);
+    }
+
+    .uploader__tabs {
+      display: inline-flex;
+      gap: 0.25rem;
+      padding: 0.25rem;
+      margin-bottom: 0.5rem;
+      border: 1px solid var(--admin-border);
+      border-radius: var(--radius-md);
+      background: #fafafa;
+    }
+
+    .uploader__tab {
+      padding: 0.375rem 0.875rem;
+      border: 0;
+      border-radius: calc(var(--radius-md) - 3px);
+      background: transparent;
+      color: var(--color-text-muted);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .uploader__tab--active {
+      background: var(--color-white);
+      color: var(--color-text);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
     }
 
     .uploader__drop {
@@ -133,6 +268,43 @@ import {
     .uploader__drop--busy {
       cursor: wait;
       opacity: 0.8;
+    }
+
+    .uploader__url {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    .uploader__url-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .uploader__url-input {
+      flex: 1;
+      min-width: 0;
+      min-height: 40px;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--admin-border);
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      color: #333;
+      background: var(--color-white);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .uploader__url-input:focus {
+      outline: none;
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px rgba(221, 51, 51, 0.12);
+    }
+
+    .uploader__hint {
+      margin: 0;
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
     }
 
     .uploader__preview {
@@ -184,6 +356,10 @@ import {
       cursor: wait;
     }
 
+    .uploader__change--url {
+      color: var(--color-text-muted);
+    }
+
     .uploader__error {
       margin: 0.5rem 0 0;
       font-size: 0.8125rem;
@@ -224,6 +400,9 @@ export class ImageUploader {
   readonly uploading = signal(false);
   readonly error = signal<string | null>(null);
   readonly dragOver = signal(false);
+  readonly urlMode = signal(false);
+  readonly urlDraft = signal('');
+  readonly urlError = signal<string | null>(null);
 
   private dragDepth = 0;
 
@@ -271,10 +450,32 @@ export class ImageUploader {
     this.upload(file);
   }
 
+  openUrlMode(): void {
+    this.urlMode.set(true);
+    this.urlError.set(null);
+  }
+
+  applyUrl(): void {
+    const raw = this.urlDraft().trim();
+    if (!raw) return;
+    if (!isValidImageUrl(raw)) {
+      this.urlError.set('Pegá un enlace válido que empiece con https://');
+      return;
+    }
+    this.urlError.set(null);
+    this.urlDraft.set('');
+    this.urlMode.set(false);
+    this.urlChange.emit(raw);
+    this.publicIdChange.emit(null);
+  }
+
   clear(): void {
     this.urlChange.emit(null);
     this.publicIdChange.emit(null);
     this.error.set(null);
+    this.urlError.set(null);
+    this.urlDraft.set('');
+    this.urlMode.set(false);
   }
 
   private upload(file: File): void {

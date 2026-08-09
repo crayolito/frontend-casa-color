@@ -22,7 +22,7 @@ export interface CategoryWrite {
 
 export interface Catalog {
   id: number;
-  categoryId: number;
+  categoryId: number | null;
   name: string;
   slug: string;
   description: string | null;
@@ -37,7 +37,7 @@ export interface Catalog {
 }
 
 export interface CatalogWrite {
-  categoryId: number;
+  categoryId?: number | null;
   name: string;
   slug?: string;
   description?: string;
@@ -51,14 +51,14 @@ export interface ProductCatalogRef {
   id: number;
   name: string;
   slug?: string;
-  categoryId: number;
+  categoryId: number | null;
   categoryName: string;
   categorySlug?: string;
 }
 
 export interface Product {
   id: number;
-  catalogId: number;
+  catalogId: number | null;
   catalogs: ProductCatalogRef[];
   title: string;
   slug: string;
@@ -128,7 +128,7 @@ export interface ProductWrite {
   }>;
   images?: Array<{
     url: string;
-    publicId: string;
+    publicId?: string;
     isMain?: boolean;
     displayOrder?: number;
   }>;

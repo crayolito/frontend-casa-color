@@ -1,8 +1,9 @@
 <div class="admin-home">
-  <app-admin-page-header
-    title="Configuración del inicio"
-    subtitle="Editá el contenido del inicio. Guardá o descartá desde la barra superior."
-  />
+  <div class="admin-content-narrow admin-content-narrow--wide">
+    <app-admin-page-header
+      title="Configuración del inicio"
+      subtitle="Editá el contenido del inicio. Guardá o descartá desde la barra superior."
+    />
 
   @if (loading()) {
     <p class="admin-home__loading">Cargando configuración…</p>
@@ -389,6 +390,7 @@
       }
     </app-admin-tabs>
   }
+  </div>
 </div>
 
 @if (slideModalOpen() && slideEditIndex() !== null) {

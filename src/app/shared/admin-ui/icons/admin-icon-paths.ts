@@ -29,7 +29,11 @@ export type AdminIconName =
   | 'check'
   | 'alert'
   | 'info'
-  | 'grip-vertical';
+  | 'grip-vertical'
+  | 'link'
+  | 'palette'
+  | 'download'
+  | 'layout-grid';
 
 const S =
   'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
@@ -152,5 +156,27 @@ export const ADMIN_ICON_PATHS: Record<AdminIconName, string> = {
     <circle cx="15" cy="12" r="1" ${S} />
     <circle cx="15" cy="5" r="1" ${S} />
     <circle cx="15" cy="19" r="1" ${S} />
+  `,
+  link: `
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" ${S} />
+    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" ${S} />
+  `,
+  palette: `
+    <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
+    <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
+    <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
+    <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
+    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" ${S} />
+  `,
+  download: `
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" ${S} />
+    <polyline points="7 10 12 15 17 10" ${S} />
+    <line x1="12" x2="12" y1="15" y2="3" ${S} />
+  `,
+  'layout-grid': `
+    <rect width="7" height="7" x="3" y="3" rx="1" ${S} />
+    <rect width="7" height="7" x="14" y="3" rx="1" ${S} />
+    <rect width="7" height="7" x="14" y="14" rx="1" ${S} />
+    <rect width="7" height="7" x="3" y="14" rx="1" ${S} />
   `,
 };

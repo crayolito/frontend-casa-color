@@ -3,6 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { CategoriesApi } from '../data/categories.api';
+import { CatalogsApi } from '../data/catalogs.api';
 import { AdminCategories } from './categories';
 
 describe('AdminCategories', () => {
@@ -31,6 +32,46 @@ describe('AdminCategories', () => {
     remove: () => of(undefined),
   };
 
+  const catalogsApi = {
+    list: (page: number, limit: number, categoryId?: number) =>
+      of({
+        data: [
+          {
+            id: 1,
+            categoryId: 1,
+            name: 'Látex',
+            slug: 'latex',
+            description: null,
+            imageUrl: null,
+            pdfUrl: null,
+            pdfButtonLabel: 'Descargar PDF',
+            createdAt: '',
+            updatedAt: '',
+            extraCategoryIds: [],
+            extraCategories: [],
+          },
+          {
+            id: 2,
+            categoryId: 2,
+            name: 'Esmalte',
+            slug: 'esmalte',
+            description: null,
+            imageUrl: null,
+            pdfUrl: null,
+            pdfButtonLabel: 'Descargar PDF',
+            createdAt: '',
+            updatedAt: '',
+            extraCategoryIds: [1],
+            extraCategories: [{ id: 1, name: 'Pinturas', slug: 'pinturas' }],
+          },
+        ],
+        meta: { page: 1, limit: 100, total: 2, totalPages: 1 },
+      }),
+    update: (id: number, body: unknown) => of({ id, ...(body as object) }),
+    create: () => of({}),
+    remove: () => of(undefined),
+  };
+
   beforeEach(async () => {
     createBody = undefined;
     await TestBed.configureTestingModule({
@@ -39,6 +80,7 @@ describe('AdminCategories', () => {
         provideHttpClient(),
         provideRouter([]),
         { provide: CategoriesApi, useValue: api },
+        { provide: CatalogsApi, useValue: catalogsApi },
       ],
     }).compileComponents();
   });
@@ -71,5 +113,64 @@ describe('AdminCategories', () => {
     expect(
       (createBody as Record<string, unknown>)['imageUrl'],
     ).toBeUndefined();
+  });
+
+  it('alterna entre vista tarjeta y listado, persistiendo en localStorage', () => {
+    localStorage.removeItem('admin.categories.view');
+    const fixture = TestBed.createComponent(AdminCategories);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.viewMode()).toBe('card');
+
+    component.setViewMode('list');
+    expect(component.viewMode()).toBe('list');
+    expect(localStorage.getItem('admin.categories.view')).toBe('list');
+
+    component.setViewMode('card');
+    expect(component.viewMode()).toBe('card');
+    expect(localStorage.getItem('admin.categories.view')).toBe('card');
+  });
+
+  it('abre el modal de catálogos de una categoría, filtra por búsqueda y desasigna principal y extras', () => {
+    const fixture = TestBed.createComponent(AdminCategories);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    component.openCatalogs({
+      id: 1,
+      name: 'Pinturas',
+      slug: 'pinturas',
+      description: null,
+      description2: null,
+      coverImageUrl: null,
+      cardImageUrl: null,
+      createdAt: '',
+      updatedAt: '',
+      catalogsCount: 2,
+    });
+
+    expect(component.catalogsModal()?.items.length).toBe(2);
+    expect(component.catalogIsPrincipal(component.catalogsModal()!.items[0])).toBe(true);
+    expect(component.catalogIsPrincipal(component.catalogsModal()!.items[1])).toBe(false);
+
+    component.onCatalogsSearch('esm');
+    expect(component.filteredModalCatalogs().length).toBe(1);
+    expect(component.filteredModalCatalogs()[0].name).toBe('Esmalte');
+    component.onCatalogsSearch('');
+
+    const updateSpy = vi.spyOn(catalogsApi, 'update');
+    // El principal se desasigna dejando el catálogo sin categoría.
+    component.removeCatalogFromCategory(component.catalogsModal()!.items[0]);
+    expect(updateSpy).toHaveBeenCalledWith(1, { categoryId: null });
+    expect(component.catalogsModal()?.items.length).toBe(1);
+
+    // El extra se desasigna actualizando extraCategoryIds.
+    component.removeCatalogFromCategory(component.catalogsModal()!.items[0]);
+    expect(updateSpy).toHaveBeenCalledWith(2, { extraCategoryIds: [] });
+    expect(component.catalogsModal()?.items.length).toBe(0);
+
+    component.closeCatalogsModal();
+    expect(component.catalogsModal()).toBeNull();
   });
 });
