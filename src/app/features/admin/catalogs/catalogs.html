@@ -124,6 +124,11 @@
           <div class="admin-entity-card__actions">
             <app-admin-icon-button
               icon="eye"
+              label="Ver categorías"
+              (clicked)="openCategories(row)"
+            />
+            <app-admin-icon-button
+              icon="eye"
               label="Ver productos"
               (clicked)="openProducts(row)"
             />
@@ -203,6 +208,36 @@
       hint="Opcional. La principal no se lista acá."
       (valueChange)="extraCategoryIds.set($event)"
     />
+    @if (selectedCategoryChips().length > 0) {
+      <div class="admin-category-chips">
+        <span class="admin-category-chips__label">Categorías asignadas</span>
+        <ul class="admin-category-chips__list">
+          @for (chip of selectedCategoryChips(); track chip.id) {
+            <li class="admin-category-chips__item">
+              <img
+                class="admin-category-chips__img"
+                [src]="chip.imageUrl || DEFAULT_IMAGES.category"
+                [alt]="chip.name"
+                width="28"
+                height="28"
+                loading="lazy"
+                appImgFallback="category"
+              />
+              <span class="admin-category-chips__name">{{ chip.name }}</span>
+              @if (chip.isPrincipal) {
+                <span class="admin-category-chips__badge">Principal</span>
+              }
+              <app-admin-icon-button
+                icon="x"
+                label="Quitar categoría"
+                variant="danger"
+                (clicked)="removeCategoryChip(chip)"
+              />
+            </li>
+          }
+        </ul>
+      </div>
+    }
     <app-admin-form-field
       label="Nombre"
       controlName="name"
@@ -305,6 +340,60 @@
           </li>
         } @empty {
           <li class="admin-detail-status">Sin resultados para «{{ productsModalSearch() }}»</li>
+        }
+      </ul>
+    }
+  </app-admin-modal>
+}
+
+@if (categoriesModal(); as modal) {
+  <app-admin-modal
+    [open]="true"
+    [title]="'Categorías · ' + modal.catalog.name"
+    (closed)="closeCategoriesModal()"
+  >
+    @if (modal.loading) {
+      <p class="admin-detail-status">Cargando…</p>
+    } @else if (modal.items.length === 0) {
+      <p class="admin-detail-status">Sin categorías en este catálogo</p>
+    } @else {
+      @if (modal.items.length > 5) {
+        <input
+          class="admin-detail-search"
+          type="search"
+          [ngModel]="categoriesModalSearch()"
+          (ngModelChange)="onCategoriesSearch($event)"
+          placeholder="Buscar categoría…"
+        />
+      }
+      <ul class="admin-detail-list">
+        @for (item of filteredModalCategories(); track item.id) {
+          <li class="admin-detail-list__item">
+            <img
+              class="admin-detail-list__thumb"
+              [src]="item.imageUrl || DEFAULT_IMAGES.category"
+              [alt]="item.name"
+              width="40"
+              height="40"
+              loading="lazy"
+              appImgFallback="category"
+            />
+            <div class="admin-detail-list__info">
+              <span class="admin-detail-list__name">{{ item.name }}</span>
+              @if (item.isPrincipal) {
+                <span class="admin-detail-list__badge">Principal</span>
+              }
+            </div>
+            <app-admin-icon-button
+              icon="x"
+              label="Quitar de la categoría"
+              variant="danger"
+              [disabled]="removingCategoryId() === item.id"
+              (clicked)="removeCategoryFromCatalog(item)"
+            />
+          </li>
+        } @empty {
+          <li class="admin-detail-status">Sin resultados para «{{ categoriesModalSearch() }}»</li>
         }
       </ul>
     }

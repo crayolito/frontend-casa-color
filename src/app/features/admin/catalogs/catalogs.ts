@@ -6,7 +6,7 @@ import {
   signal,
   computed,
 } from '@angular/core';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
@@ -49,6 +49,13 @@ import {
 } from '../../../shared/admin-ui/admin-table/admin-table';
 
 const VIEW_MODE_STORAGE_KEY = 'admin.catalogs.view';
+
+interface CategoryItem {
+  id: number;
+  name: string;
+  imageUrl: string | null;
+  isPrincipal: boolean;
+}
 
 @Component({
   selector: 'app-admin-catalogs',
@@ -106,6 +113,14 @@ export class AdminCatalogs {
   readonly productsModalSearch = signal('');
   readonly removingProductId = signal<number | null>(null);
 
+  readonly categoriesModal = signal<{
+    catalog: Catalog;
+    items: CategoryItem[];
+    loading: boolean;
+  } | null>(null);
+  readonly categoriesModalSearch = signal('');
+  readonly removingCategoryId = signal<number | null>(null);
+
   readonly search = signal('');
   readonly categoryId = signal<number | null>(null);
   readonly page = signal(1);
@@ -135,9 +150,10 @@ export class AdminCatalogs {
     { key: 'name', label: 'Nombre', cell: (row) => row.name },
     { key: 'slug', label: 'Slug', cell: (row) => row.slug },
     {
-      key: 'category',
-      label: 'Categoría',
-      cell: (row) => this.formatCategories(row),
+      key: 'categories',
+      label: 'Categorías',
+      cell: (row) => String(this.categoryCount(row)),
+      action: { icon: 'eye', label: 'Ver categorías' },
     },
     {
       key: 'products',
@@ -190,6 +206,12 @@ export class AdminCatalogs {
     pdfUrl: [''],
     pdfButtonLabel: ['Descargar PDF', [Validators.maxLength(50)]],
   });
+
+  /** Categoría principal como signal (el FormControl no es reactivo a signals). */
+  readonly principalCategoryId = toSignal(
+    this.form.controls.categoryId.valueChanges,
+    { initialValue: 0 },
+  );
 
   constructor() {
     this.categoriesApi.list(1, 100).subscribe({
@@ -375,6 +397,134 @@ export class AdminCatalogs {
     this.reloadToken.update((n) => n + 1);
   }
 
+  categoryCount(row: Catalog): number {
+    const ids = new Set<number>();
+    if (row.categoryId != null && row.categoryId > 0) ids.add(row.categoryId);
+    for (const id of row.extraCategoryIds ?? []) ids.add(id);
+    return ids.size;
+  }
+
+  private catalogCategoryItems(row: Catalog): CategoryItem[] {
+    const byId = new Map(this.categories().map((c) => [c.id, c]));
+    const items: CategoryItem[] = [];
+    if (row.categoryId != null && row.categoryId > 0) {
+      const c = byId.get(row.categoryId);
+      if (c) {
+        items.push({
+          id: c.id,
+          name: c.name,
+          imageUrl: c.cardImageUrl ?? c.coverImageUrl,
+          isPrincipal: true,
+        });
+      }
+    }
+    for (const id of row.extraCategoryIds ?? []) {
+      if (id === row.categoryId) continue;
+      const c = byId.get(id);
+      if (c) {
+        items.push({
+          id: c.id,
+          name: c.name,
+          imageUrl: c.cardImageUrl ?? c.coverImageUrl,
+          isPrincipal: false,
+        });
+      }
+    }
+    return items;
+  }
+
+  readonly filteredModalCategories = computed(() => {
+    const modal = this.categoriesModal();
+    if (!modal) return [];
+    const q = this.categoriesModalSearch().trim().toLowerCase();
+    if (!q) return modal.items;
+    return modal.items.filter((c) => c.name.toLowerCase().includes(q));
+  });
+
+  openCategories(row: Catalog): void {
+    this.categoriesModalSearch.set('');
+    this.categoriesModal.set({
+      catalog: row,
+      items: this.catalogCategoryItems(row),
+      loading: false,
+    });
+  }
+
+  closeCategoriesModal(): void {
+    this.categoriesModal.set(null);
+    this.categoriesModalSearch.set('');
+  }
+
+  onCategoriesSearch(value: string): void {
+    this.categoriesModalSearch.set(value);
+  }
+
+  removeCategoryFromCatalog(item: CategoryItem): void {
+    const modal = this.categoriesModal();
+    if (!modal) return;
+    const body = item.isPrincipal
+      ? { categoryId: null }
+      : {
+          extraCategoryIds: modal.catalog.extraCategoryIds.filter(
+            (id) => id !== item.id,
+          ),
+        };
+    this.removingCategoryId.set(item.id);
+    this.api.update(modal.catalog.id, body).subscribe({
+      next: () => {
+        this.removingCategoryId.set(null);
+        this.categoriesModal.update((m) =>
+          m ? { ...m, items: m.items.filter((c) => c.id !== item.id) } : m,
+        );
+        this.toast.success('Categoría quitada del catálogo');
+        this.reload();
+      },
+      error: (err: unknown) => {
+        this.removingCategoryId.set(null);
+        this.toast.error(resolveErrorMessage(err).text);
+      },
+    });
+  }
+
+  /** Categorías asignadas (principal + extras) para mostrar con imagen dentro del modal de edición. */
+  readonly selectedCategoryChips = computed<CategoryItem[]>(() => {
+    const principalId = Number(this.principalCategoryId()) || 0;
+    const byId = new Map(this.categories().map((c) => [c.id, c]));
+    const items: CategoryItem[] = [];
+    if (principalId > 0) {
+      const c = byId.get(principalId);
+      if (c) {
+        items.push({
+          id: c.id,
+          name: c.name,
+          imageUrl: c.cardImageUrl ?? c.coverImageUrl,
+          isPrincipal: true,
+        });
+      }
+    }
+    for (const id of this.extraCategoryIds()) {
+      if (id === principalId) continue;
+      const c = byId.get(id);
+      if (c) {
+        items.push({
+          id: c.id,
+          name: c.name,
+          imageUrl: c.cardImageUrl ?? c.coverImageUrl,
+          isPrincipal: false,
+        });
+      }
+    }
+    return items;
+  });
+
+  removeCategoryChip(item: CategoryItem): void {
+    if (item.isPrincipal) {
+      this.form.controls.categoryId.setValue(0);
+    } else {
+      this.extraCategoryIds.update((ids) => ids.filter((id) => id !== item.id));
+    }
+  }
+
   onRetryLoad(): void {
     this.reload();
   }
@@ -485,6 +635,8 @@ export class AdminCatalogs {
   onCellAction(event: { row: Catalog; key: string }): void {
     if (event.key === 'products') {
       this.openProducts(event.row);
+    } else if (event.key === 'categories') {
+      this.openCategories(event.row);
     }
   }
 }
