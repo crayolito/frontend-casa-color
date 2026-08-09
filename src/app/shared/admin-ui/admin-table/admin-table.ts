@@ -433,7 +433,7 @@ export interface AdminTableColumn<T> {
     }
 
     .admin-table__actions-col {
-      text-align: right;
+      text-align: center;
       white-space: nowrap;
       vertical-align: middle;
     }
@@ -443,7 +443,7 @@ export interface AdminTableColumn<T> {
       display: flex;
       gap: 0.15rem;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: center;
       min-width: 80px;
     }
 

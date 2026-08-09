@@ -149,12 +149,6 @@ export class AdminProductsList {
       action: { icon: 'eye', label: 'Ver catálogos' },
     },
     {
-      key: 'category',
-      label: 'Categoría',
-      cell: (r) => String(this.categoryCount(r)),
-      action: { icon: 'eye', label: 'Ver categorías' },
-    },
-    {
       key: 'colors',
       label: 'Colores',
       cell: (r) => String(r.colorsCount ?? r.colors?.length ?? 0),
@@ -197,15 +191,6 @@ export class AdminProductsList {
     return this.productCatalogs(row).length;
   }
 
-  categoryCount(row: Product): number {
-    const names = new Set(
-      this.productCatalogs(row)
-        .map((c) => c.categoryName)
-        .filter(Boolean),
-    );
-    return names.size;
-  }
-
   trackProduct = (row: Product): number => row.id;
 
   onCellClick(event: AdminTableCellEvent<Product>): void {
@@ -230,32 +215,6 @@ export class AdminProductsList {
         kind: 'catalog',
         title: `Catálogos · ${row.title}`,
         items,
-      });
-      this.detailModalSearch.set('');
-      return;
-    }
-    if (event.key === 'category') {
-      const byName = new Map<string, { id: number; name: string }>();
-      for (const c of this.productCatalogs(row)) {
-        if (!c.categoryId || !c.categoryName) continue;
-        if (!byName.has(c.categoryName)) {
-          byName.set(c.categoryName, {
-            id: c.categoryId,
-            name: c.categoryName,
-          });
-        }
-      }
-      this.detailModal.set({
-        row,
-        kind: 'category',
-        title: `Categorías · ${row.title}`,
-        items: [...byName.values()].map((c) => {
-          const cat = this.categories().find((x) => x.id === c.id);
-          return {
-            ...c,
-            image: cat?.cardImageUrl ?? cat?.coverImageUrl ?? row.mainImageUrl,
-          };
-        }),
       });
       this.detailModalSearch.set('');
       return;
@@ -307,23 +266,17 @@ export class AdminProductsList {
     this.detailModalSearch.set(value);
   }
 
-  /** Solo catálogos y categorías se pueden desasignar desde este modal. */
+  /** Solo catálogos se pueden desasignar desde este modal (la jerarquía es categoría → catálogo → producto). */
   detailItemCanRemove(item: { id: number; name: string }): boolean {
     const modal = this.detailModal();
-    return (
-      modal !== null && (modal.kind === 'catalog' || modal.kind === 'category')
-    );
+    return modal !== null && modal.kind === 'catalog';
   }
 
   removeDetailItem(item: { id: number; name: string }): void {
     const modal = this.detailModal();
     if (!modal) return;
     const remaining = this.productCatalogs(modal.row)
-      .filter((c) => {
-        if (modal.kind === 'catalog') return c.id !== item.id;
-        if (modal.kind === 'category') return c.categoryName !== item.name;
-        return true;
-      })
+      .filter((c) => c.id !== item.id)
       .map((c) => c.id);
     this.saving.set(true);
     this.api.update(modal.row.id, { catalogIds: remaining }).subscribe({
@@ -341,11 +294,7 @@ export class AdminProductsList {
               }
             : m,
         );
-        this.toast.success(
-          modal.kind === 'catalog'
-            ? `Producto desasignado del catálogo`
-            : `Producto desasignado de la categoría`,
-        );
+        this.toast.success('Producto desasignado del catálogo');
       },
       error: (err: unknown) => {
         this.saving.set(false);

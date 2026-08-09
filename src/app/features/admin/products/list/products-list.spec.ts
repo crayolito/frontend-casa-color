@@ -228,16 +228,10 @@ describe('AdminProductsList', () => {
     component.rows.set([row]);
 
     expect(component.catalogCount(row)).toBe(2);
-    expect(component.categoryCount(row)).toBe(1);
 
     component.onCellAction({ row, key: 'catalog' });
     expect(component.detailModal()?.kind).toBe('catalog');
     expect(component.detailModal()?.items.length).toBe(2);
-
-    component.onCellAction({ row, key: 'category' });
-    expect(component.detailModal()?.kind).toBe('category');
-    expect(component.detailModal()?.items.length).toBe(1);
-    expect(component.detailModal()?.items[0].name).toBe('Pinturas');
 
     component.onCellAction({ row, key: 'colors' });
     expect(component.detailModal()?.kind).toBe('colors');
