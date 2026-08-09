@@ -208,36 +208,6 @@
       hint="Opcional. La principal no se lista acá."
       (valueChange)="extraCategoryIds.set($event)"
     />
-    @if (selectedCategoryChips().length > 0) {
-      <div class="admin-category-chips">
-        <span class="admin-category-chips__label">Categorías asignadas</span>
-        <ul class="admin-category-chips__list">
-          @for (chip of selectedCategoryChips(); track chip.id) {
-            <li class="admin-category-chips__item">
-              <img
-                class="admin-category-chips__img"
-                [src]="chip.imageUrl || DEFAULT_IMAGES.category"
-                [alt]="chip.name"
-                width="28"
-                height="28"
-                loading="lazy"
-                appImgFallback="category"
-              />
-              <span class="admin-category-chips__name">{{ chip.name }}</span>
-              @if (chip.isPrincipal) {
-                <span class="admin-category-chips__badge">Principal</span>
-              }
-              <app-admin-icon-button
-                icon="x"
-                label="Quitar categoría"
-                variant="danger"
-                (clicked)="removeCategoryChip(chip)"
-              />
-            </li>
-          }
-        </ul>
-      </div>
-    }
     <app-admin-form-field
       label="Nombre"
       controlName="name"

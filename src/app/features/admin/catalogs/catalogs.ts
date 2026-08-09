@@ -6,7 +6,7 @@ import {
   signal,
   computed,
 } from '@angular/core';
-import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
@@ -206,12 +206,6 @@ export class AdminCatalogs {
     pdfUrl: [''],
     pdfButtonLabel: ['Descargar PDF', [Validators.maxLength(50)]],
   });
-
-  /** Categoría principal como signal (el FormControl no es reactivo a signals). */
-  readonly principalCategoryId = toSignal(
-    this.form.controls.categoryId.valueChanges,
-    { initialValue: 0 },
-  );
 
   constructor() {
     this.categoriesApi.list(1, 100).subscribe({
@@ -484,45 +478,6 @@ export class AdminCatalogs {
         this.toast.error(resolveErrorMessage(err).text);
       },
     });
-  }
-
-  /** Categorías asignadas (principal + extras) para mostrar con imagen dentro del modal de edición. */
-  readonly selectedCategoryChips = computed<CategoryItem[]>(() => {
-    const principalId = Number(this.principalCategoryId()) || 0;
-    const byId = new Map(this.categories().map((c) => [c.id, c]));
-    const items: CategoryItem[] = [];
-    if (principalId > 0) {
-      const c = byId.get(principalId);
-      if (c) {
-        items.push({
-          id: c.id,
-          name: c.name,
-          imageUrl: c.cardImageUrl ?? c.coverImageUrl,
-          isPrincipal: true,
-        });
-      }
-    }
-    for (const id of this.extraCategoryIds()) {
-      if (id === principalId) continue;
-      const c = byId.get(id);
-      if (c) {
-        items.push({
-          id: c.id,
-          name: c.name,
-          imageUrl: c.cardImageUrl ?? c.coverImageUrl,
-          isPrincipal: false,
-        });
-      }
-    }
-    return items;
-  });
-
-  removeCategoryChip(item: CategoryItem): void {
-    if (item.isPrincipal) {
-      this.form.controls.categoryId.setValue(0);
-    } else {
-      this.extraCategoryIds.update((ids) => ids.filter((id) => id !== item.id));
-    }
   }
 
   onRetryLoad(): void {

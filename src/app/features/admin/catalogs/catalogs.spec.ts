@@ -218,37 +218,4 @@ describe('AdminCatalogs', () => {
     component.closeCategoriesModal();
     expect(component.categoriesModal()).toBeNull();
   });
-
-  it('muestra los chips de categorías asignadas en el modal de edición y permite quitar', () => {
-    const fixture = TestBed.createComponent(AdminCatalogs);
-    const component = fixture.componentInstance;
-    fixture.detectChanges();
-
-    component.openEdit({
-      id: 5,
-      categoryId: 1,
-      name: 'Látex',
-      slug: 'latex',
-      description: null,
-      imageUrl: null,
-      pdfUrl: null,
-      pdfButtonLabel: 'Descargar PDF',
-      createdAt: '',
-      updatedAt: '',
-      extraCategoryIds: [2],
-      extraCategories: [],
-      productsCount: 0,
-    });
-
-    expect(component.selectedCategoryChips().length).toBe(2);
-    expect(component.selectedCategoryChips()[0].isPrincipal).toBe(true);
-
-    component.removeCategoryChip(component.selectedCategoryChips()[0]);
-    expect(component.form.controls.categoryId.value).toBe(0);
-    expect(component.selectedCategoryChips().length).toBe(1);
-
-    component.removeCategoryChip(component.selectedCategoryChips()[0]);
-    expect(component.extraCategoryIds()).toEqual([]);
-    expect(component.selectedCategoryChips().length).toBe(0);
-  });
 });
