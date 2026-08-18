@@ -78,7 +78,7 @@
         <article class="admin-entity-card">
           <div class="admin-entity-card__media">
             <img
-              [src]="row.cardImageUrl || '/img/img-auxiliar2.jpg'"
+              [src]="row.coverImageUrl || row.cardImageUrl || '/img/img-auxiliar2.jpg'"
               [alt]="row.name"
               width="320"
               height="200"
@@ -188,6 +188,14 @@
     <p class="admin-form__hint">
       Grande: hero al entrar a la categoría (/categoria/…).
     </p>
+    <div class="admin-form__switch">
+      <app-admin-switch
+        label="Mostrar portada"
+        activeLabel="Visible"
+        inactiveLabel="Oculta"
+        formControlName="showCoverImage"
+      />
+    </div>
 
     <app-image-uploader
       label="Imagen tarjeta"

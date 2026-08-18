@@ -9,6 +9,7 @@
       <button type="button" class="categoria__retry" (click)="load()">Reintentar</button>
     </div>
   } @else if (content(); as c) {
+    @if (c.showCoverImage !== false) {
     <div
       #hero
       class="categoria__hero"
@@ -21,6 +22,7 @@
         [style.transform]="'translate3d(0, ' + parallaxY() + 'px, 0)'"
       ></div>
     </div>
+    }
 
     <app-container>
       <h5 class="categoria__heading">{{ c.name }}</h5>

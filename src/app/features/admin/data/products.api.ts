@@ -19,7 +19,7 @@ export class ProductsApi {
   list(params: ProductListParams = {}): Observable<PaginatedResult<Product>> {
     const query: QueryParams = {
       page: params.page ?? 1,
-      limit: params.limit ?? 16,
+      limit: params.limit ?? 25,
       catalogId: params.catalogId,
       categoryId: params.categoryId,
       search: params.search,

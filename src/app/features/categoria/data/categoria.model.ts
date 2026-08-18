@@ -20,6 +20,7 @@ export interface CategoryDetail {
   description2: string | null;
   coverImageUrl: string | null;
   cardImageUrl: string | null;
+  showCoverImage?: boolean;
   createdAt: string;
   updatedAt: string;
   catalogsCount?: number;

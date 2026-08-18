@@ -2,13 +2,17 @@ import { Component, input } from '@angular/core';
 import {
   HomeFloating,
   HomeFooter,
+  HomeFooterColumn,
 } from '../../../features/home/data/home-content.model';
 import { withLogoFallback } from '../../../shared/util/default-images';
 import { ImgFallback } from '../../../shared/util/img-fallback/img-fallback';
+import { SafeHtmlPipe } from '../../../shared/pipes/safe-html.pipe';
+
+const PHONE_LINE = /^\+?\d[\d\s.\-]{5,}$/;
 
 @Component({
   selector: 'app-footer',
-  imports: [ImgFallback],
+  imports: [ImgFallback, SafeHtmlPipe],
   templateUrl: './footer.html',
   styleUrl: './footer.css',
 })
@@ -24,6 +28,24 @@ export class Footer {
     return this.footer();
   }
 
+  protected visibleColumns(): HomeFooterColumn[] {
+    return this.resolveColumns().filter((col) => {
+      if (col.type === 'links') {
+        return (col.links ?? []).some(
+          (l) => !!l.label?.trim() && !!l.href?.trim(),
+        );
+      }
+      if (col.type === 'html') {
+        return !!col.html?.trim();
+      }
+      return (col.lines ?? []).some((line) => !!line.trim());
+    });
+  }
+
+  protected isPhoneLine(line: string): boolean {
+    return PHONE_LINE.test(line.trim());
+  }
+
   protected logoSrc(): string {
     const footerUrl = this.data().logoUrl?.trim();
     if (footerUrl) return footerUrl;
@@ -32,13 +54,6 @@ export class Footer {
 
   protected telHref(phone: string): string {
     return `tel:${phone.replaceAll(' ', '')}`;
-  }
-
-  /** Omite entradas vacías del admin (evita columna fantasma en el footer). */
-  protected visibleLegalLinks(): Array<{ label: string; href: string }> {
-    return (this.data().legalLinks ?? []).filter(
-      (l) => !!l.label?.trim() && !!l.href?.trim(),
-    );
   }
 
   /** Instagram / TikTok / Facebook en la barra copyright. WhatsApp → FAB. */
@@ -77,5 +92,54 @@ export class Footer {
     return entries
       .filter((e) => e.show && !!e.url.trim())
       .map(({ key, url, label }) => ({ key, url, label }));
+  }
+
+  private resolveColumns(): HomeFooterColumn[] {
+    const cols = this.data().columns;
+    if (Array.isArray(cols) && cols.length > 0) {
+      return cols.map((c) => {
+        if (c.type === 'html' || (c.html?.trim() && c.type !== 'text' && c.type !== 'links')) {
+          return {
+            type: 'html' as const,
+            html: c.html?.trim() ?? '',
+            lines: [],
+            links: [],
+          };
+        }
+        if (c.type === 'links' || (c.links && c.links.length > 0 && c.type !== 'text')) {
+          return {
+            type: 'links' as const,
+            links: (c.links ?? []).filter(
+              (l) => !!l.label?.trim() && !!l.href?.trim(),
+            ),
+            lines: [],
+            html: '',
+          };
+        }
+        return {
+          type: 'text' as const,
+          lines: (c.lines ?? []).map((l) => l.trim()).filter(Boolean),
+          links: [],
+          html: '',
+        };
+      });
+    }
+
+    const address = (this.data().address ?? []).filter((l) => !!l.trim());
+    const phones = (this.data().phones ?? []).filter((l) => !!l.trim());
+    const legal = (this.data().legalLinks ?? []).filter(
+      (l) => !!l.label?.trim() && !!l.href?.trim(),
+    );
+    const out: HomeFooterColumn[] = [
+      { type: 'text', lines: address },
+      {
+        type: 'text',
+        lines: phones.length ? ['Consultas y pedidos', ...phones] : [],
+      },
+    ];
+    if (legal.length > 0) {
+      out.push({ type: 'links', links: legal });
+    }
+    return out;
   }
 }

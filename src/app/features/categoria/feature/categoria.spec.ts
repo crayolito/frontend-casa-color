@@ -123,6 +123,17 @@ describe('Categoria', () => {
     expect(bg2.style.backgroundImage).toContain('/card.jpg');
   });
 
+  it('oculta el hero si showCoverImage es false', async () => {
+    const { fixture } = await setup({
+      detail: { ...SAMPLE, showCoverImage: false },
+    });
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('.categoria__hero')).toBeNull();
+    expect(el.querySelector('h5.categoria__heading')?.textContent).toContain(
+      'Línea Deco',
+    );
+  });
+
   it('aplica appReveal a las cards de catálogo', async () => {
     const { fixture } = await setup();
     const el: HTMLElement = fixture.nativeElement;

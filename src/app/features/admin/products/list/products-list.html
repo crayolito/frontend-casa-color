@@ -83,6 +83,14 @@
     >
       Desactivar
     </app-admin-button>
+    <app-admin-button
+      type="button"
+      variant="ghost"
+      [disabled]="saving()"
+      (clicked)="askBulkDelete()"
+    >
+      Eliminar
+    </app-admin-button>
     <app-admin-button type="button" variant="ghost" (clicked)="clearSelection()">
       Limpiar
     </app-admin-button>
@@ -114,6 +122,16 @@
   [loading]="saving()"
   (confirmed)="confirmDelete()"
   (cancelled)="deleteTarget.set(null)"
+/>
+
+<app-admin-confirm-dialog
+  [open]="bulkDeleteOpen()"
+  title="Eliminar productos"
+  [message]="'¿Eliminar ' + selectedCount() + ' producto(s) seleccionados?'"
+  warning="Esta acción no se puede deshacer."
+  [loading]="saving()"
+  (confirmed)="confirmBulkDelete()"
+  (cancelled)="cancelBulkDelete()"
 />
 
 <app-admin-modal

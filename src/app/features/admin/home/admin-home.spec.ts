@@ -78,6 +78,20 @@ describe('AdminHome', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
+  it('does not add more than 5 nav items and cannot go below 3', () => {
+    const fixture = TestBed.createComponent(AdminHome);
+    fixture.detectChanges();
+    const comp = fixture.componentInstance;
+    for (let i = 0; i < 8; i++) {
+      comp.addNavItem();
+    }
+    expect(comp.navItems.length).toBe(5);
+    for (let i = 0; i < 8; i++) {
+      comp.removeNavItem(0);
+    }
+    expect(comp.navItems.length).toBe(3);
+  });
+
   it('does not add more than 4 categories', () => {
     const fixture = TestBed.createComponent(AdminHome);
     fixture.detectChanges();
@@ -97,5 +111,26 @@ describe('AdminHome', () => {
     expect(comp.slides.length).toBe(before + 1);
     expect(comp.slideModalOpen()).toBe(true);
     expect(comp.slideEditIndex()).toBe(before);
+  });
+
+  it('patches find-product colors and editable footer columns', () => {
+    const fixture = TestBed.createComponent(AdminHome);
+    fixture.detectChanges();
+    const comp = fixture.componentInstance;
+    expect(comp.findProductForm.controls.sectionBgColor.value).toBe('#dd3333');
+    expect(comp.findProductForm.controls.sectionTextColor.value).toBe('#ffffff');
+    expect(comp.footerColumns.length).toBe(3);
+    expect(comp.footerColumnType(0)).toBe('text');
+    expect(comp.footerColumnType(2)).toBe('links');
+
+    comp.setFooterColumnType(1, 'html');
+    expect(comp.footerColumnType(1)).toBe('html');
+    comp.setFooterColumnHtml(1, '<p>Hola</p>');
+    expect(comp.footerColumnHtml(1)).toBe('<p>Hola</p>');
+
+    comp.setFooterColumnType(1, 'links');
+    expect(comp.footerColumnType(1)).toBe('links');
+    comp.addFooterPageLink(1);
+    expect(comp.footerColumnLinks(1).length).toBe(1);
   });
 });

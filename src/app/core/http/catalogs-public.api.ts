@@ -9,6 +9,7 @@ export interface PublicCatalog {
   slug: string;
   description: string | null;
   imageUrl: string | null;
+  showCoverImage?: boolean;
   pdfUrl: string | null;
   pdfButtonLabel: string;
   productsCount?: number;

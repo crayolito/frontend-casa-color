@@ -10,6 +10,10 @@
   color: var(--color-text-muted);
 }
 
+.admin-form__switch {
+  margin: 0.25rem 0 0.5rem;
+}
+
 .admin-form__actions {
   display: flex;
   justify-content: flex-end;
@@ -18,6 +22,7 @@
 }
 
 .admin-entity-grid {
+  --aspect-card-admin-entity: 21 / 9;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
   gap: 1rem;

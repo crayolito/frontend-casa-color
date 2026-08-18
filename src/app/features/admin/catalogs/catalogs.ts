@@ -41,6 +41,7 @@ import { AdminHtmlEditor } from '../../../shared/admin-ui/admin-html-editor/admi
 import { AppSelect, SelectOption } from '../../../shared/ui/select/select';
 import { ImgFallback } from '../../../shared/util/img-fallback/img-fallback';
 import { DEFAULT_IMAGES } from '../../../shared/util/default-images';
+import { AdminSwitch } from '../../../shared/admin-ui/admin-switch/admin-switch';
 import { AdminToastService } from '../../../shared/admin-ui/admin-toast/admin-toast.service';
 import { AdminIcon } from '../../../shared/admin-ui/icons/admin-icon';
 import {
@@ -48,7 +49,7 @@ import {
   AdminTableColumn,
 } from '../../../shared/admin-ui/admin-table/admin-table';
 
-const VIEW_MODE_STORAGE_KEY = 'admin.catalogs.view';
+const VIEW_MODE_STORAGE_KEY = 'admin.catalogs.view.v2';
 
 interface CategoryItem {
   id: number;
@@ -78,6 +79,7 @@ interface CategoryItem {
     ImgFallback,
     AdminIcon,
     AdminTable,
+    AdminSwitch,
   ],
   templateUrl: './catalogs.html',
   styleUrl: './catalogs.css',
@@ -146,6 +148,7 @@ export class AdminCatalogs {
       cell: () => '',
       image: (row) => row.imageUrl ?? null,
       imageKind: 'catalog',
+      imageVariant: 'wide',
     },
     { key: 'name', label: 'Nombre', cell: (row) => row.name },
     { key: 'slug', label: 'Slug', cell: (row) => row.slug },
@@ -203,6 +206,7 @@ export class AdminCatalogs {
     name: ['', [Validators.required, Validators.maxLength(150)]],
     description: [''],
     imageUrl: [''],
+    showCoverImage: [true],
     pdfUrl: [''],
     pdfButtonLabel: ['Descargar PDF', [Validators.maxLength(50)]],
   });
@@ -492,6 +496,7 @@ export class AdminCatalogs {
       name: '',
       description: '',
       imageUrl: '',
+      showCoverImage: true,
       pdfUrl: '',
       pdfButtonLabel: 'Descargar PDF',
     });
@@ -506,6 +511,7 @@ export class AdminCatalogs {
       name: row.name,
       description: row.description ?? '',
       imageUrl: row.imageUrl ?? '',
+      showCoverImage: row.showCoverImage !== false,
       pdfUrl: row.pdfUrl ?? '',
       pdfButtonLabel: row.pdfButtonLabel || 'Descargar PDF',
     });
@@ -537,6 +543,7 @@ export class AdminCatalogs {
       name: raw.name.trim(),
       description: raw.description.trim() || undefined,
       imageUrl: raw.imageUrl.trim() || undefined,
+      showCoverImage: raw.showCoverImage,
       pdfUrl: raw.pdfUrl.trim() || null,
       pdfButtonLabel: raw.pdfButtonLabel.trim() || 'Descargar PDF',
       extraCategoryIds: this.extraCategoryIds(),

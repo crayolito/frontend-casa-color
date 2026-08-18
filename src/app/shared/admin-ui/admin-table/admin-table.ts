@@ -32,6 +32,8 @@ export interface AdminTableColumn<T> {
   image?: (row: T) => string | null | undefined;
   /** Kind de fallback cuando la imagen falla o está vacía. Default: product. */
   imageKind?: ImgFallbackKind;
+  /** Forma del thumbnail. Default: square (40×40). */
+  imageVariant?: 'square' | 'wide';
   /** Truncar texto largo con ellipsis. */
   truncate?: boolean;
   /** Si true, badge/texto se renderiza como botón y emite cellClick. */
@@ -128,15 +130,17 @@ export interface AdminTableColumn<T> {
                   <td
                     [class.admin-table__cell--truncate]="!!col.truncate"
                     [class.admin-table__cell--image]="!!col.image"
+                    [class.admin-table__cell--image-wide]="col.imageVariant === 'wide'"
                   >
                     @if (col.image; as imageFn) {
                       <img
                         class="admin-table__thumb"
+                        [class.admin-table__thumb--wide]="col.imageVariant === 'wide'"
                         [src]="thumbSrc(imageFn(row), col.imageKind)"
                         [appImgFallback]="col.imageKind ?? 'product'"
                         alt=""
-                        width="40"
-                        height="40"
+                        [attr.width]="col.imageVariant === 'wide' ? 96 : 40"
+                        [attr.height]="col.imageVariant === 'wide' ? 54 : 40"
                       />
                     } @else {
                       <span class="admin-table__cell-inner">
@@ -323,6 +327,10 @@ export interface AdminTableColumn<T> {
       padding-bottom: 0.4rem;
     }
 
+    .admin-table__cell--image-wide {
+      width: 110px;
+    }
+
     .admin-table__thumb {
       display: block;
       width: 40px;
@@ -331,6 +339,11 @@ export interface AdminTableColumn<T> {
       border-radius: var(--radius-sm);
       border: 1px solid var(--admin-border);
       background: #f5f5f5;
+    }
+
+    .admin-table__thumb--wide {
+      width: 96px;
+      height: 54px;
     }
 
     .admin-table__thumb-empty {

@@ -37,6 +37,7 @@ import { AdminIconButton } from '../../../shared/admin-ui/admin-icon-button/admi
 import { ImageUploader } from '../../../shared/admin-ui/image-uploader/image-uploader';
 import { AdminErrorState } from '../../../shared/admin-ui/admin-error-state/admin-error-state';
 import { AdminHtmlEditor } from '../../../shared/admin-ui/admin-html-editor/admin-html-editor';
+import { AdminSwitch } from '../../../shared/admin-ui/admin-switch/admin-switch';
 import { AdminToastService } from '../../../shared/admin-ui/admin-toast/admin-toast.service';
 import { ImgFallback } from '../../../shared/util/img-fallback/img-fallback';
 import { AppSelect } from '../../../shared/ui/select/select';
@@ -46,7 +47,7 @@ import {
   AdminTableColumn,
 } from '../../../shared/admin-ui/admin-table/admin-table';
 
-const VIEW_MODE_STORAGE_KEY = 'admin.categories.view';
+const VIEW_MODE_STORAGE_KEY = 'admin.categories.view.v2';
 
 @Component({
   selector: 'app-admin-categories',
@@ -68,6 +69,7 @@ const VIEW_MODE_STORAGE_KEY = 'admin.categories.view';
     AppSelect,
     AdminIcon,
     AdminTable,
+    AdminSwitch,
   ],
   templateUrl: './categories.html',
   styleUrl: './categories.css',
@@ -114,8 +116,9 @@ export class AdminCategories {
       key: 'image',
       label: '',
       cell: () => '',
-      image: (row) => row.cardImageUrl ?? row.coverImageUrl ?? null,
+      image: (row) => row.coverImageUrl ?? row.cardImageUrl ?? null,
       imageKind: 'category',
+      imageVariant: 'wide',
     },
     { key: 'name', label: 'Nombre', cell: (row) => row.name },
     { key: 'slug', label: 'Slug', cell: (row) => row.slug },
@@ -220,6 +223,7 @@ export class AdminCategories {
     description2: [''],
     coverImageUrl: [''],
     cardImageUrl: [''],
+    showCoverImage: [true],
   });
 
   constructor() {
@@ -312,6 +316,7 @@ export class AdminCategories {
       description2: '',
       coverImageUrl: '',
       cardImageUrl: '',
+      showCoverImage: true,
     });
     this.modalOpen.set(true);
   }
@@ -324,6 +329,7 @@ export class AdminCategories {
       description2: row.description2 ?? '',
       coverImageUrl: row.coverImageUrl ?? '',
       cardImageUrl: row.cardImageUrl ?? '',
+      showCoverImage: row.showCoverImage !== false,
     });
     this.modalOpen.set(true);
   }
@@ -362,6 +368,7 @@ export class AdminCategories {
       description2: raw.description2.trim() || undefined,
       coverImageUrl: raw.coverImageUrl.trim() || undefined,
       cardImageUrl: raw.cardImageUrl.trim() || undefined,
+      showCoverImage: raw.showCoverImage,
     };
     this.saving.set(true);
     const editing = this.editing();

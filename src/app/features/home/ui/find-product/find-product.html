@@ -1,3 +1,8 @@
-<section class="find-product" aria-labelledby="find-product-title">
+<section
+  class="find-product"
+  aria-labelledby="find-product-title"
+  [style.--find-product-bg]="sectionBg()"
+  [style.--find-product-text]="sectionText()"
+>
   <h2 id="find-product-title" class="find-product__title">{{ data().title }}</h2>
 </section>

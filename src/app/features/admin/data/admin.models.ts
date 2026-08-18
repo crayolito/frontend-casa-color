@@ -6,6 +6,7 @@ export interface Category {
   description2: string | null;
   coverImageUrl: string | null;
   cardImageUrl: string | null;
+  showCoverImage?: boolean;
   createdAt: string;
   updatedAt: string;
   catalogsCount?: number;
@@ -18,6 +19,7 @@ export interface CategoryWrite {
   description2?: string;
   coverImageUrl?: string;
   cardImageUrl?: string;
+  showCoverImage?: boolean;
 }
 
 export interface Catalog {
@@ -27,6 +29,7 @@ export interface Catalog {
   slug: string;
   description: string | null;
   imageUrl: string | null;
+  showCoverImage?: boolean;
   pdfUrl: string | null;
   pdfButtonLabel: string;
   createdAt: string;
@@ -42,6 +45,7 @@ export interface CatalogWrite {
   slug?: string;
   description?: string;
   imageUrl?: string;
+  showCoverImage?: boolean;
   pdfUrl?: string | null;
   pdfButtonLabel?: string;
   extraCategoryIds?: number[];

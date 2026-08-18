@@ -42,13 +42,14 @@
             <section class="admin-form-narrow__section">
               <p class="admin-form-narrow__hint">
                 Ítems del menú. Podés apuntar a una categoría, un catálogo o una página fija.
-                Arrastrá para reordenar.
+                Arrastrá para reordenar. Mínimo {{ minNavItems }}, máximo {{ maxNavItems }}.
               </p>
               <div class="admin-home__list-header">
-                <h3>Ítems del menú</h3>
+                <h3>Ítems del menú ({{ navItems.length }}/{{ maxNavItems }})</h3>
                 <app-admin-icon-button
                   icon="plus"
                   label="Agregar ítem"
+                  [disabled]="navItems.length >= maxNavItems"
                   (clicked)="addNavItem()"
                 />
               </div>
@@ -75,6 +76,7 @@
                       icon="trash"
                       label="Eliminar"
                       variant="danger"
+                      [disabled]="navItems.length <= minNavItems"
                       (clicked)="removeNavItem(i)"
                     />
                   </div>
@@ -210,8 +212,28 @@
                 <h3 class="admin-form-narrow__heading">Encontrá tu producto</h3>
                 <app-admin-form-field label="Título" controlName="title" />
                 <p class="admin-form-narrow__hint">
-                  Franja roja debajo del decor. Solo se edita el texto.
+                  Franja debajo del decor. Editá título y colores.
                 </p>
+                <div class="admin-home__color-row">
+                  <label class="admin-home__color-field">
+                    <span class="admin-home__color-label">Color de fondo</span>
+                    <input
+                      class="admin-home__color"
+                      type="color"
+                      formControlName="sectionBgColor"
+                      aria-label="Color de fondo de Encontrá tu producto"
+                    />
+                  </label>
+                  <label class="admin-home__color-field">
+                    <span class="admin-home__color-label">Color de texto</span>
+                    <input
+                      class="admin-home__color"
+                      type="color"
+                      formControlName="sectionTextColor"
+                      aria-label="Color de texto de Encontrá tu producto"
+                    />
+                  </label>
+                </div>
               </section>
             </form>
           </div>
@@ -273,9 +295,9 @@
 
         @case ('footer') {
           <div class="admin-form-narrow admin-form-narrow--wide">
-            <div class="admin-home__footer-grid">
+            <div class="admin-home__footer-layout">
               <section class="admin-form-narrow__section">
-                <h3 class="admin-form-narrow__heading">Pie de página</h3>
+                <h3 class="admin-form-narrow__heading">Marca y copyright</h3>
                 <form class="admin-home__form" [formGroup]="footerForm">
                   <app-image-uploader
                     label="Imagen inferior (graphic)"
@@ -385,6 +407,103 @@
                 </section>
               </div>
             </div>
+
+            <section class="admin-form-narrow__section admin-home__footer-columns-section">
+              <h3 class="admin-form-narrow__heading">Columnas del bloque rojo</h3>
+              <p class="admin-form-narrow__hint">
+                Tres columnas independientes. En cada una elegí el tipo:
+                texto/contacto, enlaces a páginas del sitio, o descripción con HTML enriquecido.
+              </p>
+              <div class="admin-home__footer-columns">
+                @for (col of footerColumns.controls; track $index; let ci = $index) {
+                  <div
+                    class="admin-home__footer-col"
+                    [attr.data-type]="footerColumnType(ci)"
+                  >
+                    <div class="admin-home__list-header">
+                      <h4>Columna {{ ci + 1 }}</h4>
+                      @if (footerColumnType(ci) === 'text') {
+                        <app-admin-icon-button
+                          icon="plus"
+                          label="Agregar línea"
+                          [disabled]="footerColumnLines(ci).length >= maxFooterColumnLines"
+                          (clicked)="addFooterLine(ci)"
+                        />
+                      } @else if (footerColumnType(ci) === 'links') {
+                        <app-admin-icon-button
+                          icon="plus"
+                          label="Agregar página"
+                          [disabled]="footerColumnLinks(ci).length >= maxFooterColumnLinks"
+                          (clicked)="addFooterPageLink(ci)"
+                        />
+                      }
+                    </div>
+
+                    <label class="admin-home__footer-type-label">Tipo de contenido</label>
+                    <app-select
+                      [options]="footerColumnTypeOptions"
+                      [value]="footerColumnType(ci)"
+                      (valueChange)="setFooterColumnType(ci, $event)"
+                    />
+
+                    @if (footerColumnType(ci) === 'text') {
+                      <p class="admin-form-narrow__hint">
+                        Dirección, teléfonos, correos o cualquier línea de texto.
+                      </p>
+                      @for (line of footerColumnLines(ci).controls; track $index; let li = $index) {
+                        <div class="admin-home__footer-line">
+                          <input
+                            class="admin-home__footer-line-input"
+                            type="text"
+                            [formControl]="line"
+                            maxlength="200"
+                            [attr.aria-label]="'Columna ' + (ci + 1) + ' línea ' + (li + 1)"
+                          />
+                          <app-admin-icon-button
+                            icon="trash"
+                            label="Quitar línea"
+                            variant="danger"
+                            (clicked)="removeFooterLine(ci, li)"
+                          />
+                        </div>
+                      }
+                    } @else if (footerColumnType(ci) === 'links') {
+                      <p class="admin-form-narrow__hint">
+                        Elegí páginas del sitio. El visitante hace click y navega ahí.
+                      </p>
+                      @for (link of footerColumnLinks(ci).controls; track $index; let li = $index) {
+                        <div class="admin-home__footer-link-row">
+                          <app-select
+                            class="admin-home__footer-page-select"
+                            [options]="pageOptionsForLink(ci, li)"
+                            [value]="link.value"
+                            placeholder="— Página —"
+                            (valueChange)="setFooterPageLink(ci, li, $event)"
+                          />
+                          <app-admin-icon-button
+                            icon="trash"
+                            label="Quitar página"
+                            variant="danger"
+                            (clicked)="removeFooterPageLink(ci, li)"
+                          />
+                        </div>
+                      } @empty {
+                        <p class="admin-form-narrow__hint">Sin páginas todavía. Usá el + para agregar.</p>
+                      }
+                    } @else {
+                      <p class="admin-form-narrow__hint">
+                        Descripción enriquecida (negrita, listas, enlaces) para detalles.
+                      </p>
+                      <app-admin-html-editor
+                        label="Contenido"
+                        [html]="footerColumnHtml(ci)"
+                        (htmlChange)="setFooterColumnHtml(ci, $event)"
+                      />
+                    }
+                  </div>
+                }
+              </div>
+            </section>
           </div>
         }
       }

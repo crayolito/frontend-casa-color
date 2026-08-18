@@ -46,6 +46,53 @@ describe('Footer', () => {
     expect(img?.getAttribute('src')).toBe('/uploads/header-logo.png');
   });
 
+  it('renders text, links and html columns by type', async () => {
+    fixture.componentRef.setInput('footer', {
+      ...BASE,
+      columns: [
+        { type: 'text', lines: ['Calle 1'] },
+        {
+          type: 'links',
+          links: [{ label: 'Empresa', href: '/empresa' }],
+        },
+        { type: 'html', html: '<p>Detalle <strong>rico</strong></p>' },
+      ],
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain('Calle 1');
+    expect(el.textContent).toContain('Empresa');
+    expect(el.textContent).toContain('Detalle');
+    expect(el.querySelector('.footer__col-html strong')?.textContent).toBe('rico');
+    const legal = el.querySelector('.footer__links a[href="/empresa"]');
+    expect(legal).toBeTruthy();
+  });
+
+  it('renders a TikTok icon that is not clipped by overflow hidden', async () => {
+    fixture.componentRef.setInput('footer', {
+      ...BASE,
+      social: {
+        ...BASE.social,
+        tiktok: { show: true, url: 'https://tiktok.com/@casa' },
+      },
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const link = fixture.nativeElement.querySelector(
+      'a[aria-label="TikTok"]',
+    ) as HTMLElement | null;
+    expect(link).toBeTruthy();
+    expect(link?.querySelector('svg')).toBeTruthy();
+    let node: HTMLElement | null = link;
+    while (node) {
+      const overflow = getComputedStyle(node).overflow;
+      expect(overflow).not.toBe('hidden');
+      node = node.parentElement;
+      if (node?.classList.contains('footer__copyright')) break;
+    }
+  });
+
   it('does not render section headings or brand tagline', async () => {
     fixture.componentRef.setInput('footer', {
       ...BASE,

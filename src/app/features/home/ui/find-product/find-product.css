@@ -2,17 +2,17 @@
   display: block;
 }
 
-/* Salient full-width-section: padding 50px, fondo #dd3333, sin container lateral */
+/* Salient full-width-section: padding 50px; colores desde admin (find-product). */
 .find-product {
-  background: var(--color-accent);
-  color: var(--color-white);
+  background: var(--find-product-bg, var(--color-accent));
+  color: var(--find-product-text, #ffffff);
   padding: 50px 0;
   text-align: center;
 }
 
 .find-product__title {
   margin: 0;
-  color: var(--color-white);
+  color: var(--find-product-text, #ffffff);
   font-weight: 300;
   font-size: var(--font-size-h2);
   line-height: var(--line-height-h2);

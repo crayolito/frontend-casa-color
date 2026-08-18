@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormArray,
   FormBuilder,
+  FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
@@ -25,6 +26,7 @@ import { HomeApi } from '../../home/data/home.api';
 import {
   HomeContent,
   HomeDestination,
+  HOME_PAGE_OPTIONS,
   HomeNavDestination,
   HomeNavItem,
   HomeSection,
@@ -43,13 +45,35 @@ import { ImageUploader } from '../../../shared/admin-ui/image-uploader/image-upl
 import { AdminIcon } from '../../../shared/admin-ui/icons/admin-icon';
 import { AdminIconButton } from '../../../shared/admin-ui/admin-icon-button/admin-icon-button';
 import { AdminSwitch } from '../../../shared/admin-ui/admin-switch/admin-switch';
+import { AdminHtmlEditor } from '../../../shared/admin-ui/admin-html-editor/admin-html-editor';
 import { DestinationPicker } from './destination-picker/destination-picker';
 import { NavDestinationPicker } from './nav-destination-picker/nav-destination-picker';
-import { SelectOption } from '../../../shared/ui/select/select';
+import { AppSelect, SelectOption } from '../../../shared/ui/select/select';
 
 const MAX_HOME_CATEGORIES = 4;
 const MIN_SLIDES = 1;
 const MAX_SLIDES = 5;
+const MIN_NAV_ITEMS = 3;
+const MAX_NAV_ITEMS = 5;
+const MAX_FOOTER_COLUMN_LINES = 8;
+const MAX_FOOTER_COLUMN_LINKS = 8;
+const FOOTER_COLUMN_COUNT = 3;
+const DEFAULT_FIND_BG = '#dd3333';
+const DEFAULT_FIND_TEXT = '#ffffff';
+const HEX_COLOR = /^#[0-9A-Fa-f]{6}$/;
+
+type FooterColumnType = 'text' | 'links' | 'html';
+
+const FOOTER_COLUMN_TYPE_OPTIONS: SelectOption[] = [
+  { value: 'text', label: 'Texto / contacto' },
+  { value: 'links', label: 'Enlaces a páginas' },
+  { value: 'html', label: 'Descripción (HTML)' },
+];
+
+const FOOTER_PAGE_OPTIONS: SelectOption[] = HOME_PAGE_OPTIONS.map((p) => ({
+  value: p.value,
+  label: p.label,
+}));
 
 const TEXT_POSITION_OPTIONS: SelectOption[] = [
   { value: 'top', label: 'Arriba' },
@@ -77,8 +101,10 @@ const SCHEME_OPTIONS: SelectOption[] = [
     AdminIcon,
     AdminIconButton,
     AdminSwitch,
+    AdminHtmlEditor,
     DestinationPicker,
     NavDestinationPicker,
+    AppSelect,
   ],
   templateUrl: './admin-home.html',
   styleUrl: './admin-home.css',
@@ -94,6 +120,12 @@ export class AdminHome implements OnInit {
   readonly maxCategories = MAX_HOME_CATEGORIES;
   readonly minSlides = MIN_SLIDES;
   readonly maxSlides = MAX_SLIDES;
+  readonly minNavItems = MIN_NAV_ITEMS;
+  readonly maxNavItems = MAX_NAV_ITEMS;
+  readonly maxFooterColumnLines = MAX_FOOTER_COLUMN_LINES;
+  readonly maxFooterColumnLinks = MAX_FOOTER_COLUMN_LINKS;
+  readonly footerColumnTypeOptions = FOOTER_COLUMN_TYPE_OPTIONS;
+  readonly footerPageOptions = FOOTER_PAGE_OPTIONS;
   readonly textPositionOptions = TEXT_POSITION_OPTIONS;
   readonly schemeOptions = SCHEME_OPTIONS;
 
@@ -142,6 +174,8 @@ export class AdminHome implements OnInit {
   readonly findProductForm = this.fb.nonNullable.group({
     title: ['', Validators.required],
     decorImageUrl: [''],
+    sectionBgColor: [DEFAULT_FIND_BG, [Validators.pattern(HEX_COLOR)]],
+    sectionTextColor: [DEFAULT_FIND_TEXT, [Validators.pattern(HEX_COLOR)]],
   });
 
   readonly categoriesForm = this.fb.nonNullable.group({
@@ -156,6 +190,8 @@ export class AdminHome implements OnInit {
     designBy: ['Crayolito', Validators.required],
     designByHref: [''],
   });
+
+  readonly footerColumns = this.fb.array<FormGroup>([]);
 
   readonly socialForm = this.fb.nonNullable.group({
     instagramUrl: [''],
@@ -182,6 +218,7 @@ export class AdminHome implements OnInit {
       this.findProductForm.dirty ||
       this.categoriesForm.dirty ||
       this.footerForm.dirty ||
+      this.footerColumns.dirty ||
       this.socialForm.dirty ||
       this.whatsappForm.dirty ||
       this.navItems.dirty
@@ -226,6 +263,7 @@ export class AdminHome implements OnInit {
       this.findProductForm.valueChanges,
       this.categoriesForm.valueChanges,
       this.footerForm.valueChanges,
+      this.footerColumns.valueChanges,
       this.socialForm.valueChanges,
       this.whatsappForm.valueChanges,
       this.navItems.valueChanges,
@@ -411,6 +449,101 @@ export class AdminHome implements OnInit {
     this._dirtyTick.update((n) => n + 1);
   }
 
+  footerColumn(index: number): FormGroup {
+    return this.footerColumns.at(index);
+  }
+
+  footerColumnLines(index: number): FormArray<FormControl<string>> {
+    return this.footerColumn(index).get('lines') as FormArray<FormControl<string>>;
+  }
+
+  footerColumnLinks(index: number): FormArray<FormControl<string>> {
+    return this.footerColumn(index).get('links') as FormArray<FormControl<string>>;
+  }
+
+  footerColumnType(index: number): FooterColumnType {
+    const value = this.footerColumn(index).get('type')?.value;
+    if (value === 'links' || value === 'html') return value;
+    return 'text';
+  }
+
+  setFooterColumnType(index: number, type: string | number | null): void {
+    const next: FooterColumnType =
+      type === 'links' || type === 'html' ? type : 'text';
+    this.footerColumn(index).patchValue({ type: next });
+    this.footerColumns.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
+  }
+
+  footerColumnHtml(index: number): string {
+    return String(this.footerColumn(index).get('html')?.value ?? '');
+  }
+
+  setFooterColumnHtml(index: number, html: string): void {
+    this.footerColumn(index).patchValue({ html: html ?? '' });
+    this.footerColumns.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
+  }
+
+  addFooterLine(colIndex: number): void {
+    const lines = this.footerColumnLines(colIndex);
+    if (lines.length >= MAX_FOOTER_COLUMN_LINES) return;
+    lines.push(this.fb.nonNullable.control(''));
+    this.footerColumns.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
+  }
+
+  removeFooterLine(colIndex: number, lineIndex: number): void {
+    const lines = this.footerColumnLines(colIndex);
+    if (lines.length <= 1) {
+      lines.at(0).setValue('');
+    } else {
+      lines.removeAt(lineIndex);
+    }
+    this.footerColumns.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
+  }
+
+  addFooterPageLink(colIndex: number): void {
+    const links = this.footerColumnLinks(colIndex);
+    if (links.length >= MAX_FOOTER_COLUMN_LINKS) return;
+    const used = new Set(links.controls.map((c) => c.value));
+    const firstFree = HOME_PAGE_OPTIONS.find((p) => !used.has(p.value));
+    links.push(this.fb.nonNullable.control(firstFree?.value ?? ''));
+    this.footerColumns.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
+  }
+
+  removeFooterPageLink(colIndex: number, linkIndex: number): void {
+    this.footerColumnLinks(colIndex).removeAt(linkIndex);
+    this.footerColumns.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
+  }
+
+  setFooterPageLink(
+    colIndex: number,
+    linkIndex: number,
+    page: string | number | null,
+  ): void {
+    const value = String(page ?? '').trim();
+    this.footerColumnLinks(colIndex).at(linkIndex).setValue(value);
+    this.footerColumns.markAsDirty();
+    this._dirtyTick.update((n) => n + 1);
+  }
+
+  pageOptionsForLink(colIndex: number, linkIndex: number): SelectOption[] {
+    const links = this.footerColumnLinks(colIndex);
+    const current = links.at(linkIndex).value;
+    const used = new Set(
+      links.controls
+        .map((c, i) => (i === linkIndex ? '' : c.value))
+        .filter(Boolean),
+    );
+    return FOOTER_PAGE_OPTIONS.filter(
+      (opt) => opt.value === current || !used.has(String(opt.value)),
+    );
+  }
+
   categoryName(categoryId: unknown): string {
     const id = Number(categoryId);
     return this.allCategories().find((c) => c.id === id)?.name ?? `Categoría #${id}`;
@@ -421,6 +554,10 @@ export class AdminHome implements OnInit {
   }
 
   addNavItem(): void {
+    if (this.navItems.length >= MAX_NAV_ITEMS) {
+      this.toast.error(`Máximo ${MAX_NAV_ITEMS} ítems en el menú`);
+      return;
+    }
     this.navItems.push(this.createNavItemGroup());
     const idx = this.navItems.length - 1;
     this.expandedCards.update((set) => new Set(set).add(`n-${idx}`));
@@ -429,6 +566,10 @@ export class AdminHome implements OnInit {
   }
 
   removeNavItem(index: number): void {
+    if (this.navItems.length <= MIN_NAV_ITEMS) {
+      this.toast.error(`Mínimo ${MIN_NAV_ITEMS} ítems en el menú`);
+      return;
+    }
     this.navItems.removeAt(index);
     this.navDestinations.update((map) => {
       const next: Record<string, HomeNavDestination | null> = {};
@@ -505,6 +646,12 @@ export class AdminHome implements OnInit {
       this.toast.error(`Máximo ${MAX_HOME_CATEGORIES} categorías en el home`);
       return;
     }
+    if (this.navItems.length < MIN_NAV_ITEMS || this.navItems.length > MAX_NAV_ITEMS) {
+      this.toast.error(
+        `El menú debe tener entre ${MIN_NAV_ITEMS} y ${MAX_NAV_ITEMS} ítems`,
+      );
+      return;
+    }
 
     const header = this.headerForm.getRawValue();
     const banner = this.bannerForm.getRawValue();
@@ -543,6 +690,8 @@ export class AdminHome implements OnInit {
           decorImageUrl: find.decorImageUrl.trim() || undefined,
           buttonText: existingFind?.buttonText,
           buttonDestination: existingFind?.buttonDestination,
+          sectionBgColor: find.sectionBgColor,
+          sectionTextColor: find.sectionTextColor,
         },
       },
       {
@@ -594,13 +743,36 @@ export class AdminHome implements OnInit {
   private buildFooterPayload(): Record<string, unknown> {
     const f = this.footerForm.getRawValue();
     const s = this.socialForm.getRawValue();
-    const current = this.content()?.footer;
+    const columns = this.footerColumns.controls.map((ctrl) => {
+      const rawType = ctrl.get('type')?.value;
+      const type: FooterColumnType =
+        rawType === 'links' || rawType === 'html' ? rawType : 'text';
+      if (type === 'links') {
+        const links = (ctrl.get('links') as FormArray<FormControl<string>>).controls
+          .map((c) => {
+            const page = HOME_PAGE_OPTIONS.find((p) => p.value === c.value);
+            if (!page) return null;
+            return { label: page.label, href: page.href };
+          })
+          .filter((l): l is { label: string; href: string } => !!l)
+          .slice(0, MAX_FOOTER_COLUMN_LINKS);
+        return { type, lines: [], links, html: '' };
+      }
+      if (type === 'html') {
+        const html = String(ctrl.get('html')?.value ?? '').trim();
+        return { type, lines: [], links: [], html };
+      }
+      const lines = (ctrl.get('lines') as FormArray<FormControl<string>>).controls
+        .map((c) => c.value.trim())
+        .filter(Boolean)
+        .slice(0, MAX_FOOTER_COLUMN_LINES);
+      return { type, lines, links: [], html: '' };
+    });
     return {
       topImageUrl: f.topImageUrl || undefined,
       logoUrl: f.logoUrl || undefined,
-      address: current?.address ?? [],
-      phones: current?.phones ?? [],
-      legalLinks: current?.legalLinks ?? [],
+      columns,
+      legalLinks: [],
       social: {
         instagram: { url: s.instagramUrl, show: s.instagramShow },
         tiktok: { url: s.tiktokUrl, show: s.tiktokShow },
@@ -658,6 +830,8 @@ export class AdminHome implements OnInit {
     this.findProductForm.patchValue({
       title: data.findProduct.title,
       decorImageUrl: data.findProduct.decorImageUrl ?? '',
+      sectionBgColor: data.findProduct.sectionBgColor ?? DEFAULT_FIND_BG,
+      sectionTextColor: data.findProduct.sectionTextColor ?? DEFAULT_FIND_TEXT,
     });
 
     this.categoryItems.clear();
@@ -680,6 +854,7 @@ export class AdminHome implements OnInit {
       designBy: data.footer.copyright.designBy,
       designByHref: data.footer.copyright.designByHref ?? '',
     });
+    this.patchFooterColumns(data.footer);
 
     const social = data.footer.social;
     const facebook = social.facebook ?? social.twitter;
@@ -700,7 +875,7 @@ export class AdminHome implements OnInit {
 
     this.navItems.clear();
     const navMap: Record<string, HomeNavDestination | null> = {};
-    const navItems = data.nav?.items ?? [];
+    const navItems = (data.nav?.items ?? []).slice(0, MAX_NAV_ITEMS);
     for (let i = 0; i < navItems.length; i++) {
       const item = navItems[i];
       this.navItems.push(this.createNavItemGroup(item));
@@ -717,6 +892,7 @@ export class AdminHome implements OnInit {
     this.findProductForm.markAsPristine();
     this.categoriesForm.markAsPristine();
     this.footerForm.markAsPristine();
+    this.footerColumns.markAsPristine();
     this.socialForm.markAsPristine();
     this.whatsappForm.markAsPristine();
     this.navItems.markAsPristine();
@@ -772,5 +948,150 @@ export class AdminHome implements OnInit {
       id: [item?.id ?? crypto.randomUUID()],
       label: [item?.label ?? '', Validators.required],
     });
+  }
+
+  private createFooterColumnGroup(col: {
+    type: FooterColumnType;
+    lines: string[];
+    pageSlugs: string[];
+    html: string;
+  }): FormGroup {
+    const lines =
+      col.lines.length > 0 ? col.lines : col.type === 'text' ? [''] : [];
+    return this.fb.nonNullable.group({
+      type: [col.type],
+      html: [col.html ?? ''],
+      lines: this.fb.array(
+        lines
+          .slice(0, MAX_FOOTER_COLUMN_LINES)
+          .map((line) => this.fb.nonNullable.control(line)),
+      ),
+      links: this.fb.array(
+        col.pageSlugs
+          .slice(0, MAX_FOOTER_COLUMN_LINKS)
+          .map((slug) => this.fb.nonNullable.control(slug)),
+      ),
+    });
+  }
+
+  private patchFooterColumns(footer: HomeContent['footer']): void {
+    const cols = this.resolveAdminFooterColumns(footer);
+    this.footerColumns.clear();
+    for (const col of cols) {
+      this.footerColumns.push(this.createFooterColumnGroup(col));
+    }
+  }
+
+  private resolveAdminFooterColumns(
+    footer: HomeContent['footer'],
+  ): Array<{
+    type: FooterColumnType;
+    lines: string[];
+    pageSlugs: string[];
+    html: string;
+  }> {
+    const fromColumns = Array.isArray(footer.columns) ? footer.columns : [];
+    const result: Array<{
+      type: FooterColumnType;
+      lines: string[];
+      pageSlugs: string[];
+      html: string;
+    }> = [];
+
+    for (let i = 0; i < FOOTER_COLUMN_COUNT; i++) {
+      const col = fromColumns[i];
+      if (!col) {
+        if (
+          i === 2 &&
+          (footer.legalLinks?.length ?? 0) > 0 &&
+          fromColumns.length < 3
+        ) {
+          result.push({
+            type: 'links',
+            lines: [],
+            pageSlugs: this.hrefsToPageSlugs(footer.legalLinks ?? []),
+            html: '',
+          });
+        } else if (i === 0 && (footer.address?.length ?? 0) > 0) {
+          result.push({
+            type: 'text',
+            lines: footer.address ?? [],
+            pageSlugs: [],
+            html: '',
+          });
+        } else if (i === 1 && (footer.phones?.length ?? 0) > 0) {
+          result.push({
+            type: 'text',
+            lines: ['Consultas y pedidos', ...(footer.phones ?? [])],
+            pageSlugs: [],
+            html: '',
+          });
+        } else {
+          result.push({
+            type: i === 2 ? 'links' : 'text',
+            lines: i === 2 ? [] : [''],
+            pageSlugs: [],
+            html: '',
+          });
+        }
+        continue;
+      }
+
+      if (col.type === 'html' || (!!col.html?.trim() && col.type !== 'text' && col.type !== 'links')) {
+        result.push({
+          type: 'html',
+          lines: [],
+          pageSlugs: [],
+          html: col.html ?? '',
+        });
+        continue;
+      }
+
+      const isLinks =
+        col.type === 'links' ||
+        (!!col.links?.length && col.type !== 'text') ||
+        (i === 2 &&
+          !(col.lines ?? []).some((l) => !!l.trim()) &&
+          (footer.legalLinks?.length ?? 0) > 0 &&
+          !(col.links?.length));
+
+      if (isLinks) {
+        const links = col.links?.length
+          ? col.links
+          : (footer.legalLinks ?? []);
+        result.push({
+          type: 'links',
+          lines: [],
+          pageSlugs: this.hrefsToPageSlugs(links),
+          html: '',
+        });
+      } else {
+        result.push({
+          type: 'text',
+          lines: col.lines?.length ? col.lines : [''],
+          pageSlugs: [],
+          html: '',
+        });
+      }
+    }
+
+    return result;
+  }
+
+  private hrefsToPageSlugs(
+    links: Array<{ label?: string; href?: string }>,
+  ): string[] {
+    const slugs: string[] = [];
+    for (const link of links) {
+      const href = link.href?.trim();
+      if (!href) continue;
+      const page = HOME_PAGE_OPTIONS.find(
+        (p) => p.href === href || `/${p.value}` === href || p.value === href,
+      );
+      if (page && !slugs.includes(page.value)) {
+        slugs.push(page.value);
+      }
+    }
+    return slugs.slice(0, MAX_FOOTER_COLUMN_LINKS);
   }
 }

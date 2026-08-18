@@ -45,7 +45,7 @@ import { AppSelect, SelectOption } from '../../../../shared/ui/select/select';
 import { ImgFallback } from '../../../../shared/util/img-fallback/img-fallback';
 import { withCatalogFallback } from '../../../../shared/util/default-images';
 
-const PAGE_SIZE = 16;
+const PAGE_SIZE = 25;
 
 @Component({
   selector: 'app-admin-products-list',
@@ -84,6 +84,7 @@ export class AdminProductsList {
   readonly error = signal<ResolvedErrorMessage | null>(null);
   readonly reloadToken = signal(0);
   readonly deleteTarget = signal<Product | null>(null);
+  readonly bulkDeleteOpen = signal(false);
   readonly selectedIds = signal<Set<number>>(new Set());
   readonly detailModal = signal<{
     row: Product;
@@ -141,6 +142,13 @@ export class AdminProductsList {
   ];
 
   readonly columns: AdminTableColumn<Product>[] = [
+    {
+      key: 'image',
+      label: 'Imagen',
+      cell: () => '',
+      image: (r) => r.mainImageUrl,
+      imageKind: 'product',
+    },
     { key: 'title', label: 'Título', cell: (r) => r.title },
     {
       key: 'catalog',
@@ -411,7 +419,6 @@ export class AdminProductsList {
         tap(() => {
           this.loading.set(true);
           this.error.set(null);
-          this.clearSelection();
           this.syncUrl();
         }),
         switchMap(([search, categoryId, catalogId, isActive, page]) =>
@@ -538,7 +545,47 @@ export class AdminProductsList {
   }
 
   onPageChange(page: number): void {
-    this.clearSelection();
     this.page.set(page);
+  }
+
+  askBulkDelete(): void {
+    if (this.selectedCount() === 0) return;
+    this.bulkDeleteOpen.set(true);
+  }
+
+  cancelBulkDelete(): void {
+    this.bulkDeleteOpen.set(false);
+  }
+
+  confirmBulkDelete(): void {
+    const ids = [...this.selectedIds()];
+    if (ids.length === 0) {
+      this.bulkDeleteOpen.set(false);
+      return;
+    }
+
+    this.saving.set(true);
+    this.error.set(null);
+    forkJoin(
+      ids.map((id) => this.api.remove(id).pipe(catchError(() => of(false as const)))),
+    ).subscribe({
+      next: (results) => {
+        this.saving.set(false);
+        this.bulkDeleteOpen.set(false);
+        const ok = results.filter((r) => r !== false).length;
+        const fail = results.length - ok;
+        this.clearSelection();
+        this.reloadToken.update((n) => n + 1);
+        if (fail === 0) {
+          this.toast.success(`${ok} producto(s) eliminado(s)`);
+        } else {
+          this.toast.error(`${ok} ok, ${fail} fallaron. Revisá e intentá de nuevo.`);
+        }
+      },
+      error: (err: unknown) => {
+        this.saving.set(false);
+        this.toast.error(resolveErrorMessage(err).text);
+      },
+    });
   }
 }

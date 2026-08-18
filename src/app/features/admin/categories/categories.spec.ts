@@ -24,6 +24,7 @@ describe('AdminCategories', () => {
         description2: '<p>Dos</p>',
         coverImageUrl: null,
         cardImageUrl: null,
+        showCoverImage: true,
         createdAt: '',
         updatedAt: '',
       });
@@ -43,6 +44,7 @@ describe('AdminCategories', () => {
             slug: 'latex',
             description: null,
             imageUrl: null,
+            showCoverImage: true,
             pdfUrl: null,
             pdfButtonLabel: 'Descargar PDF',
             createdAt: '',
@@ -57,6 +59,7 @@ describe('AdminCategories', () => {
             slug: 'esmalte',
             description: null,
             imageUrl: null,
+            showCoverImage: true,
             pdfUrl: null,
             pdfButtonLabel: 'Descargar PDF',
             createdAt: '',
@@ -97,6 +100,7 @@ describe('AdminCategories', () => {
       description2: '<ul><li>Dos</li></ul>',
       coverImageUrl: '/cover.jpg',
       cardImageUrl: '/card.jpg',
+      showCoverImage: true,
     });
     component.save();
 
@@ -106,6 +110,7 @@ describe('AdminCategories', () => {
       description2: '<ul><li>Dos</li></ul>',
       coverImageUrl: '/cover.jpg',
       cardImageUrl: '/card.jpg',
+      showCoverImage: true,
     });
     expect(
       (createBody as Record<string, unknown>)['shortDescription'],
@@ -116,7 +121,7 @@ describe('AdminCategories', () => {
   });
 
   it('alterna entre vista tarjeta y listado, persistiendo en localStorage', () => {
-    localStorage.removeItem('admin.categories.view');
+    localStorage.removeItem('admin.categories.view.v2');
     const fixture = TestBed.createComponent(AdminCategories);
     const component = fixture.componentInstance;
     fixture.detectChanges();
@@ -125,11 +130,11 @@ describe('AdminCategories', () => {
 
     component.setViewMode('list');
     expect(component.viewMode()).toBe('list');
-    expect(localStorage.getItem('admin.categories.view')).toBe('list');
+    expect(localStorage.getItem('admin.categories.view.v2')).toBe('list');
 
     component.setViewMode('card');
     expect(component.viewMode()).toBe('card');
-    expect(localStorage.getItem('admin.categories.view')).toBe('card');
+    expect(localStorage.getItem('admin.categories.view.v2')).toBe('card');
   });
 
   it('abre el modal de catálogos de una categoría, filtra por búsqueda y desasigna principal y extras', () => {
@@ -145,6 +150,7 @@ describe('AdminCategories', () => {
       description2: null,
       coverImageUrl: null,
       cardImageUrl: null,
+      showCoverImage: true,
       createdAt: '',
       updatedAt: '',
       catalogsCount: 2,

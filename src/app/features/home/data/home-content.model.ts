@@ -56,6 +56,8 @@ export interface HomeFindProduct {
   buttonText?: string;
   buttonDestination?: HomeDestination;
   buttonLink?: string;
+  sectionBgColor?: string;
+  sectionTextColor?: string;
 }
 
 export interface HomeCategoryProduct {
@@ -107,11 +109,32 @@ export interface HomeCopyright {
   designByHref?: string;
 }
 
+export interface HomeFooterColumnLink {
+  label: string;
+  href: string;
+}
+
+export interface HomeFooterColumn {
+  type?: 'text' | 'links' | 'html';
+  lines?: string[];
+  links?: HomeFooterColumnLink[];
+  /** Descripción HTML (type=html). */
+  html?: string;
+}
+
 export interface HomeFooter {
   topImageUrl?: string;
   logoUrl?: string;
+  columns?: HomeFooterColumn[];
+  /** @deprecated Preferí colores en findProduct. */
+  widgetsBgColor?: string;
+  /** @deprecated Preferí colores en findProduct. */
+  widgetsTextColor?: string;
+  /** @deprecated Preferí `columns`. */
   address?: string[];
+  /** @deprecated Preferí `columns`. */
   phones?: string[];
+  /** @deprecated Preferí columns con type links. */
   legalLinks?: Array<{ label: string; href: string }>;
   social: HomeSocial;
   copyright: HomeCopyright;

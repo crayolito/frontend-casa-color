@@ -10,7 +10,7 @@ import { environment } from '../../../../../environments/environment';
 import { Product } from '../../data/admin.models';
 import { AdminToastService } from '../../../../shared/admin-ui/admin-toast/admin-toast.service';
 
-const emptyMeta = { page: 1, limit: 16, total: 0, totalPages: 0 };
+const emptyMeta = { page: 1, limit: 25, total: 0, totalPages: 0 };
 
 function product(partial: Partial<Product> & { id: number; title: string }): Product {
   return {
@@ -78,7 +78,7 @@ describe('AdminProductsList', () => {
               data: products,
               meta: {
                 page: 1,
-                limit: 16,
+                limit: 25,
                 total: products.length,
                 totalPages: products.length ? 1 : 0,
               },
@@ -130,7 +130,7 @@ describe('AdminProductsList', () => {
     );
     searched.flush({
       data: [product({ id: 5, title: 'Látex' })],
-      meta: { page: 1, limit: 16, total: 1, totalPages: 1 },
+      meta: { page: 1, limit: 25, total: 1, totalPages: 1 },
     });
     await fixture.whenStable();
 
@@ -170,7 +170,7 @@ describe('AdminProductsList', () => {
     expect(toast.toasts().some((t) => t.message.includes('desactivado'))).toBe(true);
   });
 
-  it('clears selection when page changes', async () => {
+  it('keeps selection when page changes', async () => {
     const component = fixture.componentInstance;
     flushBoot([product({ id: 1, title: 'A' })]);
     await fixture.whenStable();
@@ -179,7 +179,7 @@ describe('AdminProductsList', () => {
     expect(component.selectedCount()).toBe(1);
 
     component.onPageChange(2);
-    expect(component.selectedCount()).toBe(0);
+    expect(component.selectedCount()).toBe(1);
 
     const pageReqs = http.match((r) =>
       r.url.startsWith(`${environment.apiUrl}/admin/products`),
@@ -187,6 +187,43 @@ describe('AdminProductsList', () => {
     for (const req of pageReqs) {
       req.flush({ data: [], meta: emptyMeta });
     }
+  });
+
+  it('bulk deletes selected products', async () => {
+    const component = fixture.componentInstance;
+    flushBoot([
+      product({ id: 1, title: 'A' }),
+      product({ id: 2, title: 'B' }),
+    ]);
+    await fixture.whenStable();
+
+    component.onSelectionChange(new Set([1, 2]));
+    component.askBulkDelete();
+    component.confirmBulkDelete();
+
+    const deletes = http.match(
+      (r) =>
+        r.method === 'DELETE' &&
+        r.url.startsWith(`${environment.apiUrl}/admin/products/`),
+    );
+    expect(deletes.length).toBe(2);
+    for (const req of deletes) {
+      req.flush(null);
+    }
+    await fixture.whenStable();
+
+    const reload = http.match((r) =>
+      r.url.startsWith(`${environment.apiUrl}/admin/products`),
+    );
+    for (const req of reload) {
+      if (req.request.method === 'GET') {
+        req.flush({ data: [], meta: emptyMeta });
+      }
+    }
+    expect(component.selectedCount()).toBe(0);
+    expect(toast.toasts().some((t) => t.message.includes('eliminado'))).toBe(
+      true,
+    );
   });
 
   it('toggles active via cellClick on Estado', async () => {

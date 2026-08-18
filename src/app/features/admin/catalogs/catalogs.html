@@ -228,6 +228,14 @@
       [url]="form.controls.imageUrl.value || null"
       (urlChange)="onImageChange($event)"
     />
+    <div class="admin-form__switch">
+      <app-admin-switch
+        label="Mostrar portada"
+        activeLabel="Visible"
+        inactiveLabel="Oculta"
+        formControlName="showCoverImage"
+      />
+    </div>
 
     <app-admin-form-field
       label="PDF (URL)"
