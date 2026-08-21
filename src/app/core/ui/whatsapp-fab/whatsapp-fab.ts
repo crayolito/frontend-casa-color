@@ -3,6 +3,7 @@ import {
   HomeFloating,
   HomeWhatsapp,
 } from '../../../features/home/data/home-content.model';
+import { whatsappHref } from '../../../shared/util/whatsapp';
 
 @Component({
   selector: 'app-whatsapp-fab',
@@ -13,20 +14,8 @@ export class WhatsappFab {
   readonly floating = input<HomeFloating | null>(null);
 
   protected readonly href = computed(() =>
-    this.whatsappHref(this.floating()?.whatsapp),
+    whatsappHref(this.floating()?.whatsapp as HomeWhatsapp | null),
   );
 
   protected readonly visible = computed(() => !!this.href());
-
-  private whatsappHref(wa?: HomeWhatsapp | null): string {
-    if (!wa?.enabled || !wa.phone?.trim()) {
-      return '';
-    }
-    const phone = wa.phone.replace(/\D/g, '');
-    if (!phone) {
-      return '';
-    }
-    const text = encodeURIComponent(wa.message?.trim() || '');
-    return text ? `https://wa.me/${phone}?text=${text}` : `https://wa.me/${phone}`;
-  }
 }

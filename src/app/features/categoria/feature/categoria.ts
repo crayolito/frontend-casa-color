@@ -2,6 +2,7 @@ import {
   Component,
   ElementRef,
   OnInit,
+  computed,
   effect,
   inject,
   signal,
@@ -20,6 +21,8 @@ import {
   withCatalogFallback,
   withCategoryFallback,
 } from '../../../shared/util/default-images';
+import { whatsappHref } from '../../../shared/util/whatsapp';
+import { HomeApi } from '../../home/data/home.api';
 import { CategoriaApi } from '../data/categoria.api';
 import { CategoryDetail } from '../data/categoria.model';
 
@@ -35,6 +38,7 @@ const REVEAL_STAGGER_MS = 50;
 export class Categoria implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(CategoriaApi);
+  private readonly homeApi = inject(HomeApi);
 
   private readonly heroEl = viewChild<ElementRef<HTMLElement>>('hero');
 
@@ -43,6 +47,23 @@ export class Categoria implements OnInit {
   protected readonly error = signal<ResolvedErrorMessage | null>(null);
   /** Offset Y del parallax bg_only (px), patrón Salient / hero-slider. */
   protected readonly parallaxY = signal(0);
+
+  /** Link a WhatsApp del hero: vacío si no hay WhatsApp habilitado (el hero queda como div). */
+  protected readonly heroHref = computed(() => {
+    const name = this.content()?.name;
+    if (!name) {
+      return '';
+    }
+    return whatsappHref(
+      this.homeApi.content()?.floating?.whatsapp,
+      `Hola, me interesa ${name}`,
+    );
+  });
+
+  protected readonly heroAriaLabel = computed(() => {
+    const name = this.content()?.name ?? '';
+    return this.heroHref() ? `Contactar por WhatsApp sobre ${name}` : name;
+  });
 
   private parallaxRaf = 0;
   private inView = false;

@@ -1,10 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter, ActivatedRoute } from '@angular/router';
+import { signal } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { CategoriaApi } from '../data/categoria.api';
 import { CategoryDetail } from '../data/categoria.model';
+import { HomeApi } from '../../home/data/home.api';
+import { HomeContent } from '../../home/data/home-content.model';
 import { Categoria } from './categoria';
+
+const WHATSAPP_OBJECT = { enabled: true, phone: '59122421800' };
 
 const SAMPLE: CategoryDetail = {
   id: 1,
@@ -39,6 +44,7 @@ describe('Categoria', () => {
     detail?: CategoryDetail | null;
     error?: boolean;
     slug?: string | null;
+    whatsapp?: { enabled: boolean; phone?: string; message?: string } | null;
   }) {
     const detail = opts?.detail === undefined ? SAMPLE : opts.detail;
     let loadedSlug: string | undefined;
@@ -57,6 +63,16 @@ describe('Categoria', () => {
         provideHttpClient(),
         provideRouter([]),
         { provide: CategoriaApi, useValue: api },
+        {
+          provide: HomeApi,
+          useValue: {
+            content: signal<HomeContent | null>(
+              opts?.whatsapp
+                ? ({ floating: { whatsapp: opts.whatsapp } } as unknown as HomeContent)
+                : null,
+            ),
+          },
+        },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -156,5 +172,57 @@ describe('Categoria', () => {
     const { fixture } = await setup({ error: true });
     const el: HTMLElement = fixture.nativeElement;
     expect(el.querySelector('.categoria__error')).toBeTruthy();
+  });
+
+  it('convierte el hero en link a WhatsApp cuando está habilitado', async () => {
+    const { fixture } = await setup({ whatsapp: WHATSAPP_OBJECT });
+    const el: HTMLElement = fixture.nativeElement;
+    const hero = el.querySelector('a.categoria__hero') as HTMLAnchorElement;
+    expect(hero).toBeTruthy();
+    expect(hero.href).toBe(
+      'https://wa.me/59122421800?text=' +
+        encodeURIComponent('Hola, me interesa Línea Deco'),
+    );
+    expect(hero.target).toBe('_blank');
+    expect(hero.rel).toContain('noopener');
+    expect(hero.rel).toContain('noreferrer');
+    expect(hero.getAttribute('aria-label')).toBe(
+      'Contactar por WhatsApp sobre Línea Deco',
+    );
+    expect(el.querySelector('.categoria__hero-bg')).toBeTruthy();
+  });
+
+  it('mantiene el hero como div no clickeable si WhatsApp está deshabilitado', async () => {
+    const { fixture } = await setup({
+      whatsapp: { ...WHATSAPP_OBJECT, enabled: false },
+    });
+    const el: HTMLElement = fixture.nativeElement;
+    const hero = el.querySelector('.categoria__hero');
+    expect(hero?.tagName).toBe('DIV');
+    expect(hero?.hasAttribute('href')).toBe(false);
+    expect(el.querySelector('a.categoria__hero')).toBeNull();
+  });
+
+  it('mantiene el hero como div si el teléfono no tiene dígitos', async () => {
+    const { fixture } = await setup({
+      whatsapp: { enabled: true, phone: '  ' },
+    });
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('.categoria__hero')?.tagName).toBe('DIV');
+    expect(el.querySelector('a.categoria__hero')).toBeNull();
+  });
+
+  it('codifica el nombre de la categoría en el texto del mensaje', async () => {
+    const { fixture } = await setup({
+      detail: { ...SAMPLE, name: 'Pinturas & Acabados' },
+      whatsapp: WHATSAPP_OBJECT,
+    });
+    const hero = fixture.nativeElement.querySelector(
+      'a.categoria__hero',
+    ) as HTMLAnchorElement;
+    expect(hero.href).toBe(
+      'https://wa.me/59122421800?text=' +
+        encodeURIComponent('Hola, me interesa Pinturas & Acabados'),
+    );
   });
 });

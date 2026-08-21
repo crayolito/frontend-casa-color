@@ -31,6 +31,8 @@ import {
   withCatalogFallback,
   withProductFallback,
 } from '../../../shared/util/default-images';
+import { whatsappHref } from '../../../shared/util/whatsapp';
+import { HomeApi } from '../../home/data/home.api';
 
 @Component({
   selector: 'app-catalogo-detalle',
@@ -44,6 +46,7 @@ export class CatalogoDetalle implements OnInit {
   private readonly catalogsApi = inject(CatalogsPublicApi);
   private readonly productsApi = inject(ProductsPublicApi);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly homeApi = inject(HomeApi);
 
   protected readonly catalog = signal<PublicCatalog | null>(null);
   protected readonly siblingCatalogs = signal<PublicCatalog[]>([]);
@@ -60,6 +63,23 @@ export class CatalogoDetalle implements OnInit {
   protected readonly heroStyle = computed(() => ({
     'background-image': `url('${withCatalogFallback(this.catalog()?.imageUrl)}')`,
   }));
+
+  /** Link a WhatsApp del hero: vacío si no hay WhatsApp habilitado (el hero queda como div). */
+  protected readonly heroHref = computed(() => {
+    const name = this.catalogName();
+    if (!name) {
+      return '';
+    }
+    return whatsappHref(
+      this.homeApi.content()?.floating?.whatsapp,
+      `Hola, me interesa ${name}`,
+    );
+  });
+
+  protected readonly heroAriaLabel = computed(() => {
+    const name = this.catalogName();
+    return this.heroHref() ? `Contactar por WhatsApp sobre ${name}` : name;
+  });
 
   protected readonly filteredProducts = computed(() => {
     const q = this.search().trim().toLowerCase();

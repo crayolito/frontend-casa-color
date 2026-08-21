@@ -10,18 +10,35 @@
     </div>
   } @else if (content(); as c) {
     @if (c.showCoverImage !== false) {
-    <div
-      #hero
-      class="categoria__hero"
-      role="img"
-      [attr.aria-label]="c.name"
-    >
-      <div
-        class="categoria__hero-bg"
-        [style.background-image]="heroBg(c.coverImageUrl ?? c.cardImageUrl)"
-        [style.transform]="'translate3d(0, ' + parallaxY() + 'px, 0)'"
-      ></div>
-    </div>
+      @if (heroHref(); as waHref) {
+        <a
+          #hero
+          class="categoria__hero"
+          [href]="waHref"
+          target="_blank"
+          rel="noopener noreferrer"
+          [attr.aria-label]="heroAriaLabel()"
+        >
+          <div
+            class="categoria__hero-bg"
+            [style.background-image]="heroBg(c.coverImageUrl ?? c.cardImageUrl)"
+            [style.transform]="'translate3d(0, ' + parallaxY() + 'px, 0)'"
+          ></div>
+        </a>
+      } @else {
+        <div
+          #hero
+          class="categoria__hero"
+          role="img"
+          [attr.aria-label]="heroAriaLabel()"
+        >
+          <div
+            class="categoria__hero-bg"
+            [style.background-image]="heroBg(c.coverImageUrl ?? c.cardImageUrl)"
+            [style.transform]="'translate3d(0, ' + parallaxY() + 'px, 0)'"
+          ></div>
+        </div>
+      }
     }
 
     <app-container>

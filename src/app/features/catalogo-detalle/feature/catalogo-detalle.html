@@ -12,12 +12,23 @@
     </div>
   } @else if (catalog(); as cat) {
     @if (cat.showCoverImage !== false) {
-    <div
-      class="catalogo-detalle__hero"
-      role="img"
-      [attr.aria-label]="cat.name"
-      [style]="heroStyle()"
-    ></div>
+      @if (heroHref(); as waHref) {
+        <a
+          class="catalogo-detalle__hero"
+          [href]="waHref"
+          target="_blank"
+          rel="noopener noreferrer"
+          [attr.aria-label]="heroAriaLabel()"
+          [style]="heroStyle()"
+        ></a>
+      } @else {
+        <div
+          class="catalogo-detalle__hero"
+          role="img"
+          [attr.aria-label]="heroAriaLabel()"
+          [style]="heroStyle()"
+        ></div>
+      }
     }
 
     <app-container>
