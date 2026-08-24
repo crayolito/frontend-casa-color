@@ -38,13 +38,9 @@ export class HeroSlider implements OnInit {
   protected readonly paused = signal(false);
   /** Dispara caption fade_in_from_bottom al cambiar slide. */
   protected readonly captionEnter = signal(true);
-  /** Offset Y del parallax bg_only (px). */
-  protected readonly parallaxY = signal(0);
 
   private timerId: ReturnType<typeof setInterval> | null = null;
   private captionTimer: ReturnType<typeof setTimeout> | null = null;
-  private parallaxRaf = 0;
-  private inView = false;
 
   constructor() {
     effect(() => {
@@ -69,7 +65,6 @@ export class HeroSlider implements OnInit {
 
   ngOnInit(): void {
     this.restartTimer(this.banner());
-    this.setupParallax();
   }
 
   protected slides(): HomeSlide[] {
@@ -136,52 +131,6 @@ export class HeroSlider implements OnInit {
       this.captionEnter.set(true);
       this.captionTimer = null;
     }, 30);
-  }
-
-  private setupParallax(): void {
-    if (typeof window === 'undefined' || this.prefersReducedMotion()) {
-      return;
-    }
-    if (typeof IntersectionObserver === 'undefined') {
-      return;
-    }
-
-    const el = this.host.nativeElement;
-    const onScroll = (): void => {
-      if (!this.inView) return;
-      cancelAnimationFrame(this.parallaxRaf);
-      this.parallaxRaf = requestAnimationFrame(() => this.updateParallax());
-    };
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          this.inView = entry.isIntersecting;
-          if (this.inView) {
-            this.updateParallax();
-          }
-        }
-      },
-      { threshold: 0 },
-    );
-
-    observer.observe(el);
-    window.addEventListener('scroll', onScroll, { passive: true });
-
-    this.destroyRef.onDestroy(() => {
-      observer.disconnect();
-      window.removeEventListener('scroll', onScroll);
-      cancelAnimationFrame(this.parallaxRaf);
-    });
-  }
-
-  /** Parallax bg_only: mueve el fondo ~15% de la altura del hero según scroll. */
-  private updateParallax(): void {
-    const el = this.host.nativeElement;
-    const rect = el.getBoundingClientRect();
-    const height = rect.height || 1;
-    const progress = Math.min(1, Math.max(0, -rect.top / height));
-    this.parallaxY.set(progress * height * 0.15);
   }
 
   private prefersReducedMotion(): boolean {

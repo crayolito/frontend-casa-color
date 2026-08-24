@@ -17,9 +17,10 @@
   margin-top: var(--header-h-mobile);
   height: auto;
   padding: 13% 0;
-  background-color: #000;
+  /* Banda del color de la página: la imagen mantiene su proporción completa */
+  background-color: var(--color-white);
   background-image: url('/img/img-auxiliar2.jpg');
-  background-size: cover;
+  background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
 }

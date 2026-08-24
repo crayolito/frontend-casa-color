@@ -10,8 +10,7 @@
   margin-top: var(--header-h-mobile);
   height: auto;
   padding: 13% 0;
-  background-color: #000;
-  /* La imagen mantiene su proporción; las bandas quedan negras */
+  /* La imagen mantiene su proporción; las bandas usan el fondo del sitio */
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;

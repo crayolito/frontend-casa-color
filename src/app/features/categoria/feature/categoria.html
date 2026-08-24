@@ -25,7 +25,6 @@
           <div
             class="categoria__hero-bg"
             [style.background-image]="heroBg(c.coverImageUrl ?? c.cardImageUrl)"
-            [style.transform]="'translate3d(0, ' + parallaxY() + 'px, 0)'"
           ></div>
         </a>
       } @else {
@@ -38,7 +37,6 @@
           <div
             class="categoria__hero-bg"
             [style.background-image]="heroBg(c.coverImageUrl ?? c.cardImageUrl)"
-            [style.transform]="'translate3d(0, ' + parallaxY() + 'px, 0)'"
           ></div>
         </div>
       }

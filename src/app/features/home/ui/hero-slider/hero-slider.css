@@ -19,7 +19,8 @@
   position: absolute;
   inset: 0;
   display: flex;
-  background-color: #000;
+  /* Fondo del sitio: las bandas de contain se ven del color de la página. */
+  background-color: var(--bg-base);
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.6s cubic-bezier(0.65, 0, 0.35, 1),
@@ -32,27 +33,14 @@
   z-index: 1;
 }
 
-/* Capa de fondo separada para parallax bg_only (Salient .image-bg) */
+/* Capa de fondo separada (Salient .image-bg) */
 .hero__bg {
   position: absolute;
-  /* Extra altura para que el translate no deje huecos */
-  inset: -8% 0;
+  inset: 0;
   background-position: center;
   /* La imagen mantiene su proporción; las bandas usan el fondo del slide */
   background-size: contain;
   background-repeat: no-repeat;
-  will-change: transform;
-}
-
-.hero__overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.2));
-}
-
-/* light solo suaviza el scrim; el título sigue blanco */
-.hero__slide--light .hero__overlay {
-  background: linear-gradient(90deg, rgb(0 0 0 / 0.35), rgb(0 0 0 / 0.12));
 }
 
 .hero__content {
@@ -107,7 +95,8 @@
   line-height: var(--line-height-hero);
   font-weight: 300;
   letter-spacing: var(--letter-spacing-hero);
-  text-shadow: 0 2px 20px rgb(0 0 0 / 0.65), 0 1px 4px rgb(0 0 0 / 0.5);
+  /* Sin overlay de fondo: la sombra sola garantiza la lectura del texto. */
+  text-shadow: 0 2px 24px rgb(0 0 0 / 0.8), 0 1px 6px rgb(0 0 0 / 0.6);
 }
 
 .hero__cta {
@@ -166,9 +155,8 @@
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: var(--color-white);
+  color: #111;
   cursor: pointer;
-  filter: drop-shadow(0 1px 4px rgb(0 0 0 / 0.45));
   transition: color 0.3s cubic-bezier(0.645, 0.045, 0.355, 1),
     transform 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
 }
@@ -286,10 +274,6 @@
   .hero__content--enter .hero__title,
   .hero__content--enter .hero__cta {
     animation: none;
-  }
-
-  .hero__bg {
-    transform: none !important;
   }
 }
 

@@ -32,27 +32,23 @@
 
 /*
   Clonada: #page-header-wrap 700px; data-padding-amt=high → mobile padding 13% 0
-  + parallax capa .page-header-bg-image (Salient).
+  con capa de imagen .page-header-bg-image (Salient).
 */
 .categoria__hero {
   position: relative;
   margin-top: var(--header-h-mobile);
   height: auto;
   padding: 13% 0;
-  background-color: #000;
   overflow: hidden;
 }
 
 .categoria__hero-bg {
   position: absolute;
-  /* Extra altura para que el translate no deje huecos */
-  inset: -8% 0;
-  background-color: #000;
-  /* La imagen mantiene su proporción; las bandas quedan negras */
+  inset: 0;
+  /* La imagen mantiene su proporción; las bandas usan el fondo del sitio */
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
-  will-change: transform;
 }
 
 @media (min-width: 1000px) {

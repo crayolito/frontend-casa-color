@@ -12,9 +12,10 @@
   margin-top: var(--header-h-mobile);
   height: auto;
   padding: 10% 0;
-  background-color: #000;
-  background-size: cover;
-  background-position: bottom center;
+  /* Banda del color de la página: la imagen mantiene su proporción completa */
+  background-color: var(--color-white);
+  background-size: contain;
+  background-position: center;
   background-repeat: no-repeat;
 }
 
