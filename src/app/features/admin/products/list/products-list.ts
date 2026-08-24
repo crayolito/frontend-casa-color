@@ -146,7 +146,10 @@ export class AdminProductsList {
       key: 'image',
       label: 'Imagen',
       cell: () => '',
-      image: (r) => r.mainImageUrl,
+      image: (r) =>
+        r.images?.find((i) => i.isMain)?.url ??
+        r.images?.[0]?.url ??
+        r.mainImageUrl,
       imageKind: 'product',
     },
     { key: 'title', label: 'Título', cell: (r) => r.title },

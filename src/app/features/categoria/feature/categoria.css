@@ -48,7 +48,8 @@
   /* Extra altura para que el translate no deje huecos */
   inset: -8% 0;
   background-color: #000;
-  background-size: cover;
+  /* La imagen mantiene su proporción; las bandas quedan negras */
+  background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
   will-change: transform;
@@ -59,6 +60,17 @@
     margin-top: var(--header-h-desktop);
     height: 700px;
     padding: 0;
+  }
+}
+
+/* Sin hero (showCoverImage false): el main compensa el header fijo. */
+.categoria--no-hero {
+  padding-top: var(--header-h-mobile);
+}
+
+@media (min-width: 1000px) {
+  .categoria--no-hero {
+    padding-top: var(--header-h-desktop);
   }
 }
 

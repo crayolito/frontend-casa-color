@@ -1,4 +1,7 @@
-<main class="catalogo-detalle">
+<main
+  class="catalogo-detalle"
+  [class.catalogo-detalle--no-hero]="catalog()?.showCoverImage === false"
+>
   @if (loading()) {
     <div class="catalogo-detalle__status" aria-busy="true">
       <p>Cargando catálogo…</p>

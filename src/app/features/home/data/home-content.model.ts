@@ -126,9 +126,9 @@ export interface HomeFooter {
   topImageUrl?: string;
   logoUrl?: string;
   columns?: HomeFooterColumn[];
-  /** @deprecated Preferí colores en findProduct. */
+  /** Color de fondo del bloque rojo del footer. */
   widgetsBgColor?: string;
-  /** @deprecated Preferí colores en findProduct. */
+  /** Color de texto del bloque rojo del footer. */
   widgetsTextColor?: string;
   /** @deprecated Preferí `columns`. */
   address?: string[];

@@ -36,6 +36,7 @@ describe('CatalogoDetalle', () => {
     whatsapp?: boolean;
     error?: boolean;
     loading?: boolean;
+    catalog?: Partial<PublicCatalog>;
   }): Promise<{ fixture: ComponentFixture<CatalogoDetalle>; getBySlug: ReturnType<typeof vi.fn> }> {
     const getBySlug = vi.fn(() => {
       if (opts?.loading) {
@@ -49,7 +50,7 @@ describe('CatalogoDetalle', () => {
           correlationId: 'corr-1',
         }));
       }
-      return of(CATALOG);
+      return of({ ...CATALOG, ...opts?.catalog });
     });
 
     await TestBed.configureTestingModule({
@@ -158,5 +159,19 @@ describe('CatalogoDetalle', () => {
 
     expect(getBySlug).toHaveBeenCalledTimes(2);
     expect(el.querySelector('.catalogo-detalle__hero')).toBeTruthy();
+  });
+
+  it('aplica la clase de offset cuando el hero está oculto', async () => {
+    const { fixture } = await setup({ catalog: { showCoverImage: false } });
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.catalogo-detalle__hero')).toBeNull();
+    expect(el.querySelector('main.catalogo-detalle--no-hero')).toBeTruthy();
+  });
+
+  it('no aplica la clase de offset con hero visible', async () => {
+    const { fixture } = await setup();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.catalogo-detalle__hero')).toBeTruthy();
+    expect(el.querySelector('main.catalogo-detalle--no-hero')).toBeNull();
   });
 });

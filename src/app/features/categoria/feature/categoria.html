@@ -1,4 +1,7 @@
-<main class="categoria">
+<main
+  class="categoria"
+  [class.categoria--no-hero]="content()?.showCoverImage === false"
+>
   @if (loading()) {
     <div class="categoria__skeleton" aria-busy="true" aria-live="polite">
       <p class="categoria__skeleton-text">Cargando…</p>

@@ -414,6 +414,28 @@
                 Tres columnas independientes. En cada una elegí el tipo:
                 texto/contacto, enlaces a páginas del sitio, o descripción con HTML enriquecido.
               </p>
+              <form class="admin-home__form" [formGroup]="footerForm">
+                <div class="admin-home__color-row">
+                  <label class="admin-home__color-field">
+                    <span class="admin-home__color-label">Color de fondo del bloque</span>
+                    <input
+                      class="admin-home__color"
+                      type="color"
+                      formControlName="widgetsBgColor"
+                      aria-label="Color de fondo del bloque rojo del footer"
+                    />
+                  </label>
+                  <label class="admin-home__color-field">
+                    <span class="admin-home__color-label">Color de texto</span>
+                    <input
+                      class="admin-home__color"
+                      type="color"
+                      formControlName="widgetsTextColor"
+                      aria-label="Color de texto del bloque rojo del footer"
+                    />
+                  </label>
+                </div>
+              </form>
               <div class="admin-home__footer-columns">
                 @for (col of footerColumns.controls; track $index; let ci = $index) {
                   <div

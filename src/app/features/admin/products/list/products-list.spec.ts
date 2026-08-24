@@ -351,4 +351,36 @@ describe('AdminProductsList', () => {
     expect(component.detailModal()?.items.length).toBe(0);
     expect(component.rows()[0].catalogs.length).toBe(0);
   });
+
+  it('deriva la imagen del listado desde images con fallback a mainImageUrl', () => {
+    const component = fixture.componentInstance;
+    flushBoot();
+    const imageCol = component.columns.find((c) => c.key === 'image');
+
+    const withMain = product({
+      id: 50,
+      title: 'Con principal',
+      images: [
+        { id: 1, url: '/main.jpg', publicId: 'p1', isMain: true, displayOrder: 0 },
+        { id: 2, url: '/second.jpg', publicId: 'p2', isMain: false, displayOrder: 1 },
+      ],
+    });
+    expect(imageCol?.image?.(withMain)).toBe('/main.jpg');
+
+    const noMainFlag = product({
+      id: 51,
+      title: 'Sin flag',
+      images: [
+        { id: 3, url: '/first.jpg', publicId: 'p3', isMain: false, displayOrder: 0 },
+      ],
+    });
+    expect(imageCol?.image?.(noMainFlag)).toBe('/first.jpg');
+
+    const onlyLegacy = product({
+      id: 52,
+      title: 'Legacy',
+      mainImageUrl: '/legacy.jpg',
+    });
+    expect(imageCol?.image?.(onlyLegacy)).toBe('/legacy.jpg');
+  });
 });

@@ -11,8 +11,10 @@
   height: auto;
   padding: 13% 0;
   background-color: #000;
-  background-size: cover;
+  /* La imagen mantiene su proporción; las bandas quedan negras */
+  background-size: contain;
   background-position: center;
+  background-repeat: no-repeat;
 }
 
 /* Hero como link a WhatsApp: un <a> es inline por defecto y no aplica height/padding. */
@@ -32,6 +34,17 @@ a.catalogo-detalle__hero:focus-visible {
     margin-top: var(--header-h-desktop);
     height: 700px;
     padding: 0;
+  }
+}
+
+/* Sin hero (showCoverImage false): el main compensa el header fijo. */
+.catalogo-detalle--no-hero {
+  padding-top: var(--header-h-mobile);
+}
+
+@media (min-width: 1000px) {
+  .catalogo-detalle--no-hero {
+    padding-top: var(--header-h-desktop);
   }
 }
 

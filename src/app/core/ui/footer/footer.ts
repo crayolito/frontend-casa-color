@@ -9,6 +9,8 @@ import { ImgFallback } from '../../../shared/util/img-fallback/img-fallback';
 import { SafeHtmlPipe } from '../../../shared/pipes/safe-html.pipe';
 
 const PHONE_LINE = /^\+?\d[\d\s.\-]{5,}$/;
+const DEFAULT_WIDGETS_BG = '#dd3333';
+const DEFAULT_WIDGETS_TEXT = '#ffffff';
 
 @Component({
   selector: 'app-footer',
@@ -26,6 +28,16 @@ export class Footer {
 
   protected data(): HomeFooter {
     return this.footer();
+  }
+
+  /** Color de fondo del bloque rojo (fallback al rojo actual). */
+  protected widgetsBg(): string {
+    return this.data().widgetsBgColor?.trim() || DEFAULT_WIDGETS_BG;
+  }
+
+  /** Color de texto del bloque rojo (fallback al blanco actual). */
+  protected widgetsText(): string {
+    return this.data().widgetsTextColor?.trim() || DEFAULT_WIDGETS_TEXT;
   }
 
   protected visibleColumns(): HomeFooterColumn[] {

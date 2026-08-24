@@ -1,5 +1,9 @@
 <footer class="footer">
-  <div class="footer__widgets">
+  <div
+    class="footer__widgets"
+    [style.--footer-widgets-bg]="widgetsBg()"
+    [style.--footer-widgets-text]="widgetsText()"
+  >
     <div class="container footer__grid">
       <div class="footer__col footer__col--logo">
         <img

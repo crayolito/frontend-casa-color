@@ -148,6 +148,15 @@ describe('Categoria', () => {
     expect(el.querySelector('h5.categoria__heading')?.textContent).toContain(
       'Línea Deco',
     );
+    // El main compensa el header fijo cuando no hay hero.
+    expect(el.querySelector('main.categoria--no-hero')).toBeTruthy();
+  });
+
+  it('no aplica la clase de offset cuando el hero está visible', async () => {
+    const { fixture } = await setup();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('.categoria__hero')).toBeTruthy();
+    expect(el.querySelector('main.categoria--no-hero')).toBeNull();
   });
 
   it('aplica appReveal a las cards de catálogo', async () => {

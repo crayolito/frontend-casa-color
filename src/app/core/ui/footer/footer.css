@@ -3,8 +3,8 @@
 }
 
 .footer__widgets {
-  background: var(--bg-footer-widgets);
-  color: #ffffff;
+  background: var(--footer-widgets-bg, var(--bg-footer-widgets));
+  color: var(--footer-widgets-text, #ffffff);
   padding: 3.5rem 0 2.75rem;
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;

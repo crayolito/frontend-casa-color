@@ -151,4 +151,38 @@ describe('Footer', () => {
     ) as HTMLAnchorElement | null;
     expect(fb?.getAttribute('href')).toBe('https://facebook.com/legacy');
   });
+
+  it('applies editable widget background and text colors', async () => {
+    fixture.componentRef.setInput('footer', {
+      ...BASE,
+      widgetsBgColor: '#123456',
+      widgetsTextColor: '#fedcba',
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const widgets = fixture.nativeElement.querySelector(
+      '.footer__widgets',
+    ) as HTMLElement;
+    expect(widgets.style.getPropertyValue('--footer-widgets-bg')).toBe(
+      '#123456',
+    );
+    expect(widgets.style.getPropertyValue('--footer-widgets-text')).toBe(
+      '#fedcba',
+    );
+  });
+
+  it('falls back to default widget colors when not configured', async () => {
+    fixture.componentRef.setInput('footer', { ...BASE });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const widgets = fixture.nativeElement.querySelector(
+      '.footer__widgets',
+    ) as HTMLElement;
+    expect(widgets.style.getPropertyValue('--footer-widgets-bg')).toBe(
+      '#dd3333',
+    );
+    expect(widgets.style.getPropertyValue('--footer-widgets-text')).toBe(
+      '#ffffff',
+    );
+  });
 });

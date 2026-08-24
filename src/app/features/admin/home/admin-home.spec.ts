@@ -78,15 +78,15 @@ describe('AdminHome', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('does not add more than 5 nav items and cannot go below 3', () => {
+  it('does not add more than 7 nav items and cannot go below 3', () => {
     const fixture = TestBed.createComponent(AdminHome);
     fixture.detectChanges();
     const comp = fixture.componentInstance;
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 10; i++) {
       comp.addNavItem();
     }
-    expect(comp.navItems.length).toBe(5);
-    for (let i = 0; i < 8; i++) {
+    expect(comp.navItems.length).toBe(7);
+    for (let i = 0; i < 10; i++) {
       comp.removeNavItem(0);
     }
     expect(comp.navItems.length).toBe(3);

@@ -54,7 +54,7 @@ const MAX_HOME_CATEGORIES = 4;
 const MIN_SLIDES = 1;
 const MAX_SLIDES = 5;
 const MIN_NAV_ITEMS = 3;
-const MAX_NAV_ITEMS = 5;
+const MAX_NAV_ITEMS = 7;
 const MAX_FOOTER_COLUMN_LINES = 8;
 const MAX_FOOTER_COLUMN_LINKS = 8;
 const FOOTER_COLUMN_COUNT = 3;
@@ -189,6 +189,8 @@ export class AdminHome implements OnInit {
     copyrightText: ['', Validators.required],
     designBy: ['Crayolito', Validators.required],
     designByHref: [''],
+    widgetsBgColor: [DEFAULT_FIND_BG, [Validators.pattern(HEX_COLOR)]],
+    widgetsTextColor: [DEFAULT_FIND_TEXT, [Validators.pattern(HEX_COLOR)]],
   });
 
   readonly footerColumns = this.fb.array<FormGroup>([]);
@@ -771,6 +773,8 @@ export class AdminHome implements OnInit {
     return {
       topImageUrl: f.topImageUrl || undefined,
       logoUrl: f.logoUrl || undefined,
+      widgetsBgColor: f.widgetsBgColor || undefined,
+      widgetsTextColor: f.widgetsTextColor || undefined,
       columns,
       legalLinks: [],
       social: {
@@ -853,6 +857,8 @@ export class AdminHome implements OnInit {
       copyrightText: data.footer.copyright.text,
       designBy: data.footer.copyright.designBy,
       designByHref: data.footer.copyright.designByHref ?? '',
+      widgetsBgColor: data.footer.widgetsBgColor ?? DEFAULT_FIND_BG,
+      widgetsTextColor: data.footer.widgetsTextColor ?? DEFAULT_FIND_TEXT,
     });
     this.patchFooterColumns(data.footer);
 
