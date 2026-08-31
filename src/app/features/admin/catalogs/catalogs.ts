@@ -35,7 +35,6 @@ import { AdminConfirmDialog } from '../../../shared/admin-ui/admin-confirm-dialo
 import { AdminFilters } from '../../../shared/admin-ui/admin-filters/admin-filters';
 import { AdminIconButton } from '../../../shared/admin-ui/admin-icon-button/admin-icon-button';
 import { ImageUploader } from '../../../shared/admin-ui/image-uploader/image-uploader';
-import { AdminMultiSelect } from '../../../shared/admin-ui/admin-multi-select/admin-multi-select';
 import { AdminErrorState } from '../../../shared/admin-ui/admin-error-state/admin-error-state';
 import { AdminHtmlEditor } from '../../../shared/admin-ui/admin-html-editor/admin-html-editor';
 import { AppSelect, SelectOption } from '../../../shared/ui/select/select';
@@ -72,7 +71,6 @@ interface CategoryItem {
     AdminConfirmDialog,
     AdminFilters,
     ImageUploader,
-    AdminMultiSelect,
     AdminErrorState,
     AdminHtmlEditor,
     AppSelect,
@@ -105,7 +103,9 @@ export class AdminCatalogs {
   readonly modalOpen = signal(false);
   readonly editing = signal<Catalog | null>(null);
   readonly deleteTarget = signal<Catalog | null>(null);
-  readonly extraCategoryIds = signal<number[]>([]);
+  readonly selectedCategoryIds = signal<number[]>([]);
+  readonly categorySearch = signal('');
+  readonly categoryPickerOpen = signal(false);
 
   readonly productsModal = signal<{
     catalog: Catalog;
@@ -184,25 +184,32 @@ export class AdminCatalogs {
   /** Exposed for template fallbacks. */
   readonly DEFAULT_IMAGES = DEFAULT_IMAGES;
 
-  readonly categoryOptions = computed(() =>
-    this.categories().map((c) => ({ id: c.id, label: c.name })),
-  );
-
   readonly categorySelectOptions = computed((): SelectOption[] => [
     { value: '', label: 'Todas' },
     ...this.categories().map((c) => ({ value: c.id, label: c.name })),
   ]);
 
-  readonly categoryFormOptions = computed((): SelectOption[] => [
-    { value: 0, label: 'Sin categoría' },
-    ...this.categories().map((c) => ({ value: c.id, label: c.name })),
-  ]);
+  readonly selectedCategories = computed(() => {
+    const ids = this.selectedCategoryIds();
+    return ids
+      .map((id) => this.categories().find((c) => c.id === id))
+      .filter((c): c is Category => !!c);
+  });
+
+  readonly filteredCategories = computed(() => {
+    const q = this.categorySearch().trim().toLowerCase();
+    const selected = new Set(this.selectedCategoryIds());
+    return this.categories().filter(
+      (c) =>
+        !selected.has(c.id) &&
+        (!q || c.name.toLowerCase().includes(q)),
+    );
+  });
 
   /** Exposed for template Number() casts. */
   readonly Number = Number;
 
   readonly form = this.fb.nonNullable.group({
-    categoryId: [0],
     name: ['', [Validators.required, Validators.maxLength(150)]],
     description: [''],
     imageUrl: [''],
@@ -460,13 +467,14 @@ export class AdminCatalogs {
   removeCategoryFromCatalog(item: CategoryItem): void {
     const modal = this.categoriesModal();
     if (!modal) return;
-    const body = item.isPrincipal
-      ? { categoryId: null }
-      : {
-          extraCategoryIds: modal.catalog.extraCategoryIds.filter(
-            (id) => id !== item.id,
-          ),
-        };
+    const remaining = modal.items.filter((c) => c.id !== item.id);
+    const body =
+      remaining.length === 0
+        ? { categoryId: null, extraCategoryIds: [] as number[] }
+        : {
+            categoryId: remaining[0].id,
+            extraCategoryIds: remaining.slice(1).map((c) => c.id),
+          };
     this.removingCategoryId.set(item.id);
     this.api.update(modal.catalog.id, body).subscribe({
       next: () => {
@@ -490,9 +498,10 @@ export class AdminCatalogs {
 
   openCreate(): void {
     this.editing.set(null);
-    this.extraCategoryIds.set([]);
+    this.selectedCategoryIds.set([]);
+    this.categoryPickerOpen.set(false);
+    this.categorySearch.set('');
     this.form.reset({
-      categoryId: 0,
       name: '',
       description: '',
       imageUrl: '',
@@ -505,9 +514,15 @@ export class AdminCatalogs {
 
   openEdit(row: Catalog): void {
     this.editing.set(row);
-    this.extraCategoryIds.set(row.extraCategoryIds ?? []);
+    const ids: number[] = [];
+    if (row.categoryId != null && row.categoryId > 0) ids.push(row.categoryId);
+    for (const id of row.extraCategoryIds ?? []) {
+      if (!ids.includes(id)) ids.push(id);
+    }
+    this.selectedCategoryIds.set(ids);
+    this.categoryPickerOpen.set(false);
+    this.categorySearch.set('');
     this.form.reset({
-      categoryId: row.categoryId ?? 0,
       name: row.name,
       description: row.description ?? '',
       imageUrl: row.imageUrl ?? '',
@@ -538,15 +553,16 @@ export class AdminCatalogs {
       return;
     }
     const raw = this.form.getRawValue();
+    const categoryIds = this.selectedCategoryIds();
     const body = {
-      categoryId: Number(raw.categoryId) > 0 ? Number(raw.categoryId) : null,
+      categoryId: categoryIds[0] ?? null,
       name: raw.name.trim(),
       description: raw.description.trim() || undefined,
       imageUrl: raw.imageUrl.trim() || undefined,
       showCoverImage: raw.showCoverImage,
       pdfUrl: raw.pdfUrl.trim() || null,
       pdfButtonLabel: raw.pdfButtonLabel.trim() || 'Descargar PDF',
-      extraCategoryIds: this.extraCategoryIds(),
+      extraCategoryIds: categoryIds.slice(1),
     };
     this.saving.set(true);
     const editing = this.editing();
@@ -600,5 +616,15 @@ export class AdminCatalogs {
     } else if (event.key === 'categories') {
       this.openCategories(event.row);
     }
+  }
+
+  addCategory(id: number): void {
+    this.selectedCategoryIds.update((ids) => [...ids, id]);
+    this.categorySearch.set('');
+    this.categoryPickerOpen.set(false);
+  }
+
+  removeCategory(id: number): void {
+    this.selectedCategoryIds.update((ids) => ids.filter((x) => x !== id));
   }
 }

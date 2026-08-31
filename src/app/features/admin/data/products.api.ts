@@ -20,11 +20,13 @@ export class ProductsApi {
     const query: QueryParams = {
       page: params.page ?? 1,
       limit: params.limit ?? 25,
-      catalogId: params.catalogId,
-      categoryId: params.categoryId,
-      search: params.search,
-      isActive: params.isActive,
     };
+    if (params.catalogId != null) query['catalogId'] = params.catalogId;
+    if (params.categoryId != null) query['categoryId'] = params.categoryId;
+    if (params.search) query['search'] = params.search;
+    if (params.isActive === true || params.isActive === false) {
+      query['isActive'] = params.isActive;
+    }
     return this.api.getList<Product>('/admin/products', query);
   }
 

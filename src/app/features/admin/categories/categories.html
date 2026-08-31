@@ -223,7 +223,7 @@
   [open]="!!deleteTarget()"
   title="Eliminar categoría"
   [message]="'¿Eliminar «' + (deleteTarget()?.name ?? '') + '»?'"
-  warning="Esto puede eliminar en cascada los catálogos y productos asociados."
+  warning="Los catálogos y productos vinculados no se eliminarán; quedarán desvinculados o con otra categoría como principal."
   [loading]="saving()"
   (confirmed)="confirmDelete()"
   (cancelled)="deleteTarget.set(null)"

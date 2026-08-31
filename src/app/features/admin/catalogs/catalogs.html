@@ -193,21 +193,52 @@
   (closed)="closeModal()"
 >
   <form class="admin-form" [formGroup]="form" (ngSubmit)="save()">
-    <app-admin-form-field
-      label="Categoría principal"
-      controlName="categoryId"
-      type="select"
-      [options]="categoryFormOptions()"
-      hint="Opcional. El catálogo puede existir sin categoría."
-    />
-    <app-admin-multi-select
-      label="Categorías adicionales"
-      [options]="categoryOptions()"
-      [value]="extraCategoryIds()"
-      [excludeIds]="[Number(form.controls.categoryId.value) || 0]"
-      hint="Opcional. La principal no se lista acá."
-      (valueChange)="extraCategoryIds.set($event)"
-    />
+    <section class="admin-form__section">
+      <h3 class="admin-form__section-title">Categorías</h3>
+      <p class="admin-form__hint">La primera es la principal. Opcional: el catálogo puede quedar sin categoría.</p>
+      <div class="admin-form__category-chips">
+        @for (cat of selectedCategories(); track cat.id; let i = $index) {
+          <span class="admin-form__category-chip">
+            @if (i === 0) {
+              <span class="admin-form__category-chip-badge">Principal</span>
+            }
+            {{ cat.name }}
+            <button type="button" (click)="removeCategory(cat.id)" [attr.aria-label]="'Quitar ' + cat.name">
+              <app-admin-icon name="x" [size]="12" />
+            </button>
+          </span>
+        }
+      </div>
+      @if (!categoryPickerOpen()) {
+        <app-admin-icon-button
+          icon="plus"
+          label="Agregar categoría"
+          (clicked)="categoryPickerOpen.set(true)"
+        />
+      } @else {
+        <div class="admin-form__category-picker">
+          <input
+            class="admin-form__category-search"
+            type="search"
+            placeholder="Buscar categoría…"
+            [value]="categorySearch()"
+            (input)="categorySearch.set($any($event.target).value)"
+          />
+          <ul class="admin-form__category-list">
+            @for (cat of filteredCategories(); track cat.id) {
+              <li>
+                <button type="button" (click)="addCategory(cat.id)">{{ cat.name }}</button>
+              </li>
+            } @empty {
+              <li class="admin-form__category-empty">Sin resultados</li>
+            }
+          </ul>
+          <button type="button" class="admin-form__category-close" (click)="categoryPickerOpen.set(false)">
+            Cerrar
+          </button>
+        </div>
+      }
+    </section>
     <app-admin-form-field
       label="Nombre"
       controlName="name"
@@ -267,7 +298,7 @@
   [open]="!!deleteTarget()"
   title="Eliminar catálogo"
   [message]="'¿Eliminar «' + (deleteTarget()?.name ?? '') + '»?'"
-  warning="Esto puede eliminar en cascada los productos asociados."
+  warning="Los productos vinculados no se eliminarán; quedarán desvinculados o con otro catálogo como principal."
   [loading]="saving()"
   (confirmed)="confirmDelete()"
   (cancelled)="deleteTarget.set(null)"

@@ -21,6 +21,111 @@
   margin-top: 0.5rem;
 }
 
+.admin-form__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-form__section-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.admin-form__category-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  min-height: 28px;
+}
+
+.admin-form__category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-sm);
+  background: #fafafa;
+  font-size: 0.8125rem;
+}
+
+.admin-form__category-chip-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--color-accent);
+}
+
+.admin-form__category-chip button {
+  display: inline-flex;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--color-text-muted);
+}
+
+.admin-form__category-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.5rem;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+}
+
+.admin-form__category-search {
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+}
+
+.admin-form__category-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 10rem;
+  overflow-y: auto;
+}
+
+.admin-form__category-list button {
+  display: block;
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.admin-form__category-list button:hover {
+  background: #f5f5f5;
+}
+
+.admin-form__category-empty {
+  padding: 0.35rem 0.5rem;
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.admin-form__category-close {
+  align-self: flex-start;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-sm);
+  background: #fafafa;
+  cursor: pointer;
+  font-size: 0.8125rem;
+}
+
 .admin-entity-grid {
   --aspect-card-admin-entity: 21 / 9;
   display: grid;

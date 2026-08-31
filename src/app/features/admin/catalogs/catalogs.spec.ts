@@ -207,17 +207,84 @@ describe('AdminCatalogs', () => {
     component.onCategoriesSearch('');
 
     const updateSpy = vi.spyOn(catalogsApi, 'update');
-    // Principal: se quita dejando el catálogo sin categoría principal.
+    // Principal: la siguiente categoría pasa a principal.
     component.removeCategoryFromCatalog(component.categoriesModal()!.items[0]);
-    expect(updateSpy).toHaveBeenCalledWith(5, { categoryId: null });
+    expect(updateSpy).toHaveBeenCalledWith(5, {
+      categoryId: 2,
+      extraCategoryIds: [],
+    });
     expect(component.categoriesModal()?.items.length).toBe(1);
 
-    // Extra: se quita actualizando extraCategoryIds.
+    // Extra restante: se quita y el catálogo queda sin categoría.
     component.removeCategoryFromCatalog(component.categoriesModal()!.items[0]);
-    expect(updateSpy).toHaveBeenCalledWith(5, { extraCategoryIds: [] });
+    expect(updateSpy).toHaveBeenCalledWith(5, {
+      categoryId: null,
+      extraCategoryIds: [],
+    });
     expect(component.categoriesModal()?.items.length).toBe(0);
 
     component.closeCategoriesModal();
     expect(component.categoriesModal()).toBeNull();
+  });
+
+  it('formulario unificado: guarda categorías ordenadas (primera = principal)', () => {
+    const fixture = TestBed.createComponent(AdminCatalogs);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    component.openCreate();
+    component.addCategory(1);
+    component.addCategory(2);
+    component.form.controls.name.setValue('Nuevo catálogo');
+
+    const createSpy = vi.spyOn(catalogsApi, 'create').mockReturnValue(of({}));
+    component.save();
+
+    expect(createSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        categoryId: 1,
+        extraCategoryIds: [2],
+        name: 'Nuevo catálogo',
+      }),
+    );
+  });
+
+  it('quitar primera categoría promueve la siguiente al guardar', () => {
+    const fixture = TestBed.createComponent(AdminCatalogs);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    component.openEdit({
+      id: 5,
+      categoryId: 1,
+      name: 'Látex',
+      slug: 'latex',
+      description: null,
+      imageUrl: null,
+      pdfUrl: null,
+      pdfButtonLabel: 'Descargar PDF',
+      createdAt: '',
+      updatedAt: '',
+      extraCategoryIds: [2],
+      extraCategories: [],
+      productsCount: 0,
+    });
+    expect(component.selectedCategoryIds()).toEqual([1, 2]);
+
+    component.removeCategory(1);
+    expect(component.selectedCategoryIds()).toEqual([2]);
+
+    const updateSpy = vi.spyOn(catalogsApi, 'update').mockReturnValue(
+      of({ id: 5, name: 'Látex', slug: 'latex' }),
+    );
+    component.save();
+
+    expect(updateSpy).toHaveBeenCalledWith(
+      5,
+      expect.objectContaining({
+        categoryId: 2,
+        extraCategoryIds: [],
+      }),
+    );
   });
 });

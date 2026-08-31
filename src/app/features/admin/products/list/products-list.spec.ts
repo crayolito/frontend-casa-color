@@ -138,6 +138,32 @@ describe('AdminProductsList', () => {
     expect(component.meta()?.total).toBe(1);
   });
 
+  it('filters inactive products via isActive=false query param', async () => {
+    const component = fixture.componentInstance;
+    flushBoot();
+    await fixture.whenStable();
+
+    component.onActiveChange('false');
+    fixture.detectChanges();
+    await new Promise((resolve) => setTimeout(resolve, 350));
+
+    expect(component.isActive()).toBe(false);
+
+    const filtered = http.expectOne(
+      (r) =>
+        r.url.startsWith(`${environment.apiUrl}/admin/products`) &&
+        r.params.get('isActive') === 'false',
+    );
+    filtered.flush({
+      data: [product({ id: 9, title: 'Off', isActive: false })],
+      meta: { page: 1, limit: 25, total: 1, totalPages: 1 },
+    });
+    await fixture.whenStable();
+
+    expect(component.isActive()).toBe(false);
+    expect(component.rows()[0].isActive).toBe(false);
+  });
+
   it('supports selection and bulk deactivate', async () => {
     const component = fixture.componentInstance;
     flushBoot([

@@ -178,7 +178,7 @@
   [open]="confirmDeleteOpen()"
   title="Confirmar DELETE"
   [message]="deleteConfirmMessage()"
-  warning="CASCADE: al borrar una categoría o catálogo también se eliminan sus hijos en la base."
+  warning="Al borrar una categoría o catálogo, los hijos vinculados quedan huérfanos o desvinculados; no se eliminan automáticamente."
   confirmLabel="Importar con DELETE"
   [loading]="pendingImport() ? cardState(pendingImport()!.entity).importing : false"
   (confirmed)="confirmDeleteImport()"

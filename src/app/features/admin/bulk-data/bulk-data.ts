@@ -197,7 +197,7 @@ export class AdminBulkData {
     const pending = this.pendingImport();
     if (!pending) return '';
     const state = this.cardStates()[pending.entity];
-    return `Vas a importar ${state.deleteCount} fila(s) DELETE en ${this.entityLabel(pending.entity)}. Esta acción usa CASCADE y no se puede deshacer.`;
+    return `Vas a importar ${state.deleteCount} fila(s) DELETE en ${this.entityLabel(pending.entity)}. Los catálogos/productos vinculados no se borrarán; quedarán desvinculados. Esta acción no se puede deshacer.`;
   });
 
   cardState(entity: BulkEntity): EntityCardState {

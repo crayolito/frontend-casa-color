@@ -141,6 +141,17 @@ export class AdminProductsList {
     { value: 'false', label: 'Inactivo' },
   ];
 
+  private loadList(search: string): ReturnType<ProductsApi['list']> {
+    return this.api.list({
+      page: this.page(),
+      limit: PAGE_SIZE,
+      search: search.trim() || undefined,
+      categoryId: this.categoryId() ?? undefined,
+      catalogId: this.catalogId() ?? undefined,
+      isActive: this.isActive() === null ? undefined : this.isActive()!,
+    });
+  }
+
   readonly columns: AdminTableColumn<Product>[] = [
     {
       key: 'image',
@@ -412,11 +423,11 @@ export class AdminProductsList {
 
     combineLatest([
       toObservable(this.search).pipe(debounceTime(300), distinctUntilChanged()),
-      toObservable(this.categoryId),
-      toObservable(this.catalogId),
-      toObservable(this.isActive),
-      toObservable(this.page),
-      toObservable(this.reloadToken),
+      toObservable(this.isActive).pipe(debounceTime(0)),
+      toObservable(this.categoryId).pipe(debounceTime(0)),
+      toObservable(this.catalogId).pipe(debounceTime(0)),
+      toObservable(this.page).pipe(debounceTime(0)),
+      toObservable(this.reloadToken).pipe(debounceTime(0)),
     ])
       .pipe(
         tap(() => {
@@ -424,22 +435,13 @@ export class AdminProductsList {
           this.error.set(null);
           this.syncUrl();
         }),
-        switchMap(([search, categoryId, catalogId, isActive, page]) =>
-          this.api
-            .list({
-              page,
-              limit: PAGE_SIZE,
-              search: search.trim() || undefined,
-              categoryId: categoryId ?? undefined,
-              catalogId: catalogId ?? undefined,
-              isActive: isActive ?? undefined,
-            })
-            .pipe(
-              catchError((err: unknown) => {
-                this.error.set(resolveErrorMessage(err));
-                return of(null);
-              }),
-            ),
+        switchMap(([search]) =>
+          this.loadList(search).pipe(
+            catchError((err: unknown) => {
+              this.error.set(resolveErrorMessage(err));
+              return of(null);
+            }),
+          ),
         ),
         takeUntilDestroyed(this.destroyRef),
       )
@@ -483,11 +485,13 @@ export class AdminProductsList {
     this.categoryId.set(value !== null && value !== '' ? Number(value) : null);
     this.catalogId.set(null);
     this.page.set(1);
+    this.reloadToken.update((n) => n + 1);
   }
 
   onCatalogChange(value: string | number | null): void {
     this.catalogId.set(value !== null && value !== '' ? Number(value) : null);
     this.page.set(1);
+    this.reloadToken.update((n) => n + 1);
   }
 
   onActiveChange(value: string | number | null): void {
@@ -495,6 +499,7 @@ export class AdminProductsList {
     else if (value === 'false') this.isActive.set(false);
     else this.isActive.set(null);
     this.page.set(1);
+    this.reloadToken.update((n) => n + 1);
   }
 
   clearFilters(): void {
@@ -530,7 +535,8 @@ export class AdminProductsList {
             search: this.search().trim() || undefined,
             categoryId: this.categoryId() ?? undefined,
             catalogId: this.catalogId() ?? undefined,
-            isActive: this.isActive() ?? undefined,
+            isActive:
+              this.isActive() === null ? undefined : this.isActive()!,
           })
           .subscribe({
             next: (res) => {
