@@ -374,6 +374,21 @@ export class AdminBulkData {
   }
 
   rowMessage(row: ImportRowResult): string {
+    if (row.code && row.message?.trim()) {
+      const showDetail = [
+        'BULK_PARSE_CHILDREN',
+        'VALIDATION_ERROR',
+        'BULK_SLUG_REQUIRED',
+        'BULK_INVALID_COMMAND',
+        'SLUG_TAKEN',
+        'CATEGORY_NOT_FOUND',
+        'CATALOG_NOT_FOUND',
+        'PRODUCT_NOT_FOUND',
+      ].includes(row.code);
+      if (showDetail) {
+        return row.message.trim();
+      }
+    }
     if (row.code) {
       return (
         messageForCode(row.code) ??
@@ -517,8 +532,13 @@ export class AdminBulkData {
             `${label}: ${data.summary.succeeded} filas procesadas`,
           );
         } else {
+          const firstErr = data.rows.find((r) => r.status === 'error');
+          const detail = firstErr ? this.rowMessage(firstErr) : '';
+          const base = `${label}: ${data.summary.failed} errores de ${data.summary.total}`;
           this.toast.error(
-            `${label}: ${data.summary.failed} errores de ${data.summary.total}`,
+            firstErr
+              ? `${base}. Fila ${firstErr.row}: ${detail}`
+              : base,
           );
         }
       });

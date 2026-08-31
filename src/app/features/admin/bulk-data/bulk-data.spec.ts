@@ -147,6 +147,21 @@ describe('AdminBulkData', () => {
     expect(component.cardState('categories').deleteCount).toBe(0);
   });
 
+  it('rowMessage shows backend detail for BULK_PARSE_CHILDREN', async () => {
+    const fixture = await setup();
+    const component = fixture.componentInstance;
+    const msg = component.rowMessage({
+      sheet: 'Products',
+      row: 4,
+      slug: 'x',
+      command: 'MERGE',
+      status: 'error',
+      code: 'BULK_PARSE_CHILDREN',
+      message: 'imagenes: URL inválida "foo"',
+    });
+    expect(msg).toBe('imagenes: URL inválida "foo"');
+  });
+
   it('rowMessage hides technical backend detail for unknown row codes', async () => {
     const fixture = await setup();
     const component = fixture.componentInstance;
