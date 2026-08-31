@@ -6,17 +6,24 @@ import {
   signal,
   computed,
 } from '@angular/core';
+import { LowerCasePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, of } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
 import {
   BulkDataApi,
   BulkEntity,
+  BulkExportParams,
   ImportResult,
   ImportRowResult,
 } from '../data/bulk-data.api';
+import { CategoriesApi } from '../data/categories.api';
+import { CatalogsApi } from '../data/catalogs.api';
+import { ProductsApi } from '../data/products.api';
+import type { Catalog, Category, Product } from '../data/admin.models';
 import { AdminPageHeader } from '../../../shared/admin-ui/admin-page-header/admin-page-header';
 import { AdminButton } from '../../../shared/admin-ui/admin-button/admin-button';
 import { AdminIcon } from '../../../shared/admin-ui/icons/admin-icon';
+import { AdminModal } from '../../../shared/admin-ui/admin-modal/admin-modal';
 import { AdminConfirmDialog } from '../../../shared/admin-ui/admin-confirm-dialog/admin-confirm-dialog';
 import { AdminToastService } from '../../../shared/admin-ui/admin-toast/admin-toast.service';
 import { resolveErrorMessage } from '../../../shared/errors/resolve-error-message';
@@ -41,6 +48,8 @@ interface EntityCardState {
   deleteCount: number;
   dragOver: boolean;
 }
+
+type ExportScope = 'all' | 'filtered';
 
 const ENTITY_CARDS: EntityCardConfig[] = [
   {
@@ -69,6 +78,14 @@ const ENTITY_CARDS: EntityCardConfig[] = [
   },
 ];
 
+const DATA_SHEET_BY_ENTITY: Record<BulkEntity, string> = {
+  categories: 'Categorias',
+  catalogs: 'Catalogos',
+  products: 'Productos',
+};
+
+const LIST_LIMIT = 500;
+
 function initialCardState(): EntityCardState {
   return {
     selectedFile: null,
@@ -84,18 +101,27 @@ function initialCardState(): EntityCardState {
 @Component({
   selector: 'app-admin-bulk-data',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AdminPageHeader, AdminButton, AdminConfirmDialog, AdminIcon],
+  imports: [
+    AdminPageHeader,
+    AdminButton,
+    AdminConfirmDialog,
+    AdminIcon,
+    AdminModal,
+    LowerCasePipe,
+  ],
   templateUrl: './bulk-data.html',
   styleUrl: './bulk-data.css',
 })
 export class AdminBulkData {
   private readonly api = inject(BulkDataApi);
+  private readonly categoriesApi = inject(CategoriesApi);
+  private readonly catalogsApi = inject(CatalogsApi);
+  private readonly productsApi = inject(ProductsApi);
   private readonly toast = inject(AdminToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly cards = ENTITY_CARDS;
 
-  /** Guía visual numerada (1-10) para las columnas secciones/imagenes del Excel. */
   readonly productIconGuide = PRODUCT_SECTION_ICONS.map((icon, i) => ({
     ...icon,
     number: i + 1,
@@ -113,6 +139,51 @@ export class AdminBulkData {
   readonly pendingImport = signal<{ entity: BulkEntity; file: File } | null>(
     null,
   );
+
+  readonly exportModalEntity = signal<BulkEntity | null>(null);
+  readonly exportScope = signal<ExportScope>('all');
+  readonly exportCategoryId = signal<number | null>(null);
+  readonly exportCatalogId = signal<number | null>(null);
+  readonly exportSelectedSlugs = signal<Set<string>>(new Set());
+  readonly exportOptionsLoading = signal(false);
+  readonly exportCategories = signal<Category[]>([]);
+  readonly exportCatalogs = signal<Catalog[]>([]);
+  readonly exportProducts = signal<Product[]>([]);
+
+  readonly exportModalTitle = computed(() => {
+    const entity = this.exportModalEntity();
+    if (!entity) return 'Exportar';
+    return `Exportar ${this.entityLabel(entity)}`;
+  });
+
+  readonly filteredExportCatalogs = computed(() => {
+    const categoryId = this.exportCategoryId();
+    const all = this.exportCatalogs();
+    if (categoryId == null) return all;
+    return all.filter(
+      (c) =>
+        c.categoryId === categoryId ||
+        c.extraCategories.some((e) => e.id === categoryId),
+    );
+  });
+
+  readonly filteredExportProducts = computed(() => {
+    const categoryId = this.exportCategoryId();
+    const catalogId = this.exportCatalogId();
+    let items = this.exportProducts();
+    if (catalogId != null) {
+      items = items.filter((p) =>
+        p.catalogs?.some((c) => c.id === catalogId),
+      );
+    } else if (categoryId != null) {
+      items = items.filter((p) =>
+        p.catalogs?.some(
+          (c) => c.categoryId === categoryId,
+        ),
+      );
+    }
+    return items;
+  });
 
   readonly hasResult = computed(() => (this.result()?.rows.length ?? 0) > 0);
 
@@ -179,11 +250,63 @@ export class AdminBulkData {
       });
   }
 
-  downloadExport(entity: BulkEntity): void {
+  openExportModal(entity: BulkEntity): void {
+    this.exportModalEntity.set(entity);
+    this.exportScope.set('all');
+    this.exportCategoryId.set(null);
+    this.exportCatalogId.set(null);
+    this.exportSelectedSlugs.set(new Set());
+    this.loadExportOptions(entity);
+  }
+
+  closeExportModal(): void {
+    this.exportModalEntity.set(null);
+  }
+
+  setExportScope(scope: ExportScope): void {
+    this.exportScope.set(scope);
+    this.exportSelectedSlugs.set(new Set());
+  }
+
+  onExportCategoryChange(value: string): void {
+    const id = value === '' ? null : Number(value);
+    this.exportCategoryId.set(Number.isFinite(id) ? id : null);
+    this.exportCatalogId.set(null);
+    this.exportSelectedSlugs.set(new Set());
+  }
+
+  onExportCatalogChange(value: string): void {
+    const id = value === '' ? null : Number(value);
+    this.exportCatalogId.set(Number.isFinite(id) ? id : null);
+    this.exportSelectedSlugs.set(new Set());
+  }
+
+  isExportSlugSelected(slug: string): boolean {
+    return this.exportSelectedSlugs().has(slug);
+  }
+
+  toggleExportSlug(slug: string): void {
+    this.exportSelectedSlugs.update((set) => {
+      const next = new Set(set);
+      if (next.has(slug)) next.delete(slug);
+      else next.add(slug);
+      return next;
+    });
+  }
+
+  confirmExport(): void {
+    const entity = this.exportModalEntity();
+    if (!entity) return;
+
     const config = this.cards.find((c) => c.entity === entity)!;
+    const params = this.buildExportParams(entity);
+    if (params === null) return;
+
     this.patchCard(entity, { downloadingExport: true });
+    this.closeExportModal();
+
     this.api
-      .downloadExport(entity)
+      .downloadExport(entity, params)
       .pipe(
         catchError((err: unknown) => {
           this.showError(err);
@@ -271,6 +394,97 @@ export class AdminBulkData {
     return 'Omitida';
   }
 
+  private buildExportParams(entity: BulkEntity): BulkExportParams | null | undefined {
+    if (this.exportScope() === 'all') return undefined;
+
+    const slugs = [...this.exportSelectedSlugs()];
+    const categoryId = this.exportCategoryId();
+    const catalogId = this.exportCatalogId();
+
+    if (entity === 'categories') {
+      if (slugs.length === 0) {
+        this.toast.error('Seleccioná al menos una categoría para exportar.');
+        return null;
+      }
+      return { slugs: slugs.join(',') };
+    }
+
+    if (entity === 'catalogs') {
+      if (slugs.length === 0 && categoryId == null) {
+        this.toast.error(
+          'Elegí una categoría o marcá al menos un catálogo.',
+        );
+        return null;
+      }
+      return {
+        ...(categoryId != null ? { categoryId } : {}),
+        ...(slugs.length ? { slugs: slugs.join(',') } : {}),
+      };
+    }
+
+    if (slugs.length === 0 && categoryId == null && catalogId == null) {
+      this.toast.error(
+        'Elegí categoría, catálogo o marcá al menos un producto.',
+      );
+      return null;
+    }
+    return {
+      ...(categoryId != null ? { categoryId } : {}),
+      ...(catalogId != null ? { catalogId } : {}),
+      ...(slugs.length ? { slugs: slugs.join(',') } : {}),
+    };
+  }
+
+  private loadExportOptions(entity: BulkEntity): void {
+    this.exportOptionsLoading.set(true);
+    if (entity === 'categories') {
+      this.categoriesApi
+        .list(1, LIST_LIMIT)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (res) => {
+            this.exportCategories.set(res.data);
+            this.exportOptionsLoading.set(false);
+          },
+          error: () => this.exportOptionsLoading.set(false),
+        });
+      return;
+    }
+
+    if (entity === 'catalogs') {
+      forkJoin({
+        categories: this.categoriesApi.list(1, LIST_LIMIT),
+        catalogs: this.catalogsApi.list(1, LIST_LIMIT),
+      })
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: ({ categories, catalogs }) => {
+            this.exportCategories.set(categories.data);
+            this.exportCatalogs.set(catalogs.data);
+            this.exportOptionsLoading.set(false);
+          },
+          error: () => this.exportOptionsLoading.set(false),
+        });
+      return;
+    }
+
+    forkJoin({
+      categories: this.categoriesApi.list(1, LIST_LIMIT),
+      catalogs: this.catalogsApi.list(1, LIST_LIMIT),
+      products: this.productsApi.list({ page: 1, limit: LIST_LIMIT }),
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ categories, catalogs, products }) => {
+          this.exportCategories.set(categories.data);
+          this.exportCatalogs.set(catalogs.data);
+          this.exportProducts.set(products.data);
+          this.exportOptionsLoading.set(false);
+        },
+        error: () => this.exportOptionsLoading.set(false),
+      });
+  }
+
   private setFile(entity: BulkEntity, file: File | null): void {
     this.patchCard(entity, {
       selectedFile: file,
@@ -319,33 +533,36 @@ export class AdminBulkData {
       const ExcelJS = await import('exceljs');
       const wb = new ExcelJS.Workbook();
       await wb.xlsx.load(await file.arrayBuffer());
-      let count = 0;
-      for (const ws of wb.worksheets) {
-        if (ws.name === 'LEEME') continue;
-        const headerRow = ws.getRow(1);
-        let commandCol = 0;
-        headerRow.eachCell((cell, col) => {
-          const h = String(cell.value ?? '').trim().toLowerCase();
-          if (h === 'comando' || h === 'command') commandCol = col;
-        });
-        if (!commandCol) continue;
-        ws.eachRow({ includeEmpty: false }, (row, rowNumber) => {
-          if (rowNumber === 1) return;
-          const cmd = String(row.getCell(commandCol).value ?? '')
-            .trim()
-            .toUpperCase();
-          if (cmd === 'DELETE') count += 1;
-        });
+      const sheetName = DATA_SHEET_BY_ENTITY[entity];
+      const ws =
+        wb.getWorksheet(sheetName) ??
+        wb.worksheets.find((w) => w.name !== 'LEEME');
+      if (!ws) {
+        this.patchCard(entity, { deleteCount: 0 });
+        return;
       }
+      const headerRow = ws.getRow(1);
+      let commandCol = 0;
+      headerRow.eachCell((cell, col) => {
+        const h = String(cell.value ?? '').trim().toLowerCase();
+        if (h === 'comando' || h === 'command') commandCol = col;
+      });
+      if (!commandCol) {
+        this.patchCard(entity, { deleteCount: 0 });
+        return;
+      }
+      let count = 0;
+      ws.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+        if (rowNumber === 1) return;
+        const cmd = String(row.getCell(commandCol).value ?? '')
+          .trim()
+          .toUpperCase();
+        if (cmd === 'DELETE') count += 1;
+      });
       this.patchCard(entity, { deleteCount: count });
     } catch {
-      this.toast.error(
-        'No pudimos leer el Excel. Verificá que sea un .xlsx válido y que no esté dañado.',
-      );
-      this.patchCard(entity, {
-        selectedFile: null,
-        deleteCount: 0,
-      });
+      // Pre-scan solo UX; el servidor valida al importar. No bloquear el archivo.
+      this.patchCard(entity, { deleteCount: 0 });
     } finally {
       this.patchCard(entity, { scanning: false });
     }

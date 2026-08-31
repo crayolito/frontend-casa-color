@@ -64,9 +64,10 @@ export class ApiService {
       );
   }
 
-  getBlob(path: string): Observable<Blob> {
+  getBlob(path: string, params?: QueryParams): Observable<Blob> {
     return this.http.get(`${this.baseUrl}${path}`, {
       responseType: 'blob',
+      params: this.toHttpParams(params),
     });
   }
 

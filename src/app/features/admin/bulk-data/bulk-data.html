@@ -32,7 +32,7 @@
             type="button"
             [loading]="state.downloadingExport"
             [disabled]="state.downloadingTemplate || state.downloadingExport || state.importing"
-            (clicked)="downloadExport(card.entity)"
+            (clicked)="openExportModal(card.entity)"
           >
             <app-admin-icon name="download" [size]="18" />
             <span>Exportar</span>
@@ -182,3 +182,154 @@
   (confirmed)="confirmDeleteImport()"
   (cancelled)="cancelDeleteConfirm()"
 />
+
+@if (exportModalEntity(); as entity) {
+  <app-admin-modal
+    [open]="true"
+    [title]="exportModalTitle()"
+    [wide]="entity === 'products'"
+    (closed)="closeExportModal()"
+  >
+    <div class="bulk-export-modal">
+      <fieldset class="bulk-export-modal__scope">
+        <legend class="bulk-export-modal__legend">Qué exportar</legend>
+        <label class="bulk-export-modal__radio">
+          <input
+            type="radio"
+            name="export-scope"
+            [checked]="exportScope() === 'all'"
+            (change)="setExportScope('all')"
+          />
+          Todo ({{ entityLabel(entity) | lowercase }})
+        </label>
+        <label class="bulk-export-modal__radio">
+          <input
+            type="radio"
+            name="export-scope"
+            [checked]="exportScope() === 'filtered'"
+            (change)="setExportScope('filtered')"
+          />
+          Elegir qué incluir
+        </label>
+      </fieldset>
+
+      @if (exportScope() === 'filtered') {
+        @if (exportOptionsLoading()) {
+          <p class="bulk-export-modal__hint" role="status">Cargando opciones...</p>
+        } @else if (entity === 'categories') {
+          <p class="bulk-export-modal__hint">
+            Marcá las categorías que querés en el Excel.
+          </p>
+          <ul class="bulk-export-modal__list">
+            @for (cat of exportCategories(); track cat.id) {
+              <li>
+                <label class="bulk-export-modal__check">
+                  <input
+                    type="checkbox"
+                    [checked]="isExportSlugSelected(cat.slug)"
+                    (change)="toggleExportSlug(cat.slug)"
+                  />
+                  {{ cat.name }}
+                  <span class="bulk-export-modal__slug">{{ cat.slug }}</span>
+                </label>
+              </li>
+            }
+          </ul>
+        } @else if (entity === 'catalogs') {
+          <label class="bulk-export-modal__field">
+            <span>Categoría (opcional)</span>
+            <select
+              class="bulk-export-modal__select"
+              [value]="exportCategoryId() ?? ''"
+              (change)="onExportCategoryChange($any($event.target).value)"
+            >
+              <option value="">Todas las categorías</option>
+              @for (cat of exportCategories(); track cat.id) {
+                <option [value]="cat.id">{{ cat.name }}</option>
+              }
+            </select>
+          </label>
+          <p class="bulk-export-modal__hint">
+            Marcá catálogos puntuales o dejá todo según la categoría elegida.
+          </p>
+          <ul class="bulk-export-modal__list">
+            @for (cat of filteredExportCatalogs(); track cat.id) {
+              <li>
+                <label class="bulk-export-modal__check">
+                  <input
+                    type="checkbox"
+                    [checked]="isExportSlugSelected(cat.slug)"
+                    (change)="toggleExportSlug(cat.slug)"
+                  />
+                  {{ cat.name }}
+                  <span class="bulk-export-modal__slug">{{ cat.slug }}</span>
+                </label>
+              </li>
+            }
+          </ul>
+        } @else {
+          <div class="bulk-export-modal__filters">
+            <label class="bulk-export-modal__field">
+              <span>Categoría</span>
+              <select
+                class="bulk-export-modal__select"
+                [value]="exportCategoryId() ?? ''"
+                (change)="onExportCategoryChange($any($event.target).value)"
+              >
+                <option value="">Todas</option>
+                @for (cat of exportCategories(); track cat.id) {
+                  <option [value]="cat.id">{{ cat.name }}</option>
+                }
+              </select>
+            </label>
+            <label class="bulk-export-modal__field">
+              <span>Catálogo</span>
+              <select
+                class="bulk-export-modal__select"
+                [value]="exportCatalogId() ?? ''"
+                (change)="onExportCatalogChange($any($event.target).value)"
+              >
+                <option value="">Todos</option>
+                @for (cat of filteredExportCatalogs(); track cat.id) {
+                  <option [value]="cat.id">{{ cat.name }}</option>
+                }
+              </select>
+            </label>
+          </div>
+          <p class="bulk-export-modal__hint">
+            Filtrá por categoría/catálogo y/o marcá productos puntuales.
+          </p>
+          <ul class="bulk-export-modal__list bulk-export-modal__list--scroll">
+            @for (prod of filteredExportProducts(); track prod.id) {
+              <li>
+                <label class="bulk-export-modal__check">
+                  <input
+                    type="checkbox"
+                    [checked]="isExportSlugSelected(prod.slug)"
+                    (change)="toggleExportSlug(prod.slug)"
+                  />
+                  {{ prod.title }}
+                  <span class="bulk-export-modal__slug">{{ prod.slug }}</span>
+                </label>
+              </li>
+            }
+          </ul>
+        }
+      }
+
+      <div class="bulk-export-modal__actions">
+        <app-admin-button variant="secondary" type="button" (clicked)="closeExportModal()">
+          Cancelar
+        </app-admin-button>
+        <app-admin-button
+          variant="primary"
+          type="button"
+          [loading]="cardState(entity).downloadingExport"
+          (clicked)="confirmExport()"
+        >
+          Descargar Excel
+        </app-admin-button>
+      </div>
+    </div>
+  </app-admin-modal>
+}

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from '../../../core/http/api.service';
+import { ApiService, QueryParams } from '../../../core/http/api.service';
 
 export type BulkEntity = 'categories' | 'catalogs' | 'products';
 
@@ -27,6 +27,12 @@ export interface ImportResult {
   rows: ImportRowResult[];
 }
 
+export type BulkExportParams = QueryParams & {
+  slugs?: string;
+  categoryId?: number;
+  catalogId?: number;
+};
+
 @Injectable({ providedIn: 'root' })
 export class BulkDataApi {
   private readonly api = inject(ApiService);
@@ -35,8 +41,11 @@ export class BulkDataApi {
     return this.api.getBlob(`/admin/bulk-data/template/${entity}`);
   }
 
-  downloadExport(entity: BulkEntity): Observable<Blob> {
-    return this.api.getBlob(`/admin/bulk-data/export/${entity}`);
+  downloadExport(
+    entity: BulkEntity,
+    params?: BulkExportParams,
+  ): Observable<Blob> {
+    return this.api.getBlob(`/admin/bulk-data/export/${entity}`, params);
   }
 
   import(entity: BulkEntity, file: File): Observable<ImportResult> {

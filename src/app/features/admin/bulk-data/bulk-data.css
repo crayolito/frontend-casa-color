@@ -289,3 +289,95 @@
 .bulk-table__row--error td {
   color: var(--color-accent);
 }
+
+.bulk-export-modal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-gap);
+}
+
+.bulk-export-modal__scope {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bulk-export-modal__legend {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.bulk-export-modal__radio {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+
+.bulk-export-modal__hint {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  line-height: 1.45;
+}
+
+.bulk-export-modal__filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.bulk-export-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+}
+
+.bulk-export-modal__select {
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  background: var(--color-white);
+}
+
+.bulk-export-modal__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 14rem;
+  overflow-y: auto;
+}
+
+.bulk-export-modal__list--scroll {
+  max-height: 18rem;
+}
+
+.bulk-export-modal__check {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.bulk-export-modal__slug {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.bulk-export-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}

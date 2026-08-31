@@ -62,15 +62,17 @@ describe('AdminBulkData', () => {
     });
   }
 
-  it('creates and downloads template / export per entity', async () => {
+  it('creates and downloads template; export uses modal flow', async () => {
     const fixture = await setup();
     const component = fixture.componentInstance;
 
     component.downloadTemplate('categories');
     expect(api.downloadTemplate).toHaveBeenCalledWith('categories');
 
-    component.downloadExport('products');
-    expect(api.downloadExport).toHaveBeenCalledWith('products');
+    component.openExportModal('products');
+    component.setExportScope('all');
+    component.confirmExport();
+    expect(api.downloadExport).toHaveBeenCalledWith('products', undefined);
   });
 
   it('imports selected file without DELETE modal when deleteCount is 0', async () => {
@@ -129,7 +131,7 @@ describe('AdminBulkData', () => {
     expect(String(errorSpy.mock.calls[0][0])).toContain('Excel');
   });
 
-  it('shows toast and clears file when excel pre-scan fails', async () => {
+  it('keeps file selected when excel pre-scan fails', async () => {
     const fixture = await setup();
     const component = fixture.componentInstance;
     const errorSpy = vi.spyOn(toast, 'error');
@@ -140,10 +142,9 @@ describe('AdminBulkData', () => {
     await new Promise((r) => setTimeout(r, 200));
     fixture.detectChanges();
 
-    expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining('No pudimos leer el Excel'),
-    );
-    expect(component.cardState('categories').selectedFile).toBeNull();
+    expect(errorSpy).not.toHaveBeenCalled();
+    expect(component.cardState('categories').selectedFile).toBe(file);
+    expect(component.cardState('categories').deleteCount).toBe(0);
   });
 
   it('rowMessage hides technical backend detail for unknown row codes', async () => {
