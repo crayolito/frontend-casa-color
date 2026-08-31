@@ -252,9 +252,17 @@ export class AdminBulkData {
 
   rowMessage(row: ImportRowResult): string {
     if (row.code) {
-      return messageForCode(row.code) ?? row.message ?? row.code;
+      return (
+        messageForCode(row.code) ??
+        messageForCode('ROW_ERROR_GENERIC') ??
+        'No se pudo procesar esta fila.'
+      );
     }
-    return row.message ?? row.status;
+    return row.status === 'success'
+      ? 'Correcto'
+      : row.status === 'skipped'
+        ? 'Omitida'
+        : messageForCode('ROW_ERROR_GENERIC') ?? 'Error';
   }
 
   statusLabel(status: ImportRowResult['status']): string {
@@ -331,7 +339,13 @@ export class AdminBulkData {
       }
       this.patchCard(entity, { deleteCount: count });
     } catch {
-      this.patchCard(entity, { deleteCount: 0 });
+      this.toast.error(
+        'No pudimos leer el Excel. Verificá que sea un .xlsx válido y que no esté dañado.',
+      );
+      this.patchCard(entity, {
+        selectedFile: null,
+        deleteCount: 0,
+      });
     } finally {
       this.patchCard(entity, { scanning: false });
     }

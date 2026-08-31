@@ -127,7 +127,7 @@
         <h2 id="bulk-result-heading" class="bulk-result__title">
           Resultado
           @if (lastImportEntity(); as entity) {
-            <span class="bulk-result__entity">— {{ entityLabel(entity) }}</span>
+            <span class="bulk-result__entity">- {{ entityLabel(entity) }}</span>
           }
         </h2>
         <app-admin-button
@@ -159,7 +159,7 @@
               <tr [class.bulk-table__row--error]="row.status === 'error'">
                 <td>{{ row.sheet }}</td>
                 <td>{{ row.row }}</td>
-                <td>{{ row.slug ?? '—' }}</td>
+                <td>{{ row.slug ?? 'sin slug' }}</td>
                 <td>{{ row.command }}</td>
                 <td>{{ statusLabel(row.status) }}</td>
                 <td>{{ rowMessage(row) }}</td>

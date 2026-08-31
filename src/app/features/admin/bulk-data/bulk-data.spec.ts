@@ -128,4 +128,37 @@ describe('AdminBulkData', () => {
     expect(errorSpy).toHaveBeenCalled();
     expect(String(errorSpy.mock.calls[0][0])).toContain('Excel');
   });
+
+  it('shows toast and clears file when excel pre-scan fails', async () => {
+    const fixture = await setup();
+    const component = fixture.componentInstance;
+    const errorSpy = vi.spyOn(toast, 'error');
+    const file = new File([new Uint8Array([0, 1, 2, 3])], 'bad.xlsx', {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    component['setFile']('categories', file);
+    await new Promise((r) => setTimeout(r, 200));
+    fixture.detectChanges();
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('No pudimos leer el Excel'),
+    );
+    expect(component.cardState('categories').selectedFile).toBeNull();
+  });
+
+  it('rowMessage hides technical backend detail for unknown row codes', async () => {
+    const fixture = await setup();
+    const component = fixture.componentInstance;
+    const msg = component.rowMessage({
+      sheet: 'Products',
+      row: 2,
+      slug: 'x',
+      command: 'MERGE',
+      status: 'error',
+      code: 'SOME_INTERNAL_PARSER',
+      message: 'parser exploded at offset 42',
+    });
+    expect(msg).not.toContain('parser');
+    expect(msg).toContain('No se pudo procesar');
+  });
 });

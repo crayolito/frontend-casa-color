@@ -18,6 +18,9 @@ describe('error catalog', () => {
     expect(messageForCode('PRODUCT_NOT_FOUND')).toBe('Producto no encontrado');
     expect(messageForCode('BULK_FILE_INVALID')).toContain('Excel');
     expect(messageForCode('BULK_COMMAND_DISABLED')).toContain('DELETE');
+    expect(messageForCode('BULK_HEADERS_INVALID')).toContain('comando');
+    expect(messageForCode('BULK_PARSE_CHILDREN')).toContain('presentaciones');
+    expect(messageForCode('ROW_ERROR_GENERIC')).toContain('No se pudo procesar');
     expect(ERROR_MESSAGES['INTERNAL_ERROR']).toContain('Algo salió mal');
   });
 
