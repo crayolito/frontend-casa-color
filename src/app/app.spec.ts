@@ -4,6 +4,7 @@ import { provideRouter, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { App } from './app';
 import { HomeApi } from './features/home/data/home.api';
+import { HomeContent } from './features/home/data/home-content.model';
 import { ADMIN_BASE_SEGMENT, adminPath } from './core/routing/admin-path';
 
 describe('App', () => {
