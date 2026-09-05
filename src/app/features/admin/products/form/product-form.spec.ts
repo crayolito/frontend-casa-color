@@ -18,7 +18,7 @@ describe('AdminProductForm (create)', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        provideRouter([{ path: 'admin/products', children: [] }]),
+        provideRouter([{ path: 'ccadm/products', children: [] }]),
       ],
     }).compileComponents();
 
@@ -130,7 +130,7 @@ describe('AdminProductForm (edit by id)', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        provideRouter([{ path: 'admin/products', children: [] }]),
+        provideRouter([{ path: 'ccadm/products', children: [] }]),
       ],
     }).compileComponents();
 

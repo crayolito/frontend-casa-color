@@ -4,7 +4,7 @@ import { provideRouter, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { App } from './app';
 import { HomeApi } from './features/home/data/home.api';
-import { HomeContent } from './features/home/data/home-content.model';
+import { ADMIN_BASE_SEGMENT, adminPath } from './core/routing/admin-path';
 
 describe('App', () => {
   const content = signal<HomeContent | null>({
@@ -33,8 +33,8 @@ describe('App', () => {
       providers: [
         provideRouter([
           { path: '', children: [] },
-          { path: 'admin', children: [] },
-          { path: 'admin/**', children: [] },
+          { path: ADMIN_BASE_SEGMENT, children: [] },
+          { path: `${ADMIN_BASE_SEGMENT}/**`, children: [] },
         ]),
         {
           provide: HomeApi,
@@ -59,10 +59,10 @@ describe('App', () => {
     expect(compiled.querySelector('router-outlet')).not.toBeNull();
   });
 
-  it('showFab is false on /admin even with WhatsApp enabled', async () => {
+  it('showFab is false on /ccadm even with WhatsApp enabled', async () => {
     const fixture = TestBed.createComponent(App);
     const router = TestBed.inject(Router);
-    await router.navigateByUrl('/admin');
+    await router.navigateByUrl(adminPath());
     fixture.detectChanges();
     expect(fixture.componentInstance['showFab']()).toBe(false);
   });

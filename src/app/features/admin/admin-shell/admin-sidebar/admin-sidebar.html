@@ -5,7 +5,7 @@
   aria-label="Navegación del panel"
 >
   <div class="admin-sidebar__brand">
-    <a routerLink="/admin/products" class="admin-sidebar__logo" (click)="onNavigate()">
+    <a [routerLink]="adminPath('products')" class="admin-sidebar__logo" (click)="onNavigate()">
       @if (collapsed()) {
         <span class="admin-sidebar__mark-icon" aria-hidden="true">
           <app-admin-icon name="palette" [size]="22" />

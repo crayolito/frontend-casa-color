@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, map, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { adminPath } from '../routing/admin-path';
 
 const TOKEN_KEY = 'casa_color_admin_token';
 const EMAIL_KEY = 'casa_color_admin_email';
@@ -49,7 +50,7 @@ export class AuthService {
   logout(redirectToLogin = true): void {
     this.clear();
     if (redirectToLogin) {
-      void this.router.navigateByUrl('/admin/login');
+      void this.router.navigateByUrl(adminPath());
     }
   }
 

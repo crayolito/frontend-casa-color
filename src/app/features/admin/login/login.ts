@@ -7,6 +7,7 @@ import {
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
+import { adminPath, isAdminAppUrl } from '../../../core/routing/admin-path';
 import { resolveErrorMessage } from '../../../shared/errors/resolve-error-message';
 import { AdminButton } from '../../../shared/admin-ui/admin-button/admin-button';
 import { AdminFormField } from '../../../shared/admin-ui/admin-form-field/admin-form-field';
@@ -48,9 +49,9 @@ export class AdminLogin {
         this.submitting.set(false);
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
         const target =
-          returnUrl && returnUrl.startsWith('/admin') && !returnUrl.startsWith('//')
+          returnUrl && isAdminAppUrl(returnUrl) && !returnUrl.startsWith('//')
             ? returnUrl
-            : '/admin/products';
+            : adminPath('products');
         void this.router.navigateByUrl(target);
       },
       error: (err: unknown) => {

@@ -1,16 +1,23 @@
-import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { CanMatchFn, Routes } from '@angular/router';
 import { authGuard, guestGuard } from '../../core/auth/auth.guard';
+import { AuthService } from '../../core/auth/auth.service';
 import { AdminShell } from './admin-shell/admin-shell';
 import { AdminLogin } from './login/login';
 
+const guestMatch: CanMatchFn = () => !inject(AuthService).isAuthenticated();
+const authMatch: CanMatchFn = () => inject(AuthService).isAuthenticated();
+
 export const ADMIN_ROUTES: Routes = [
   {
-    path: 'login',
+    path: '',
+    canMatch: [guestMatch],
     canActivate: [guestGuard],
     component: AdminLogin,
   },
   {
     path: '',
+    canMatch: [authMatch],
     canActivate: [authGuard],
     component: AdminShell,
     children: [

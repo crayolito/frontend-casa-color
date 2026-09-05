@@ -6,6 +6,7 @@ import {
 } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { AdminLogin } from './login';
+import { adminPath } from '../../../core/routing/admin-path';
 import { environment } from '../../../../environments/environment';
 import { errorInterceptor } from '../../../core/http/error.interceptor';
 
@@ -21,8 +22,8 @@ describe('AdminLogin', () => {
         provideHttpClient(withInterceptors([errorInterceptor])),
         provideHttpClientTesting(),
         provideRouter([
-          { path: 'admin/products', children: [] },
-          { path: 'admin/login', children: [] },
+          { path: 'ccadm/products', children: [] },
+          { path: 'ccadm', children: [] },
         ]),
       ],
     }).compileComponents();

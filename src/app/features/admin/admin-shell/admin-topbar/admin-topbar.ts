@@ -12,6 +12,7 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { catchError, debounceTime, distinctUntilChanged, of, switchMap, tap } from 'rxjs';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { adminPath } from '../../../../core/routing/admin-path';
 import { AdminButton } from '../../../../shared/admin-ui/admin-button/admin-button';
 import { AdminIcon } from '../../../../shared/admin-ui/icons/admin-icon';
 import { AdminFormContext } from '../../../../shared/admin-ui/admin-form-context/admin-form-context';
@@ -21,12 +22,12 @@ import {
 } from '../../data/admin-search.api';
 
 const COMMANDS = [
-  { label: 'Productos', path: '/admin/products', hint: 'Listado' },
-  { label: 'Nuevo producto', path: '/admin/products/new', hint: 'Crear' },
-  { label: 'Categorías', path: '/admin/categories', hint: 'Listado' },
-  { label: 'Catálogos', path: '/admin/catalogs', hint: 'Listado' },
-  { label: 'Inicio', path: '/admin/home', hint: 'Inicio' },
-  { label: 'Datos del sitio', path: '/admin/settings', hint: 'Ajustes' },
+  { label: 'Productos', path: adminPath('products'), hint: 'Listado' },
+  { label: 'Nuevo producto', path: adminPath('products/new'), hint: 'Crear' },
+  { label: 'Categorías', path: adminPath('categories'), hint: 'Listado' },
+  { label: 'Catálogos', path: adminPath('catalogs'), hint: 'Listado' },
+  { label: 'Inicio', path: adminPath('home'), hint: 'Inicio' },
+  { label: 'Datos del sitio', path: adminPath('settings'), hint: 'Ajustes' },
 ];
 
 const EMPTY_RESULTS: AdminSearchResult = {
@@ -137,19 +138,19 @@ export class AdminTopbar {
   }
 
   goToProduct(id: number): void {
-    this.goTo(`/admin/products/${id}/edit`);
+    this.goTo(adminPath('products', String(id), 'edit'));
   }
 
   goToCatalog(slug: string): void {
     this.searchOpen.set(false);
-    void this.router.navigate(['/admin/catalogs'], {
+    void this.router.navigate([adminPath('catalogs')], {
       queryParams: { q: slug },
     });
   }
 
   goToCategory(slug: string): void {
     this.searchOpen.set(false);
-    void this.router.navigate(['/admin/categories'], {
+    void this.router.navigate([adminPath('categories')], {
       queryParams: { q: slug },
     });
   }

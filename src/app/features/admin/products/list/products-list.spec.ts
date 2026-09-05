@@ -46,8 +46,8 @@ describe('AdminProductsList', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([
-          { path: 'admin/products', children: [] },
-          { path: 'admin/products/new', children: [] },
+          { path: 'ccadm/products', children: [] },
+          { path: 'ccadm/products/new', children: [] },
         ]),
       ],
     }).compileComponents();

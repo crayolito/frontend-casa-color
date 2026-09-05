@@ -40,6 +40,7 @@ import { AdminButton } from '../../../../shared/admin-ui/admin-button/admin-butt
 import { AdminIconButton } from '../../../../shared/admin-ui/admin-icon-button/admin-icon-button';
 import { AdminModal } from '../../../../shared/admin-ui/admin-modal/admin-modal';
 import { AdminToastService } from '../../../../shared/admin-ui/admin-toast/admin-toast.service';
+import { adminPath } from '../../../../core/routing/admin-path';
 import { AdminErrorState } from '../../../../shared/admin-ui/admin-error-state/admin-error-state';
 import { AppSelect, SelectOption } from '../../../../shared/ui/select/select';
 import { ImgFallback } from '../../../../shared/util/img-fallback/img-fallback';
@@ -68,6 +69,7 @@ const PAGE_SIZE = 25;
   styleUrl: './products-list.css',
 })
 export class AdminProductsList {
+  protected readonly adminPath = adminPath;
   private readonly api = inject(ProductsApi);
   private readonly categoriesApi = inject(CategoriesApi);
   private readonly catalogsApi = inject(CatalogsApi);
@@ -511,7 +513,7 @@ export class AdminProductsList {
   }
 
   onEdit(row: Product): void {
-    void this.router.navigate(['/admin/products', row.id, 'edit']);
+    void this.router.navigate([adminPath('products', String(row.id), 'edit')]);
   }
 
   askDelete(row: Product): void {

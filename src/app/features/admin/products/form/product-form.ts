@@ -16,6 +16,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { adminPath } from '../../../../core/routing/admin-path';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ProductsApi } from '../../data/products.api';
 import { CatalogsApi } from '../../data/catalogs.api';
@@ -392,7 +393,7 @@ export class AdminProductForm implements OnInit {
 
   askDiscard(): void {
     if (!this.formDirty()) {
-      void this.router.navigateByUrl('/admin/products');
+      void this.router.navigateByUrl(adminPath('products'));
       return;
     }
     this.discardOpen.set(true);
@@ -405,11 +406,11 @@ export class AdminProductForm implements OnInit {
       this.patchForm(loaded);
       return;
     }
-    void this.router.navigateByUrl('/admin/products');
+    void this.router.navigateByUrl(adminPath('products'));
   }
 
   goBack(): void {
-    void this.router.navigateByUrl('/admin/products');
+    void this.router.navigateByUrl(adminPath('products'));
   }
 
   save(): void {
@@ -468,7 +469,7 @@ export class AdminProductForm implements OnInit {
       next: () => {
         this.saving.set(false);
         this.toast.success(editId ? 'Producto actualizado' : 'Producto creado');
-        void this.router.navigateByUrl('/admin/products');
+        void this.router.navigateByUrl(adminPath('products'));
       },
       error: (err: unknown) => {
         this.saving.set(false);

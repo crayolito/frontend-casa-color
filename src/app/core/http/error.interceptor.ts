@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
+import { adminPath } from '../routing/admin-path';
 import { toAppError } from '../../shared/util/api-errors';
 import { environment } from '../../../environments/environment';
 
@@ -28,7 +29,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         !req.url.includes('/auth/login')
       ) {
         auth.logout(false);
-        void router.navigate(['/admin/login'], {
+        void router.navigate([adminPath()], {
           queryParams: { returnUrl: router.url },
         });
       }

@@ -8,6 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { adminPath } from '../../../../core/routing/admin-path';
 import { HomeApi } from '../../../../features/home/data/home.api';
 import { AdminIcon, AdminIconName } from '../../../../shared/admin-ui/icons/admin-icon';
 
@@ -39,6 +40,8 @@ export class AdminSidebar implements OnInit {
   readonly logoUrl = signal<string | null>(null);
   readonly logoAlt = signal('Casa Color');
 
+  protected readonly adminPath = adminPath;
+
   ngOnInit(): void {
     this.homeApi.loadHome().subscribe({
       next: (data) => {
@@ -56,12 +59,12 @@ export class AdminSidebar implements OnInit {
     {
       label: 'Catálogo',
       items: [
-        { label: 'Productos', path: '/admin/products', icon: 'products' },
-        { label: 'Categorías', path: '/admin/categories', icon: 'categories' },
-        { label: 'Catálogos', path: '/admin/catalogs', icon: 'catalogs' },
+        { label: 'Productos', path: adminPath('products'), icon: 'products' },
+        { label: 'Categorías', path: adminPath('categories'), icon: 'categories' },
+        { label: 'Catálogos', path: adminPath('catalogs'), icon: 'catalogs' },
         {
           label: 'Importar / Exportar',
-          path: '/admin/bulk-data',
+          path: adminPath('bulk-data'),
           icon: 'upload',
         },
       ],
@@ -69,15 +72,15 @@ export class AdminSidebar implements OnInit {
     {
       label: 'Páginas',
       items: [
-        { label: 'Inicio', path: '/admin/home', icon: 'home' },
-        { label: 'Empresa', path: '/admin/empresa', icon: 'info' },
-        { label: 'Contacto', path: '/admin/contacto', icon: 'settings' },
-        { label: 'Catálogos', path: '/admin/catalogos-page', icon: 'image' },
-        { label: 'Cartas de color', path: '/admin/color-cards', icon: 'image' },
-        { label: 'Fichas técnicas', path: '/admin/fichas-tecnicas', icon: 'list' },
+        { label: 'Inicio', path: adminPath('home'), icon: 'home' },
+        { label: 'Empresa', path: adminPath('empresa'), icon: 'info' },
+        { label: 'Contacto', path: adminPath('contacto'), icon: 'settings' },
+        { label: 'Catálogos', path: adminPath('catalogos-page'), icon: 'image' },
+        { label: 'Cartas de color', path: adminPath('color-cards'), icon: 'image' },
+        { label: 'Fichas técnicas', path: adminPath('fichas-tecnicas'), icon: 'list' },
         {
           label: 'Legales',
-          path: '/admin/paginas-legales',
+          path: adminPath('paginas-legales'),
           icon: 'list',
         },
       ],

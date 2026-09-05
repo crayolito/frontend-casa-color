@@ -83,22 +83,22 @@ describe('AdminSidebar', () => {
     expect(el.textContent).not.toContain('Documentación');
     expect(el.textContent).not.toContain('Configuración');
     expect(el.textContent).not.toContain('Sucursales');
-    expect(el.querySelector('a[href="/admin/settings"]')).toBeNull();
-    expect(el.querySelector('a[href="/admin/branches"]')).toBeNull();
+    expect(el.querySelector('a[href="/ccadm/settings"]')).toBeNull();
+    expect(el.querySelector('a[href="/ccadm/branches"]')).toBeNull();
 
-    expect(el.querySelector('a[href="/admin/products"]')).not.toBeNull();
-    expect(el.querySelector('a[href="/admin/categories"]')).not.toBeNull();
-    expect(el.querySelector('a[href="/admin/catalogs"]')).not.toBeNull();
-    expect(el.querySelector('a[href="/admin/bulk-data"]')).not.toBeNull();
+    expect(el.querySelector('a[href="/ccadm/products"]')).not.toBeNull();
+    expect(el.querySelector('a[href="/ccadm/categories"]')).not.toBeNull();
+    expect(el.querySelector('a[href="/ccadm/catalogs"]')).not.toBeNull();
+    expect(el.querySelector('a[href="/ccadm/bulk-data"]')).not.toBeNull();
     expect(el.textContent).toContain('Importar / Exportar');
 
-    expect(el.querySelector('a[href="/admin/home"]')).not.toBeNull();
-    expect(el.querySelector('a[href="/admin/empresa"]')).not.toBeNull();
-    expect(el.querySelector('a[href="/admin/contacto"]')).not.toBeNull();
-    expect(el.querySelector('a[href="/admin/catalogos-page"]')).not.toBeNull();
-    expect(el.querySelector('a[href="/admin/color-cards"]')).not.toBeNull();
-    expect(el.querySelector('a[href="/admin/fichas-tecnicas"]')).not.toBeNull();
-    expect(el.querySelector('a[href="/admin/paginas-legales"]')).not.toBeNull();
+    expect(el.querySelector('a[href="/ccadm/home"]')).not.toBeNull();
+    expect(el.querySelector('a[href="/ccadm/empresa"]')).not.toBeNull();
+    expect(el.querySelector('a[href="/ccadm/contacto"]')).not.toBeNull();
+    expect(el.querySelector('a[href="/ccadm/catalogos-page"]')).not.toBeNull();
+    expect(el.querySelector('a[href="/ccadm/color-cards"]')).not.toBeNull();
+    expect(el.querySelector('a[href="/ccadm/fichas-tecnicas"]')).not.toBeNull();
+    expect(el.querySelector('a[href="/ccadm/paginas-legales"]')).not.toBeNull();
 
     expect(el.textContent).toContain('Catálogo');
     expect(el.textContent).toContain('Páginas');
@@ -124,7 +124,7 @@ describe('AdminSidebar', () => {
       }
       node = node.nextElementSibling;
     }
-    expect(pageHrefs).toContain('/admin/catalogos-page');
-    expect(pageHrefs).not.toContain('/admin/catalogs');
+    expect(pageHrefs).toContain('/ccadm/catalogos-page');
+    expect(pageHrefs).not.toContain('/ccadm/catalogs');
   });
 });

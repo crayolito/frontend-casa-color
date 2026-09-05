@@ -1,12 +1,13 @@
 import { Routes } from '@angular/router';
 import { PublicLayout } from './core/ui/public-layout/public-layout';
 import { NotFound } from './core/ui/not-found/not-found';
+import { ADMIN_BASE_SEGMENT } from './core/routing/admin-path';
 
 export const routes: Routes = [
-  // Admin ANTES del layout público: el `**` del PublicLayout no puede
-  // capturar /admin/* (eso rompía el login mostrando 404).
+  // Panel ANTES del layout público: el `**` del PublicLayout no puede
+  // capturar /ccadm/* (eso rompía el login mostrando 404).
   {
-    path: 'admin',
+    path: ADMIN_BASE_SEGMENT,
     loadChildren: () =>
       import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
   },

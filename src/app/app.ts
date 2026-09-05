@@ -4,6 +4,7 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 import { HomeApi } from './features/home/data/home.api';
 import { WhatsappFab } from './core/ui/whatsapp-fab/whatsapp-fab';
+import { isAdminAppUrl } from './core/routing/admin-path';
 
 @Component({
   selector: 'app-root',
@@ -29,10 +30,10 @@ export class App implements OnInit {
     { initialValue: this.router.url },
   );
 
-  /** FAB solo en el sitio público; nunca en /admin. */
+  /** FAB solo en el sitio público; nunca en /ccadm. */
   protected readonly showFab = computed(() => {
     const path = this.url() ?? this.router.url;
-    const onAdmin = path === '/admin' || path.startsWith('/admin/');
+    const onAdmin = isAdminAppUrl(path);
     const wa = this.floating()?.whatsapp;
     return !onAdmin && !!wa?.enabled && !!wa.phone?.trim();
   });
